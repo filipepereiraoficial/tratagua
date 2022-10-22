@@ -1,0 +1,318 @@
+# Copyright (C) 2022 gutenify-corporate
+# This file is distributed under the same license as the gutenify-corporate package.
+msgid ""
+msgstr ""
+"Project-Id-Version: gutenify-corporate\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language-Team: Gutenify info@gutenify.com\n"
+"POT-Creation-Date: 2022-08-31 08:44+0000\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-KeywordsList: __;_e;_ex:1,2c;_n:1,2;_n_noop:1,2;_nx:1,2,4c;_nx_noop:1,2,3c;_x:1,2c;esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: functions.php:63
+msgid "Primary Navigation"
+msgstr ""
+
+#: inc/core/block-patterns.php:20, inc/core/theme-info.php:6
+msgid "Gutenify Corporate"
+msgstr ""
+
+#: inc/core/theme-info.php:6
+msgid "Gutenify Theme"
+msgstr ""
+
+#: inc/core/templates/admin-plugin-notice.php:18
+msgid "Hey, Thank you for installing "
+msgstr ""
+
+#: inc/core/templates/admin-plugin-notice.php:18
+msgid "Gutenify Corporate Theme!"
+msgstr ""
+
+#: inc/core/templates/admin-plugin-notice.php:19
+msgid "We strongly recommend installing plugin: "
+msgstr ""
+
+#: inc/core/templates/admin-plugin-notice.php:19, inc/core/templates/admin-plugin-notice.php:20
+msgid "Gutenify"
+msgstr ""
+
+#: inc/core/templates/admin-plugin-notice.php:20
+msgid "provides multiple template kit and also add advance features to your site."
+msgstr ""
+
+#: inc/core/templates/admin-plugin-notice.php:21
+msgid "Get Templates"
+msgstr ""
+
+#: inc/core/templates/admin-plugin-notice.php:22
+msgid "Learn more about Gutenify"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:13
+msgid "Free Full Site Editing WordPress Theme"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:21, inc/core/templates/theme-info.php:253, inc/core/templates/theme-info.php:315
+msgid "Template Kits"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:24, inc/core/templates/theme-info.php:27
+msgid "Import template"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:31, inc/core/templates/theme-info.php:319
+msgid "Get Gutenify Pro"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:34, inc/core/templates/theme-info.php:323
+msgid "Documentations"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:40
+msgid "Gutenify Template Kits"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:41
+msgid ""
+"Gutenify has pre-built template kits for your site which will give your\n"
+"                                                website a base structure."
+msgstr ""
+
+#: inc/core/templates/theme-info.php:46
+msgid ""
+"Learn about Template\n"
+"                                                                Kits"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:51, inc/core/templates/theme-info.php:56
+msgid "Browse Template Kits"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:63
+msgid "Import Templates (Patterns)"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:64
+msgid ""
+"From Edit screen of page/post, you can easily import Beautiful\n"
+"                                                Templates"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:69
+msgid ""
+"Learn about\n"
+"                                                                Templates"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:73
+msgid "Create page to add template"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:80
+msgid "To add fresh block follow below steps"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:83
+msgid ""
+"At the top left corner of the\n"
+"                                                        page/post edit\n"
+"                                                        Screen, click on Sign"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:87
+msgid ""
+"Type Block name in search bar, if\n"
+"                                                        you already know\n"
+"                                                        the block name."
+msgstr ""
+
+#: inc/core/templates/theme-info.php:91
+msgid ""
+"OR Scroll down and navigate to\n"
+"                                                        Gutenify section and\n"
+"                                                        Add New Block."
+msgstr ""
+
+#: inc/core/templates/theme-info.php:101
+msgid "Compare Free Vs Pro"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:103
+msgid "Checkout all features"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:108
+msgid "Features"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:111
+msgid "Free Gutenify Theme"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:114, inc/core/upgrade-button/class-customize.php:77
+msgid "Gutenify Pro Plugin"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:121
+msgid "Responsive Design"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:128
+msgid "Painless Setup"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:135, inc/core/templates/theme-info.php:262
+msgid "Color Options"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:142
+msgid "Premium templates kits"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:149
+msgid "Multiple Block Layout"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:156
+msgid "Premium Templates (Patterns)"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:163
+msgid "Multiple Fonts"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:170
+msgid "Slider Block "
+msgstr ""
+
+#: inc/core/templates/theme-info.php:177
+msgid "Post Listing Block"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:184
+msgid "WooCommerce Filter Block"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:191
+msgid "Gallery Block"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:198
+msgid "Star Rating Block"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:205
+msgid "Icon Block"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:212
+msgid "Post Carousel Block"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:219
+msgid "Google Map Block"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:226
+msgid "Testimonials Block"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:233
+msgid "Team Block"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:246
+msgid "gutenify Core Features"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:250
+msgid ""
+"Global page settings(typography,\n"
+"                                                        color, ...)"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:255
+msgid "Predefined sections"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:257
+msgid "Fully Responsive"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:259
+msgid "Highly customizable row columns"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:264
+msgid "Device specific responsive controls"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:267
+msgid "Google fonts"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:269
+msgid ""
+"Classic &amp; gradient color and\n"
+"                                                        background"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:272
+msgid "Box-shadow"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:274
+msgid "Border"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:276
+msgid "Advanced Typography"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:278
+msgid "Font Awesome 4 icon picker"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:280
+msgid "&amp; More..."
+msgstr ""
+
+#: inc/core/templates/theme-info.php:291
+msgid "Love our product?"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:293
+msgid ""
+"Motivate us by\n"
+"                                                giving 5 star on\n"
+"                                                our profile."
+msgstr ""
+
+#: inc/core/templates/theme-info.php:298
+msgid "Rate Us"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:301
+msgid ""
+"Still have question?\n"
+"                                                Ask Us, now!"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:304
+msgid "We are always ready with all fix issues you stuck to ensure smoothly works with gutenify"
+msgstr ""
+
+#: inc/core/templates/theme-info.php:305
+msgid "Get Support"
+msgstr ""
+
+#: inc/core/upgrade-button/class-customize.php:78
+msgid "Upgrade Now"
+msgstr ""
