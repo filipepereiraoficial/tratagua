@@ -189,7 +189,11 @@ class AlertService
                      WHERE ' . implode(' AND ', $where) . '
                      GROUP BY sa.student_id, COALESCE(tpp.id, tp.id), a.id
                   ) AS por_avaliacao
-                 WHERE aproveitamento IS NOT NULL AND aproveitamento < :limite
+                 -- CAST obrigatório: o PDO envia todo parâmetro como texto e, no
+                 -- SQLite, qualquer número é menor que qualquer texto — sem o cast
+                 -- a comparação seria sempre verdadeira e o alerta dispararia para
+                 -- todos os assuntos de todos os alunos.
+                 WHERE aproveitamento IS NOT NULL AND aproveitamento < CAST(:limite AS REAL)
                  GROUP BY student_id, topic_id
                 HAVING COUNT(*) >= ' . (int) $minOccurrences;
 

@@ -1,0 +1,340 @@
+<script>
+/* ------------------------------------------------------------ relatórios */
+const RELATORIOS = {
+  turma: () => ({
+    titulo: "Desempenho da turma",
+    colunas: ["Posição", "Aluno", "Avaliações", "Média", "% acertos", "Frequência", "Evolução (p.p.)", "Índice", "Classificação"],
+    linhas: M.ranking.map(r => [r.posicao ?? "—", r.aluno.full_name, r.avaliacoes,
+      { v: r.media }, { v: r.acertos.pct_acertos }, { v: r.frequencia }, num(r.evolucao_recente),
+      num(r.indice), ROTULO_CLASSE[r.classificacao].texto]),
+    resumo: { "Alunos": M.ranking.length, "Média geral": pct(M.mediaGeral),
+      "Em evolução": M.classes.evolucao, "Intermediários": M.classes.intermediario, "Precisam de atenção": M.classes.atencao },
+  }),
+  aluno: () => {
+    const r = M.ranking[0];
+    return {
+      titulo: `Relatório individual — ${r.aluno.full_name}`,
+      nota: "No sistema instalado, escolha o aluno no filtro. Aqui a demonstração mostra o primeiro do ranking.",
+      colunas: ["Data", "Avaliação", "Tipo", "Nota", "Valor máximo", "Aproveitamento", "Acertos", "Erros", "Em branco"],
+      linhas: r.notas.map(n => [dataBr(n.aval.assessment_date), n.aval.name, ROTULO_TIPO[n.aval.type],
+        num(n.score, 2), num(n.aval.max_score, 0), { v: n.percentage }, n.correct_count, n.wrong_count, n.blank_count]),
+      resumo: { "Turma": DADOS.turma.code, "Avaliações realizadas": r.avaliacoes, "Média geral": pct(r.media),
+        "Frequência": pct(r.frequencia), "Evolução recente": num(r.evolucao_recente) + " p.p.",
+        "Índice de Desenvolvimento": num(r.indice), "Classificação": ROTULO_CLASSE[r.classificacao].texto,
+        "Conteúdos dominados": r.dominados, "Conteúdos com dificuldade": r.dificuldades },
+    };
+  },
+  disciplina: () => ({
+    titulo: "Desempenho por disciplina",
+    colunas: ["Disciplina", "Alunos", "Avaliações", "Lançamentos", "Média", "% acertos", "% erros"],
+    linhas: [[DADOS.disciplina.name, DADOS.alunos.length, DADOS.avaliacoes.length, DADOS.notas.length,
+      { v: M.mediaGeral }, { v: M.totais.pct_acertos }, { v: M.totais.pct_erros }]],
+  }),
+  avaliacao: () => ({
+    titulo: "Desempenho por avaliação",
+    colunas: ["Data", "Avaliação", "Tipo", "Alunos", "Média", "Menor", "Maior"],
+    linhas: M.porAvaliacao.map(a => {
+      const av = BASE.avaliacaoPorId.get(a.assessment_id);
+      return [dataBr(a.data), a.nome, ROTULO_TIPO[av.type], a.alunos, { v: a.media }, { v: a.minima }, { v: a.maxima }];
+    }),
+  }),
+  assunto: () => ({
+    titulo: "Desempenho por assunto",
+    colunas: ["Assunto", "Alunos", "Questões respondidas", "Acertos", "Erros", "Aproveitamento", "Situação"],
+    linhas: [...M.assuntos].reverse().map(a => [a.topic_name, a.alunos, a.respondidas, a.acertos, a.erros,
+      { v: a.aproveitamento }, faixa(a.amostra_suficiente ? a.aproveitamento : null).texto]),
+  }),
+  dificuldade: () => {
+    const criticos = M.assuntos.filter(a => a.aproveitamento !== null && a.aproveitamento < CFG.limite_dificuldade);
+    return {
+      titulo: `Dificuldades (aproveitamento abaixo de ${fmt(CFG.limite_dificuldade, 0)}%)`,
+      colunas: ["Assunto", "Aproveitamento", "Alunos", "Questões respondidas", "Erros", "Amostra"],
+      linhas: criticos.map(a => [a.topic_name, { v: a.aproveitamento }, a.alunos, a.respondidas, a.erros,
+        a.amostra_suficiente ? "Suficiente" : "Insuficiente"]),
+      vazio: "Nenhum assunto ficou abaixo do limite configurado.",
+    };
+  },
+  evolucao: () => ({
+    titulo: "Evolução dos alunos",
+    colunas: ["Aluno", "Avaliações", "Primeira nota", "Última nota", "Tendência (p.p./aval.)", "Evolução recente", "Consistência", "Classificação"],
+    linhas: [...M.ranking].sort((a, b) => (b.evolucao_recente ?? -999) - (a.evolucao_recente ?? -999))
+      .map(r => [r.aluno.full_name, r.avaliacoes,
+        { v: r.percentuais[0] ?? null }, { v: r.percentuais[r.percentuais.length - 1] ?? null },
+        num(r.evolucao_slope, 2), num(r.evolucao_recente), num(r.score_consistencia),
+        ROTULO_CLASSE[r.classificacao].texto]),
+  }),
+  frequencia: () => ({
+    titulo: "Frequência",
+    colunas: ["Aluno", "Aulas", "Presenças", "Atrasos", "Faltas", "Justificadas", "Frequência", "Participação", "Situação"],
+    linhas: M.ranking.map(r => [r.aluno.full_name, r.presenca.aulas, r.presenca.presentes, r.presenca.atrasos,
+      r.presenca.faltas, r.presenca.justificadas, { v: r.frequencia }, num(r.participacao, 1),
+      r.frequencia === null ? "Sem aulas" : (r.frequencia < CFG.frequencia_minima ? "Abaixo do mínimo" : "Regular")]),
+  }),
+};
+const NOMES_RELATORIO = {
+  aluno: "Individual do aluno", turma: "Desempenho da turma", disciplina: "Por disciplina",
+  avaliacao: "Por avaliação", assunto: "Por assunto", dificuldade: "Dificuldades",
+  evolucao: "Evolução", frequencia: "Frequência",
+};
+
+VISTAS.relatorios = () => {
+  const tipo = rota.id && RELATORIOS[rota.id] ? rota.id : "turma";
+  const rel = RELATORIOS[tipo]();
+  // Uma coluna é numérica quando a primeira linha traz número, percentual
+  // embrulhado ou texto que é só dígitos — nunca por posição.
+  const numerica = (i) => {
+    const c = rel.linhas[0]?.[i];
+    if (c === undefined) return false;
+    if (typeof c === "object" && c !== null) return true;
+    if (typeof c === "number") return true;
+    return /^[-+]?[\d.,]+$/.test(String(c).trim());
+  };
+  const celula = (c) => typeof c === "object" && c !== null
+    ? (c.v === null || c.v === undefined ? '<span class="mudo">—</span>' : tag(faixa(c.v).classe, pct(c.v, 1)))
+    : h(c);
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>Relatórios</h1>
+          <p>Curso Preparatório para Guarda Municipal · Turma INF01 · todos os registros.
+             No sistema instalado, cada relatório aceita filtros por curso, turma, disciplina, aluno, assunto,
+             período e dificuldade, exporta CSV e tem versão para impressão em PDF.</p></div>
+      </div>
+
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px">
+        ${Object.keys(RELATORIOS).map(k =>
+          `<button class="btn ${k === tipo ? "btn--forte" : ""}" data-rel="${k}">${h(NOMES_RELATORIO[k])}</button>`).join("")}
+      </div>
+
+      ${rel.resumo ? `<div class="kpis">${Object.entries(rel.resumo).map(([k, v]) => kpi(k, `<span style="font-size:18px">${h(String(v))}</span>`)).join("")}</div>` : ""}
+      ${rel.nota ? `<div class="aviso"><b>Nota</b><div>${h(rel.nota)}</div></div>` : ""}
+
+      ${painel(h(rel.titulo), tabela(
+        rel.colunas.map((c, i) => ({ t: c, num: numerica(i) })),
+        rel.linhas.map(l => `<tr>${l.map((c, i) => `<td class="${numerica(i) ? "num" : ""}">${celula(c)}</td>`).join("")}</tr>`),
+        { vazio: rel.vazio || "Sem dados." }),
+        { nu: true, direita: `<span class="tag tag--neutro">${rel.linhas.length} linha(s)</span>` })}`,
+    depois() {
+      document.querySelectorAll("[data-rel]").forEach(b =>
+        b.addEventListener("click", () => ir("relatorios", b.dataset.rel)));
+    },
+  };
+};
+
+/* ---------------------------------------------------------------- gráficos */
+VISTAS.graficos = () => {
+  const a = rota.id?.a ?? M.ranking[0].id;
+  const b = rota.id?.b ?? M.ranking[M.ranking.length - 1].id;
+  const ra = M.porAluno.get(a), rb = M.porAluno.get(b);
+  const rotulos = M.porAvaliacao.map(x => x.nome);
+  const alinhar = (r) => M.porAvaliacao.map(x => r.notas.find(n => n.assessment_id === x.assessment_id)?.percentage ?? null);
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>Gráficos e comparações</h1>
+          <p>Todos os gráficos saem dos mesmos dados; a comparação aceita aluno × aluno, aluno × turma,
+             turma × turma, disciplina × disciplina e avaliação × avaliação no sistema instalado.</p></div>
+      </div>
+
+      ${painel("Comparação entre alunos", `
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+          <div class="campo"><label for="cmp-a">Primeiro aluno</label>
+            <select id="cmp-a" class="busca">${M.ranking.map(r => `<option value="${r.id}" ${r.id === a ? "selected" : ""}>${h(r.aluno.full_name)}</option>`).join("")}</select></div>
+          <div class="campo"><label for="cmp-b">Segundo aluno</label>
+            <select id="cmp-b" class="busca">${M.ranking.map(r => `<option value="${r.id}" ${r.id === b ? "selected" : ""}>${h(r.aluno.full_name)}</option>`).join("")}</select></div>
+        </div>
+        ${grafico("g-cmp")}
+        <div class="colunas c-2" style="margin-top:12px">
+          ${[ra, rb].map((r, i) => `
+            <div style="border:1px solid var(--fio);border-radius:var(--r-s);padding:10px 12px">
+              <div style="display:flex;align-items:center;gap:7px">
+                <i style="width:10px;height:10px;border-radius:2px;display:inline-block;background:${i ? "var(--serie-b)" : "var(--serie-a)"}"></i>
+                <strong>${h(r.aluno.full_name)}</strong></div>
+              <div class="mudo" style="font-size:12.5px;margin-top:4px">
+                Média ${pct(r.media)} · Frequência ${pct(r.frequencia, 0)} ·
+                Evolução ${num(r.evolucao_recente)} p.p. · Índice ${num(r.indice)}</div>
+            </div>`).join("")}
+        </div>
+        <div class="aviso" style="margin:12px 0 0">
+          <b>Diferença</b><div>${h(ra.aluno.full_name)} está
+          ${ra.media >= rb.media ? "<b>acima</b>" : "<b>abaixo</b>"} de ${h(rb.aluno.full_name)} em
+          <b>${num(Math.abs((ra.media ?? 0) - (rb.media ?? 0)))} p.p.</b> de média.</div>
+        </div>`)}
+
+      <div class="colunas c-2">
+        ${painel("Evolução geral", grafico("gg-ev"))}
+        ${painel("Média por avaliação", grafico("gg-av"))}
+      </div>
+      <div class="colunas c-2">
+        ${painel("Melhores assuntos", grafico("gg-melhor", 190))}
+        ${painel("Assuntos mais críticos", grafico("gg-pior", 190))}
+      </div>
+      ${painel("Frequência por aluno", grafico("gg-freq", 190))}`,
+    depois() {
+      const desenharCmp = () => {
+        const x = M.porAluno.get(+el("cmp-a").value), y = M.porAluno.get(+el("cmp-b").value);
+        grafLinha(el("g-cmp"), { labels: rotulos, series: [
+          { nome: x.aluno.full_name.split(" ")[0], dados: alinhar(x) },
+          { nome: y.aluno.full_name.split(" ")[0], dados: alinhar(y), cor: "var(--serie-b)" },
+        ]});
+      };
+      el("cmp-a").addEventListener("change", () => ir("graficos", { a: +el("cmp-a").value, b: +el("cmp-b").value }));
+      el("cmp-b").addEventListener("change", () => ir("graficos", { a: +el("cmp-a").value, b: +el("cmp-b").value }));
+      desenharCmp();
+
+      grafLinha(el("gg-ev"), { labels: rotulos, series: [{ nome: "Média da turma", dados: M.porAvaliacao.map(x => x.media) }] });
+      grafBarrasV(el("gg-av"), { labels: rotulos, series: [{ nome: "Média (%)", dados: M.porAvaliacao.map(x => x.media),
+        cores: M.porAvaliacao.map(x => faixa(x.media).cor) }] });
+      const ord = [...M.assuntos].sort((p, q) => (q.aproveitamento ?? 0) - (p.aproveitamento ?? 0));
+      grafBarrasH(el("gg-melhor"), ord.slice(0, 4).map(x => ({ nome: x.topic_name, valor: x.aproveitamento })));
+      grafBarrasH(el("gg-pior"), ord.slice(-4).reverse().map(x => ({ nome: x.topic_name, valor: x.aproveitamento })));
+      grafBarrasH(el("gg-freq"), M.ranking.map(r => ({ nome: r.aluno.full_name, valor: r.frequencia,
+        cor: r.frequencia >= CFG.frequencia_minima ? "var(--bom)" : "var(--ruim)" })));
+    },
+  };
+};
+
+/* ----------------------------------------------------------- configurações */
+const CONTROLES = [
+  ["Faixas de classificação", [
+    ["faixa_dominio", "Domínio a partir de (%)", 1, 100, 1],
+    ["faixa_intermediario", "Intermediário a partir de (%)", 0, 99, 1],
+    ["min_questoes_assunto", "Mínimo de questões por assunto", 1, 20, 1],
+  ]],
+  ["Pesos do Índice de Desenvolvimento", [
+    ["peso_desempenho", "Desempenho", 0, 1, .05],
+    ["peso_evolucao", "Evolução", 0, 1, .05],
+    ["peso_frequencia", "Frequência", 0, 1, .05],
+    ["peso_consistencia", "Consistência", 0, 1, .05],
+    ["id_evolucao", "Corte “em evolução” (índice ≥)", 1, 100, 1],
+    ["id_atencao", "Corte “precisa de atenção” (índice <)", 0, 99, 1],
+  ]],
+  ["Alertas e frequência", [
+    ["frequencia_minima", "Frequência mínima (%)", 0, 100, 1],
+    ["media_alerta", "Alerta de média abaixo de (%)", 0, 100, 1],
+    ["queda_alerta", "Alerta de queda (p.p.)", 1, 40, 1],
+    ["evolucao_alerta", "Destaque de evolução (p.p.)", 1, 40, 1],
+    ["limite_dificuldade", "Limite de dificuldade (%)", 0, 100, 1],
+    ["ocorrencias_persistente", "Ocorrências para dificuldade persistente", 2, 8, 1],
+  ]],
+];
+
+VISTAS.config = () => {
+  const w = (() => { const s = CFG.peso_desempenho + CFG.peso_evolucao + CFG.peso_frequencia + CFG.peso_consistencia;
+    return s > 0 ? [CFG.peso_desempenho / s, CFG.peso_evolucao / s, CFG.peso_frequencia / s, CFG.peso_consistencia / s] : [.4, .25, .15, .2]; })();
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>Configurações</h1>
+          <p>Estes são os critérios que produzem toda a análise. Mexa neles e veja a turma inteira
+             ser reclassificada na hora — é exatamente o que o item “critérios configuráveis” pede.</p></div>
+        <div class="cabec__acoes"><button class="btn" id="restaurar">Restaurar padrões</button></div>
+      </div>
+
+      ${painel("Régua de faixas", `
+        <div class="regua">
+          <div class="regua__t">
+            <div class="regua__f regua__f--ruim" style="width:${CFG.faixa_intermediario}%">Dificuldade</div>
+            <div class="regua__f regua__f--medio" style="width:${Math.max(0, CFG.faixa_dominio - CFG.faixa_intermediario)}%">Intermediário</div>
+            <div class="regua__f regua__f--bom" style="width:${Math.max(0, 100 - CFG.faixa_dominio)}%">Domínio</div>
+          </div>
+          <div class="regua__marcas"><span>0%</span>
+            <span>corte ${fmt(CFG.faixa_intermediario, 0)}% · ${fmt(CFG.faixa_dominio, 0)}%</span><span>100%</span></div>
+
+          <div class="regua__assuntos">
+            ${M.assuntos.map(a => {
+              const f = faixa(a.aproveitamento);
+              return `<div class="regua__linha">
+                <span>${h(a.topic_name)}</span>
+                <span class="regua__pista"><span class="regua__valor" style="width:${a.aproveitamento ?? 0}%;background:${f.cor}"></span></span>
+                <span style="display:flex;gap:6px;align-items:center;justify-content:flex-end">
+                  <span class="mono" style="font-size:12px">${pct(a.aproveitamento, 0)}</span>${tag(f.classe, f.texto)}</span>
+              </div>`;
+            }).join("")}
+          </div>
+        </div>`, { direita: '<span class="tag tag--neutro">os 6 assuntos, reclassificados ao vivo</span>' })}
+
+      ${CONTROLES.map(([titulo, campos]) => painel(h(titulo), `
+        <div class="grade-campos">
+          ${campos.map(([chave, rot, min, max, passo]) => `
+            <div class="campo">
+              <label for="c-${chave}">${h(rot)}</label>
+              <input type="range" id="r-${chave}" data-cfg="${chave}" min="${min}" max="${max}" step="${passo}" value="${CFG[chave]}">
+              <input type="number" id="c-${chave}" data-cfg="${chave}" min="${min}" max="${max}" step="${passo}" value="${CFG[chave]}">
+            </div>`).join("")}
+        </div>
+        ${titulo.startsWith("Pesos") ? `<div class="mudo" style="font-size:12.5px;margin-top:10px">
+          Em uso após normalização: desempenho <b>${fmt(w[0] * 100, 0)}%</b> · evolução <b>${fmt(w[1] * 100, 0)}%</b> ·
+          frequência <b>${fmt(w[2] * 100, 0)}%</b> · consistência <b>${fmt(w[3] * 100, 0)}%</b>.
+          Se a soma não for 1, o sistema normaliza sozinho.</div>` : ""}`)).join("")}
+
+      ${painel("Efeito imediato na turma", tabela(COLS_RANKING, M.ranking.map(r => linhaRanking(r))), {
+        nu: true,
+        direita: `<span class="tag tag--bom">${M.classes.evolucao} em evolução</span>
+                  <span class="tag tag--medio">${M.classes.intermediario} intermediários</span>
+                  <span class="tag tag--ruim">${M.classes.atencao} precisam de atenção</span>
+                  <span class="tag tag--neutro">${M.alertas.length} alertas</span>`,
+      })}`,
+    depois() {
+      document.querySelectorAll("[data-cfg]").forEach(campo => {
+        const evento = campo.type === "range" ? "input" : "change";
+        campo.addEventListener(evento, () => {
+          const v = parseFloat(campo.value);
+          if (Number.isNaN(v)) return;
+          CFG[campo.dataset.cfg] = v;
+          recalcular(); render();
+          const foco = document.getElementById(campo.id);
+          if (foco) foco.focus({ preventScroll: true });
+        });
+      });
+      el("restaurar").addEventListener("click", () => { CFG = { ...PADROES }; recalcular(); render(); });
+    },
+  };
+};
+
+/* ===========================================================================
+   8. RENDERIZAÇÃO E EVENTOS
+   =========================================================================== */
+const el = (id) => document.getElementById(id);
+
+function render() {
+  // Preserva a rolagem: relançar um resultado não deve tirar o professor do lugar.
+  const janela = window.scrollY;
+  const gradeAntes = document.querySelector(".grade-res");
+  const rolagem = gradeAntes ? { x: gradeAntes.scrollLeft, y: gradeAntes.scrollTop } : null;
+
+  const vista = (VISTAS[rota.vista] || VISTAS.dashboard)();
+  el("vista").innerHTML = vista.html;
+  montarMenu();
+  vista.depois?.();
+
+  const gradeDepois = document.querySelector(".grade-res");
+  if (rolagem && gradeDepois) { gradeDepois.scrollLeft = rolagem.x; gradeDepois.scrollTop = rolagem.y; }
+  window.scrollTo({ top: janela, behavior: "instant" });
+}
+
+document.addEventListener("click", (ev) => {
+  const irPara = ev.target.closest("[data-ir]");
+  if (irPara) { ir(irPara.dataset.ir); return; }
+  const aluno = ev.target.closest("[data-aluno]");
+  if (aluno) { ir("aluno", Number(aluno.dataset.aluno)); return; }
+  const aula = ev.target.closest("[data-aula]");
+  if (aula) { ir("chamada", Number(aula.dataset.aula)); return; }
+  const av = ev.target.closest("[data-avaliacao]");
+  if (av) { ir("avaliacao", Number(av.dataset.avaliacao)); return; }
+});
+
+/* O viewBox dos gráficos acompanha a largura real do container: ao
+   redimensionar, redesenha (com folga para não disparar a cada pixel). */
+let temporizador;
+window.addEventListener("resize", () => {
+  clearTimeout(temporizador);
+  temporizador = setTimeout(render, 180);
+});
+
+recalcular();
+render();
+</script>

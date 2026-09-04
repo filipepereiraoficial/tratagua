@@ -19,6 +19,19 @@ Aplicação PHP independente, hospedada ao lado do site institucional em
 | [docs/03-TELAS-E-NAVEGACAO.md](docs/03-TELAS-E-NAVEGACAO.md) | Mapa de telas, layout e fluxo de navegação |
 | [docs/04-REGRAS-DE-CALCULO.md](docs/04-REGRAS-DE-CALCULO.md) | Fórmulas dos indicadores, Índice de Desenvolvimento, alertas e dashboards |
 
+## Experimentar sem instalar
+
+Demonstração navegável, com a turma de exemplo e os mesmos cálculos do servidor
+rodando no navegador:
+
+**https://claude.ai/code/artifact/39660770-d62f-4923-9bd8-199264637663**
+
+Dá para percorrer as dez telas, abrir o dashboard de um aluno, lançar resultados
+por questão (`C` / `E` / `N`) e ver nota, ranking e alertas serem recalculados na
+hora, e mudar as faixas e os pesos em Configurações para reclassificar a turma.
+Ela não grava dados nem exporta arquivos — isso é do sistema instalado.
+Detalhes e como reconstruí-la em [demo/README.md](demo/README.md).
+
 ---
 
 ## Instalação

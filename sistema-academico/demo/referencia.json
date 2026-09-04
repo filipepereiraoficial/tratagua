@@ -1,0 +1,316 @@
+{
+    "media_geral": 67.92,
+    "acertos": {
+        "total": 240,
+        "acertos": 163,
+        "erros": 66,
+        "branco": 11,
+        "pct_acertos": 67.92,
+        "pct_erros": 27.5,
+        "pct_branco": 4.58
+    },
+    "distribuicao": {
+        "0 a 39%": 0,
+        "40 a 59%": 1,
+        "60 a 79%": 4,
+        "80 a 100%": 0
+    },
+    "por_avaliacao": [
+        {
+            "nome": "Avaliação diagnóstica",
+            "media": 65
+        },
+        {
+            "nome": "Simulado 1",
+            "media": 68.33
+        },
+        {
+            "nome": "Prova bimestral",
+            "media": 66.67
+        },
+        {
+            "nome": "Simulado 2",
+            "media": 71.67
+        }
+    ],
+    "por_dificuldade": [
+        {
+            "dificuldade": "facil",
+            "respondidas": 80,
+            "acertos": 51,
+            "aproveitamento": 63.75
+        },
+        {
+            "dificuldade": "medio",
+            "respondidas": 80,
+            "acertos": 57,
+            "aproveitamento": 71.25
+        },
+        {
+            "dificuldade": "dificil",
+            "respondidas": 80,
+            "acertos": 55,
+            "aproveitamento": 68.75
+        }
+    ],
+    "assuntos": [
+        {
+            "nome": "Internet e Navegadores",
+            "aprov": 77.5,
+            "resp": 40,
+            "acertos": 31,
+            "erros": 7,
+            "alunos": 5,
+            "classe": "intermediario"
+        },
+        {
+            "nome": "Sistemas Operacionais",
+            "aprov": 75,
+            "resp": 40,
+            "acertos": 30,
+            "erros": 8,
+            "alunos": 5,
+            "classe": "intermediario"
+        },
+        {
+            "nome": "Hardware e Software",
+            "aprov": 70,
+            "resp": 40,
+            "acertos": 28,
+            "erros": 11,
+            "alunos": 5,
+            "classe": "intermediario"
+        },
+        {
+            "nome": "Segurança da Informação",
+            "aprov": 70,
+            "resp": 40,
+            "acertos": 28,
+            "erros": 11,
+            "alunos": 5,
+            "classe": "intermediario"
+        },
+        {
+            "nome": "Pacote Office",
+            "aprov": 60,
+            "resp": 40,
+            "acertos": 24,
+            "erros": 14,
+            "alunos": 5,
+            "classe": "intermediario"
+        },
+        {
+            "nome": "Redes de Computadores",
+            "aprov": 55,
+            "resp": 40,
+            "acertos": 22,
+            "erros": 15,
+            "alunos": 5,
+            "classe": "dificuldade"
+        }
+    ],
+    "ranking": [
+        {
+            "nome": "Ana Beatriz Souza",
+            "posicao": 1,
+            "avaliacoes": 4,
+            "media": 78.34,
+            "freq": 83.33,
+            "evolucao": 12.5,
+            "slope": 7.5,
+            "desvio": 9.08,
+            "score_ev": 87.5,
+            "score_cons": 81.84,
+            "indice": 82.08,
+            "classe": "evolucao",
+            "dominados": 3,
+            "intermediarios": 2,
+            "dificuldades": 1,
+            "pct_acertos": 77.08,
+            "pct_erros": 18.75
+        },
+        {
+            "nome": "Eduarda Prado Alves",
+            "posicao": 2,
+            "avaliacoes": 4,
+            "media": 70.83,
+            "freq": 100,
+            "evolucao": 16.66,
+            "slope": 6.667,
+            "desvio": 9.32,
+            "score_ev": 83.34,
+            "score_cons": 81.36,
+            "indice": 80.44,
+            "classe": "evolucao",
+            "dominados": 3,
+            "intermediarios": 2,
+            "dificuldades": 1,
+            "pct_acertos": 70.83,
+            "pct_erros": 22.92
+        },
+        {
+            "nome": "Bruno Carvalho Lima",
+            "posicao": 3,
+            "avaliacoes": 4,
+            "media": 80,
+            "freq": 83.33,
+            "evolucao": 8.33,
+            "slope": 4.998,
+            "desvio": 7.21,
+            "score_ev": 74.99,
+            "score_cons": 85.58,
+            "indice": 80.36,
+            "classe": "evolucao",
+            "dominados": 3,
+            "intermediarios": 2,
+            "dificuldades": 1,
+            "pct_acertos": 79.17,
+            "pct_erros": 20.83
+        },
+        {
+            "nome": "Diego Nunes Ferreira",
+            "posicao": 4,
+            "avaliacoes": 4,
+            "media": 50.83,
+            "freq": 66.67,
+            "evolucao": -8.33,
+            "slope": -1.666,
+            "desvio": 5.89,
+            "score_ev": 41.67,
+            "score_cons": 88.22,
+            "indice": 58.39,
+            "classe": "atencao",
+            "dominados": 0,
+            "intermediarios": 2,
+            "dificuldades": 4,
+            "pct_acertos": 50,
+            "pct_erros": 43.75
+        },
+        {
+            "nome": "Carla Mendes Rocha",
+            "posicao": 5,
+            "avaliacoes": 4,
+            "media": 61.66,
+            "freq": 83.33,
+            "evolucao": -16.67,
+            "slope": -8.333,
+            "desvio": 12.5,
+            "score_ev": 8.34,
+            "score_cons": 75,
+            "indice": 54.25,
+            "classe": "atencao",
+            "dominados": 1,
+            "intermediarios": 3,
+            "dificuldades": 2,
+            "pct_acertos": 62.5,
+            "pct_erros": 31.25
+        }
+    ],
+    "alertas": [
+        {
+            "sev": "alta",
+            "titulo": "Frequência baixa",
+            "msg": "Diego Nunes Ferreira está com 66,7% de frequência (mínimo configurado: 75%), com 2 falta(s) em 6 aula(s)."
+        },
+        {
+            "sev": "alta",
+            "titulo": "Baixo aproveitamento",
+            "msg": "Diego Nunes Ferreira está com média de 50,8% em 4 avaliação(ões), abaixo do mínimo de 60%."
+        },
+        {
+            "sev": "alta",
+            "titulo": "Queda de desempenho",
+            "msg": "Carla Mendes Rocha teve queda de 16,7 pontos percentuais nas avaliações mais recentes (de 70,8% para 54,2%)."
+        },
+        {
+            "sev": "alta",
+            "titulo": "Dificuldade persistente",
+            "msg": "Atenção: Ana Beatriz Souza apresentou aproveitamento inferior a 60% em Hardware e Software nas últimas 3 avaliações."
+        },
+        {
+            "sev": "alta",
+            "titulo": "Dificuldade persistente",
+            "msg": "Atenção: Ana Beatriz Souza apresentou aproveitamento inferior a 60% em Redes de Computadores nas últimas 3 avaliações."
+        },
+        {
+            "sev": "alta",
+            "titulo": "Dificuldade persistente",
+            "msg": "Atenção: Ana Beatriz Souza apresentou aproveitamento inferior a 60% em Segurança da Informação nas últimas 4 avaliações."
+        },
+        {
+            "sev": "alta",
+            "titulo": "Dificuldade persistente",
+            "msg": "Atenção: Bruno Carvalho Lima apresentou aproveitamento inferior a 60% em Hardware e Software nas últimas 4 avaliações."
+        },
+        {
+            "sev": "alta",
+            "titulo": "Dificuldade persistente",
+            "msg": "Atenção: Carla Mendes Rocha apresentou aproveitamento inferior a 60% em Sistemas Operacionais nas últimas 3 avaliações."
+        },
+        {
+            "sev": "alta",
+            "titulo": "Dificuldade persistente",
+            "msg": "Atenção: Carla Mendes Rocha apresentou aproveitamento inferior a 60% em Internet e Navegadores nas últimas 3 avaliações."
+        },
+        {
+            "sev": "alta",
+            "titulo": "Dificuldade persistente",
+            "msg": "Atenção: Carla Mendes Rocha apresentou aproveitamento inferior a 60% em Redes de Computadores nas últimas 3 avaliações."
+        },
+        {
+            "sev": "alta",
+            "titulo": "Dificuldade persistente",
+            "msg": "Atenção: Carla Mendes Rocha apresentou aproveitamento inferior a 60% em Segurança da Informação nas últimas 3 avaliações."
+        },
+        {
+            "sev": "alta",
+            "titulo": "Dificuldade persistente",
+            "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Sistemas Operacionais nas últimas 4 avaliações."
+        },
+        {
+            "sev": "alta",
+            "titulo": "Dificuldade persistente",
+            "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Pacote Office nas últimas 4 avaliações."
+        },
+        {
+            "sev": "alta",
+            "titulo": "Dificuldade persistente",
+            "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Internet e Navegadores nas últimas 3 avaliações."
+        },
+        {
+            "sev": "alta",
+            "titulo": "Dificuldade persistente",
+            "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Redes de Computadores nas últimas 4 avaliações."
+        },
+        {
+            "sev": "alta",
+            "titulo": "Dificuldade persistente",
+            "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Segurança da Informação nas últimas 4 avaliações."
+        },
+        {
+            "sev": "alta",
+            "titulo": "Dificuldade persistente",
+            "msg": "Atenção: Eduarda Prado Alves apresentou aproveitamento inferior a 60% em Pacote Office nas últimas 4 avaliações."
+        },
+        {
+            "sev": "alta",
+            "titulo": "Dificuldade persistente",
+            "msg": "Atenção: Eduarda Prado Alves apresentou aproveitamento inferior a 60% em Redes de Computadores nas últimas 3 avaliações."
+        },
+        {
+            "sev": "media",
+            "titulo": "Conteúdo crítico da turma",
+            "msg": "A turma INF01 obteve apenas 55,0% de aproveitamento em Redes de Computadores (40 respostas de 5 aluno(s)). Conteúdo candidato a revisão."
+        },
+        {
+            "sev": "positiva",
+            "titulo": "Evolução significativa",
+            "msg": "Ana Beatriz Souza evoluiu 12,5 pontos percentuais nas avaliações mais recentes. Vale registrar o reconhecimento."
+        },
+        {
+            "sev": "positiva",
+            "titulo": "Evolução significativa",
+            "msg": "Eduarda Prado Alves evoluiu 16,7 pontos percentuais nas avaliações mais recentes. Vale registrar o reconhecimento."
+        }
+    ]
+}

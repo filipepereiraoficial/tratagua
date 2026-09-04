@@ -1,0 +1,343 @@
+<script>
+/* ------------------------------------------------------- turma (painel) */
+VISTAS.turmas = () => {
+  const t = DADOS.turma;
+  const freqTurma = (() => {
+    const regs = DADOS.presencas;
+    const conta = (s) => regs.filter(p => p.status === s).length;
+    const base = CFG.justificada_conta ? regs.length : regs.length - conta("falta_justificada");
+    return base > 0 ? r2((conta("presente") + conta("atraso") * 0.5) / base * 100) : null;
+  })();
+
+  return {
+    html: `
+      <div class="cabec">
+        <div>
+          <h1>Turma ${h(t.code)}</h1>
+          <p>${h(DADOS.curso.name)} · ${t.year} · ${h(t.period)} ·
+             ${dataBr(t.start_date)} a ${dataBr(t.end_date)} · ${tag("info", "Em andamento")}</p>
+        </div>
+        <div class="cabec__acoes"><button class="btn" data-ir="relatorios">Relatório da turma</button></div>
+      </div>
+
+      <div class="kpis">
+        ${kpi("Média da turma", pct(M.mediaGeral), `${DADOS.alunos.length} alunos`, faixa(M.mediaGeral).classe)}
+        ${kpi("% de acertos", pct(M.totais.pct_acertos), `${M.totais.total} respostas`, faixa(M.totais.pct_acertos).classe)}
+        ${kpi("Frequência média", pct(freqTurma), `${DADOS.aulas.length} aulas registradas`,
+          freqTurma !== null && freqTurma >= CFG.frequencia_minima ? "bom" : "medio")}
+        ${kpi("Em evolução", M.classes.evolucao, "", "bom")}
+        ${kpi("Intermediários", M.classes.intermediario, "", "medio")}
+        ${kpi("Precisam de atenção", M.classes.atencao, "", "ruim")}
+      </div>
+
+      <div class="colunas c-2">
+        ${painel("Evolução da turma", grafico("t-ev"))}
+        ${painel("Assuntos ordenados pelo aproveitamento", grafico("t-as", 190))}
+      </div>
+
+      <div class="colunas c-21">
+        <div>${painel("Alunos e Índice de Desenvolvimento",
+          tabela(COLS_RANKING, M.ranking.map(r => linhaRanking(r))), { nu: true })}</div>
+        <div>
+          ${painel("Disciplinas da turma", `
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+              <div><strong>${h(DADOS.disciplina.name)}</strong>
+                <div class="mudo" style="font-size:12px">${DADOS.aulas.length} aulas · ${DADOS.avaliacoes.length} avaliações · ${DADOS.disciplina.workload_hours}h</div></div>
+              <button class="btn btn--min" data-ir="disciplinas">Abrir</button>
+            </div>`)}
+          ${painel("Alertas da turma", listaAlertas(M.alertas.filter(a => !a.student_id).concat(M.alertas.filter(a => a.student_id)), 8), { nu: true })}
+        </div>
+      </div>`,
+    depois() {
+      grafLinha(el("t-ev"), { labels: M.porAvaliacao.map(a => a.nome), series: [{ nome: "Média da turma", dados: M.porAvaliacao.map(a => a.media) }] });
+      grafBarrasH(el("t-as"), M.assuntos.map(a => ({ nome: a.topic_name, valor: a.aproveitamento, nota: `${a.alunos} alunos · ${a.respondidas} respostas` })));
+    },
+  };
+};
+
+/* ------------------------------------------------------------ disciplina */
+VISTAS.disciplinas = () => {
+  const d = DADOS.disciplina;
+  const raizes = DADOS.topicos.filter(t => t.parent_id === null);
+  const porAssunto = new Map(M.assuntos.map(a => [a.topic_id, a]));
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>${h(d.name)}</h1>
+          <p>${h(d.description)} · ${d.workload_hours}h · ${raizes.length} assuntos ·
+             ${DADOS.topicos.length - raizes.length} tópicos · ${DADOS.questoes.length} questões</p></div>
+      </div>
+
+      <div class="kpis">
+        ${kpi("Média da disciplina", pct(M.mediaGeral), "", faixa(M.mediaGeral).classe)}
+        ${kpi("% de acertos", pct(M.totais.pct_acertos), `${M.totais.total} respostas`, faixa(M.totais.pct_acertos).classe)}
+        ${kpi("Assuntos mapeados", raizes.length, "com aproveitamento medido")}
+        ${kpi("Aulas / Avaliações", `${DADOS.aulas.length} / ${DADOS.avaliacoes.length}`, "na turma INF01")}
+      </div>
+
+      <div class="colunas c-2">
+        ${painel("Aproveitamento por assunto", grafico("d-as", 190))}
+        ${painel("Aproveitamento por dificuldade", grafico("d-di", 130))}
+      </div>
+
+      ${painel("Assuntos e tópicos", `
+        <div style="display:grid;gap:10px">
+          ${raizes.map(raiz => {
+            const stat = porAssunto.get(raiz.id);
+            const filhos = DADOS.topicos.filter(t => t.parent_id === raiz.id);
+            const f = faixa(stat?.aproveitamento ?? null);
+            return `<div style="border:1px solid var(--fio);border-radius:var(--r-s);padding:10px 12px">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <strong>${h(raiz.name)}</strong>
+                ${tag("info", "assunto")}
+                <span style="margin-left:auto;min-width:150px">${barra(stat?.aproveitamento ?? null)}</span>
+                ${tag(f.classe, f.texto)}
+              </div>
+              <div class="mudo" style="font-size:12px;margin-top:5px">
+                ${filhos.map(t => h(t.name)).join(" · ")}
+              </div>
+            </div>`;
+          }).join("")}
+        </div>`)}`,
+    depois() {
+      grafBarrasH(el("d-as"), M.assuntos.map(a => ({ nome: a.topic_name, valor: a.aproveitamento, nota: `${a.respondidas} respostas` })));
+      grafBarrasH(el("d-di"), M.dificuldade.map(x => ({ nome: ROTULO_DIFICULDADE[x.dificuldade], valor: x.aproveitamento, nota: `${x.respondidas} questões` })), { rotuloLargura: 110 });
+    },
+  };
+};
+
+/* ----------------------------------------------------------------- aulas */
+VISTAS.aulas = () => ({
+  html: `
+    <div class="cabec">
+      <div><h1>Aulas</h1><p>Histórico da disciplina Informática na turma INF01. Abra a chamada para ver — e alterar — a frequência.</p></div>
+    </div>
+    ${painel("Aulas registradas", tabela(
+      [{ t: "Data" }, { t: "Aula" }, { t: "Tópicos" }, { t: "Duração", num: 1 }, { t: "Chamada" }, { t: "" }],
+      DADOS.aulas.map(a => {
+        const regs = DADOS.presencas.filter(p => p.lesson_id === a.id);
+        const presentes = regs.filter(p => p.status === "presente" || p.status === "atraso").length;
+        const tops = DADOS.aula_topicos.filter(t => t.lesson_id === a.id)
+          .map(t => BASE.topicoPorId.get(t.topic_id)?.name).filter(Boolean);
+        return `<tr class="linha-clicavel" data-aula="${a.id}">
+          <td class="mono">${dataBr(a.lesson_date)}</td>
+          <td><strong>${h(a.title)}</strong><div class="mudo" style="font-size:11.5px">${h(a.content)}</div></td>
+          <td class="mudo" style="font-size:12px">${h(tops.join(" · ")) || "—"}</td>
+          <td class="num">${a.duration_minutes} min</td>
+          <td>${tag(presentes === regs.length ? "bom" : "medio", `${presentes}/${regs.length} presentes`)}</td>
+          <td class="num"><span class="btn btn--min">Chamada</span></td></tr>`;
+      })), { nu: true })}`,
+});
+
+/* -------------------------------------------------------------- chamada */
+VISTAS.chamada = () => {
+  const aula = BASE.aulaPorId.get(rota.id);
+  if (!aula) return { html: '<div class="vazio">Aula não encontrada.</div>' };
+  const opcoes = [["presente", "Presente"], ["atraso", "Atraso"], ["falta", "Falta"], ["falta_justificada", "Justificada"]];
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>Chamada</h1>
+          <p><button class="migalha" data-ir="aulas">Aulas</button> · <strong>${h(aula.title)}</strong> ·
+             ${dataBr(aula.lesson_date)} · ${aula.duration_minutes} min</p></div>
+      </div>
+      <div class="aviso"><b>Interativo</b><div>Troque a situação de um aluno: a frequência, o Índice de
+        Desenvolvimento, o ranking e os alertas são recalculados na hora — como no sistema real.</div></div>
+      ${painel(`${DADOS.alunos.length} alunos`, tabela(
+        [{ t: "Aluno" }, { t: "Situação" }, { t: "Participação", num: 1 }, { t: "Frequência acumulada", num: 1 }],
+        DADOS.alunos.map(al => {
+          const p = DADOS.presencas.find(x => x.lesson_id === aula.id && x.student_id === al.id);
+          const r = M.porAluno.get(al.id);
+          return `<tr>
+            <td>${h(al.full_name)}</td>
+            <td><select data-presenca="${al.id}" style="padding:4px 6px;border-radius:5px;border:1px solid var(--fio-forte);background:var(--elevado);color:var(--tinta);font:inherit;font-size:12.5px">
+              ${opcoes.map(([v, t]) => `<option value="${v}" ${p?.status === v ? "selected" : ""}>${t}</option>`).join("")}
+            </select></td>
+            <td class="num mono">${p?.participation ?? "—"}</td>
+            <td class="num">${tag(r.frequencia >= CFG.frequencia_minima ? "bom" : "ruim", pct(r.frequencia, 1))}</td>
+          </tr>`;
+        })), { nu: true })}`,
+    depois() {
+      document.querySelectorAll("[data-presenca]").forEach(sel => {
+        sel.addEventListener("change", () => {
+          const id = Number(sel.dataset.presenca);
+          const reg = DADOS.presencas.find(x => x.lesson_id === aula.id && x.student_id === id);
+          if (reg) reg.status = sel.value;
+          recalcular(); render();
+        });
+      });
+    },
+  };
+};
+
+/* ----------------------------------------------------------- avaliações */
+VISTAS.avaliacoes = () => ({
+  html: `
+    <div class="cabec">
+      <div><h1>Avaliações</h1><p>Abra uma avaliação para ver a análise item a item e lançar resultados por questão.</p></div>
+    </div>
+    ${painel("Avaliações da turma", tabela(
+      [{ t: "Data" }, { t: "Avaliação" }, { t: "Tipo" }, { t: "Peso", num: 1 }, { t: "Questões", num: 1 },
+       { t: "Lançados", num: 1 }, { t: "Média", num: 1 }, { t: "" }],
+      M.porAvaliacao.map(a => {
+        const av = BASE.avaliacaoPorId.get(a.assessment_id);
+        const qs = DADOS.questoes.filter(q => q.assessment_id === av.id).length;
+        return `<tr class="linha-clicavel" data-avaliacao="${av.id}">
+          <td class="mono">${dataBr(av.assessment_date)}</td>
+          <td><strong>${h(av.name)}</strong></td>
+          <td class="mudo">${h(ROTULO_TIPO[av.type])}</td>
+          <td class="num mono">${num(av.weight, 1)}</td>
+          <td class="num">${qs}</td>
+          <td class="num">${a.alunos}</td>
+          <td class="num">${tag(faixa(a.media).classe, pct(a.media, 1))}</td>
+          <td class="num"><span class="btn btn--min">Resultados</span></td></tr>`;
+      })), { nu: true })}`,
+});
+
+/* ------------------------------- avaliação: análise + lançamento por questão */
+VISTAS.avaliacao = () => {
+  const av = BASE.avaliacaoPorId.get(rota.id);
+  if (!av) return { html: '<div class="vazio">Avaliação não encontrada.</div>' };
+  const questoes = BASE.analiseDaAvaliacao(av.id, CFG);
+  const notas = DADOS.notas.filter(n => n.assessment_id === av.id);
+  const p = notas.map(n => n.percentage);
+  const media = p.length ? r2(p.reduce((a, b) => a + b, 0) / p.length) : null;
+  const respostasAv = DADOS.respostas.filter(r => questoes.some(q => q.id === r.question_id));
+  const assuntosAv = BASE.aproveitamentoPorAssunto(respostasAv, CFG);
+  const totaisAv = BASE.totaisDeResposta(respostasAv);
+
+  const matriz = new Map();
+  for (const r of respostasAv) matriz.set(r.student_id + ":" + r.question_id, r);
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>${h(av.name)}</h1>
+          <p><button class="migalha" data-ir="avaliacoes">Avaliações</button> ·
+             ${h(ROTULO_TIPO[av.type])} · ${dataBr(av.assessment_date)} ·
+             valor ${num(av.max_score, 0)} · peso ${num(av.weight, 1)}</p></div>
+      </div>
+
+      <div class="kpis">
+        ${kpi("Média", pct(media), `${notas.length} alunos com resultado`, faixa(media).classe)}
+        ${kpi("Menor / Maior", `${pct(p.length ? Math.min(...p) : null, 0)} / ${pct(p.length ? Math.max(...p) : null, 0)}`,
+          `desvio de ${num(desvioPadrao(p))} p.p.`)}
+        ${kpi("% de acertos", pct(totaisAv.pct_acertos), `${totaisAv.branco} em branco`, faixa(totaisAv.pct_acertos).classe)}
+        ${kpi("Questões", questoes.length, `somando ${num(questoes.reduce((a, q) => a + q.points, 0), 2)} pontos`)}
+      </div>
+
+      <div class="colunas c-2">
+        ${painel("Índice de acerto por questão", grafico("a-q", 250))}
+        ${painel("Aproveitamento por assunto nesta prova", grafico("a-as", 190))}
+      </div>
+
+      <div class="aviso"><b>Interativo</b><div>Clique em <b>C</b>, <b>E</b> ou <b>N</b> para lançar o resultado de
+        um aluno em uma questão. A nota, o percentual, o mapa de conteúdos, o ranking e os alertas são recalculados
+        imediatamente — é o mesmo cálculo que o servidor faz ao salvar.</div></div>
+
+      ${painel("Resultados por questão", `<div class="grade-res">
+        <table>
+          <thead><tr><th>Aluno</th>
+            ${questoes.map(q => `<th class="num" title="${h(q.assunto || "sem assunto")} · ${h(ROTULO_DIFICULDADE[q.difficulty])} · ${num(q.points, 2)} pt">${q.number}</th>`).join("")}
+            <th class="num">Nota</th></tr></thead>
+          <tbody>
+            ${DADOS.alunos.map(al => {
+              const nota = notas.find(n => n.student_id === al.id);
+              return `<tr><th>${h(al.full_name)}</th>
+                ${questoes.map(q => {
+                  const r = matriz.get(al.id + ":" + q.id);
+                  const marca = (v, rot) => `<button class="${v[0]}" data-marca="${al.id}|${q.id}|${v}"
+                    aria-pressed="${r?.result === v}" title="${rot}">${rot[0]}</button>`;
+                  return `<td><div class="marcas">${marca("correta", "Certo")}${marca("incorreta", "Errado")}${marca("nao_respondida", "Não respondeu")}</div></td>`;
+                }).join("")}
+                <td class="num mono">${nota ? `<strong>${num(nota.score, 2)}</strong><br><span class="tag tag--${faixa(nota.percentage).classe}">${pct(nota.percentage, 0)}</span>` : "—"}</td>
+              </tr>`;
+            }).join("")}
+          </tbody>
+        </table></div>`, { nu: true, direita: '<span class="tag tag--neutro">C = certo · E = errado · N = não respondeu</span>' })}
+
+      ${painel("Detalhe das questões", tabela(
+        [{ t: "#", num: 1 }, { t: "Assunto" }, { t: "Dificuldade" }, { t: "Pontos", num: 1 },
+         { t: "C / E / B", num: 1 }, { t: "Índice de acerto" }],
+        questoes.map(q => `<tr>
+          <td class="num mono">${q.number}</td>
+          <td>${h(q.assunto || "—")}</td>
+          <td>${tag({ facil: "bom", medio: "medio", dificil: "ruim" }[q.difficulty], ROTULO_DIFICULDADE[q.difficulty])}</td>
+          <td class="num mono">${num(q.points, 2)}</td>
+          <td class="num mono">${q.acertos}/${q.erros}/${q.branco}</td>
+          <td>${barra(q.indice_acerto)}</td></tr>`)), { nu: true })}`,
+    depois() {
+      grafBarrasV(el("a-q"), {
+        labels: questoes.map(q => "Q" + q.number),
+        series: [{ nome: "Índice de acerto", dados: questoes.map(q => q.indice_acerto),
+                   cores: questoes.map(q => faixa(q.indice_acerto).cor) }],
+      });
+      grafBarrasH(el("a-as"), assuntosAv.map(a => ({ nome: a.topic_name, valor: a.aproveitamento, nota: `${a.respondidas} respostas` })));
+
+      document.querySelectorAll("[data-marca]").forEach(b => {
+        b.addEventListener("click", () => {
+          const [alunoId, questaoId, valor] = b.dataset.marca.split("|");
+          const q = BASE.questaoPorId.get(Number(questaoId));
+          let r = DADOS.respostas.find(x => x.student_id === +alunoId && x.question_id === +questaoId);
+          if (!r) { r = { question_id: +questaoId, student_id: +alunoId, result: valor, score_earned: 0 }; DADOS.respostas.push(r); }
+          r.result = valor;
+          r.score_earned = valor === "correta" ? q.points : 0;
+          recalcularNota(av.id, +alunoId);
+          recalcular(); render();
+        });
+      });
+    },
+  };
+};
+
+/* -------------------------------------------------------------- questões */
+VISTAS.questoes = () => {
+  const linhas = DADOS.questoes.map(q => {
+    const resp = DADOS.respostas.filter(r => r.question_id === q.id);
+    const acertos = resp.filter(r => r.result === "correta").length;
+    const raiz = q.topic_id ? BASE.raiz(q.topic_id) : null;
+    const filho = q.topic_id ? BASE.topicoPorId.get(q.topic_id) : null;
+    return { q, raiz, filho, respondidas: resp.length, acertos,
+             indice: resp.length ? r2(acertos / resp.length * 100) : null,
+             avaliacao: BASE.avaliacaoPorId.get(q.assessment_id) };
+  });
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>Banco de questões</h1>
+          <p>${DADOS.questoes.length} questões classificadas por assunto e dificuldade, com o índice de acerto real.
+             É essa classificação que permite dizer <em>em que</em> o aluno tem dificuldade.</p></div>
+        <div class="cabec__acoes">
+          <select id="f-dif" class="busca" aria-label="Filtrar por dificuldade">
+            <option value="">Todas as dificuldades</option>
+            <option value="facil">Fácil</option><option value="medio">Médio</option><option value="dificil">Difícil</option>
+          </select>
+        </div>
+      </div>
+      ${painel("Questões", `<div id="tab-q"></div>`, { nu: true })}`,
+    depois() {
+      const desenhar = () => {
+        const dif = el("f-dif").value;
+        const filtradas = linhas.filter(l => !dif || l.q.difficulty === dif);
+        el("tab-q").innerHTML = tabela(
+          [{ t: "Avaliação" }, { t: "#", num: 1 }, { t: "Assunto / tópico" }, { t: "Dificuldade" },
+           { t: "Pontos", num: 1 }, { t: "Gabarito" }, { t: "Índice de acerto" }],
+          filtradas.map(l => `<tr>
+            <td style="font-size:12.5px">${h(l.avaliacao.name)}<div class="mudo mono" style="font-size:11px">${dataBr(l.avaliacao.assessment_date)}</div></td>
+            <td class="num mono">${l.q.number}</td>
+            <td>${h(l.raiz?.name ?? "—")}<div class="mudo" style="font-size:11.5px">${h(l.filho && l.filho.id !== l.raiz?.id ? l.filho.name : "")}</div></td>
+            <td>${tag({ facil: "bom", medio: "medio", dificil: "ruim" }[l.q.difficulty], ROTULO_DIFICULDADE[l.q.difficulty])}</td>
+            <td class="num mono">${num(l.q.points, 2)}</td>
+            <td class="mono">${h(l.q.answer_key ?? "—")}</td>
+            <td>${barra(l.indice)}<div class="mudo" style="font-size:11px">${l.respondidas} respostas</div></td>
+          </tr>`), { vazio: "Nenhuma questão nesse filtro." });
+      };
+      el("f-dif").addEventListener("change", desenhar);
+      desenhar();
+    },
+  };
+};
+</script>

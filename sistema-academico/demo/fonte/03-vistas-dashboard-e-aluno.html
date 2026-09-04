@@ -1,0 +1,310 @@
+<script>
+/* ===========================================================================
+   5. NAVEGAÇÃO
+   =========================================================================== */
+const IC = {
+  dashboard: 'M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H2zM9 9h5v5H9z',
+  alunos:    'M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 14.5c0-2.5 2.7-4 6-4s6 1.5 6 4',
+  turmas:    'M2 13V5l6-3 6 3v8M6 13V9h4v4',
+  disciplinas:'M3 2.5h4.2c.9 0 1.3.6 1.3 1.3v9.4M13 2.5H8.8c-.9 0-1.3.6-1.3 1.3v9.4M2 3.5v9.8h12V3.5',
+  aulas:     'M2.5 3.5h11v10h-11zM2.5 6.5h11M5.5 2v3M10.5 2v3M5 9.5h2M9 9.5h2',
+  avaliacoes:'M3.5 1.5h6l3 3v10h-9zM9.5 1.5v3.2h3M5.5 9l1.6 1.6L10.5 7.5',
+  questoes:  'M2.5 4h4M2.5 8h4M2.5 12h4M9.5 3.6c0-1 .8-1.6 1.7-1.6s1.8.6 1.8 1.7c0 1.6-1.8 1.5-1.8 3M11.2 10.6v.1',
+  relatorios:'M3.5 1.5h6l3 3v10h-9zM9.5 1.5v3.2h3M5.5 8.5h5M5.5 11h5',
+  graficos:  'M2 14h12M4.5 11.5v-4M7.5 11.5v-7M10.5 11.5v-2.5M13 11.5V6',
+  config:    'M2 4.5h5M10 4.5h4M2 11.5h3M8 11.5h6M8.5 4.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM7 11.5a1.5 1.5 0 1 0 3 0 1.5 1.5 0 0 0-3 0z',
+};
+const icone = (k) => `<svg class="item__ic" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+  stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${IC[k]}"/></svg>`;
+
+const MENU = [
+  ["nav-1", [["dashboard", "Dashboard"], ["alunos", "Alunos"], ["turmas", "Turmas"],
+             ["disciplinas", "Disciplinas"], ["aulas", "Aulas"], ["avaliacoes", "Avaliações"], ["questoes", "Questões"]]],
+  ["nav-2", [["relatorios", "Relatórios"], ["graficos", "Gráficos"]]],
+  ["nav-3", [["config", "Configurações"]]],
+];
+const ICONE_DE = { turmas: "turmas", disciplinas: "disciplinas" };
+
+function montarMenu() {
+  for (const [id, itens] of MENU) {
+    document.getElementById(id).innerHTML = itens.map(([chave, texto]) =>
+      `<button class="item" data-ir="${chave}" ${rotaBase() === chave ? 'aria-current="page"' : ""}>
+         ${icone(ICONE_DE[chave] || chave)}${h(texto)}
+       </button>`).join("");
+  }
+}
+function rotaBase() {
+  return { aluno: "alunos", chamada: "aulas", avaliacao: "avaliacoes" }[rota.vista] || rota.vista;
+}
+function ir(vista, id = null) {
+  rota = { vista, id };
+  render();
+  document.getElementById("vista").focus({ preventScroll: true });
+  window.scrollTo({ top: 0, behavior: "instant" });
+}
+
+/* ===========================================================================
+   6. PEÇAS REUTILIZÁVEIS
+   =========================================================================== */
+const painel = (titulo, corpo, { direita = "", nu = false } = {}) => `
+  <section class="painel">
+    <div class="painel__t"><h2>${titulo}</h2>${direita ? `<div class="direita">${direita}</div>` : ""}</div>
+    <div class="painel__c${nu ? " painel__c--nu" : ""}">${corpo}</div>
+  </section>`;
+
+const kpi = (rotulo, valor, nota = "", tom = "") =>
+  `<div class="kpi ${tom ? "kpi--" + tom : ""}"><div class="rotulo">${h(rotulo)}</div>
+   <div class="kpi__v">${valor}</div>${nota ? `<div class="kpi__n">${nota}</div>` : ""}</div>`;
+
+const grafico = (id, altura = 250) => `<div id="${id}" style="min-height:${altura}px"></div>`;
+
+function tabela(colunas, linhas, { vazio = "Sem registros." } = {}) {
+  if (!linhas.length) return `<div class="vazio">${h(vazio)}</div>`;
+  return `<div class="rolagem"><table>
+    <thead><tr>${colunas.map(c => `<th class="${c.num ? "num" : ""}">${h(c.t)}</th>`).join("")}</tr></thead>
+    <tbody>${linhas.join("")}</tbody></table></div>`;
+}
+
+const listaAlertas = (alertas, limite = 99) => alertas.length === 0
+  ? '<div class="vazio">Nenhum alerta ativo com os critérios atuais.</div>'
+  : alertas.slice(0, limite).map(a => `
+      <div class="alerta alerta--${a.severity}">
+        <div class="alerta__f"></div>
+        <div>
+          <div class="alerta__t">${h(a.title)}
+            ${a.student_id ? `<button class="migalha" data-aluno="${a.student_id}" style="font-size:11.5px">ver aluno</button>` : ""}</div>
+          <div class="alerta__m">${h(a.message)}</div>
+        </div>
+      </div>`).join("");
+
+function linhaRanking(r, comTurma = false) {
+  const c = ROTULO_CLASSE[r.classificacao];
+  return `<tr class="linha-clicavel" data-aluno="${r.id}">
+    <td class="num mono">${r.posicao ?? "—"}</td>
+    <td>${h(r.aluno.full_name)}${comTurma ? `<div class="mudo" style="font-size:11.5px">${h(DADOS.turma.code)}</div>` : ""}</td>
+    <td class="num">${r.avaliacoes}</td>
+    <td class="num">${pct(r.media, 1)}</td>
+    <td class="num">${pct(r.frequencia, 0)}</td>
+    <td class="num">${r.evolucao_recente === null ? "—"
+      : `<span class="tag tag--${r.evolucao_recente >= 0 ? "bom" : "ruim"}">${r.evolucao_recente >= 0 ? "+" : ""}${num(r.evolucao_recente)}</span>`}</td>
+    <td class="num mono"><strong>${num(r.indice)}</strong></td>
+    <td>${tag(c.classe, c.texto)}</td>
+  </tr>`;
+}
+const COLS_RANKING = [{ t: "#", num: 1 }, { t: "Aluno" }, { t: "Aval.", num: 1 }, { t: "Média", num: 1 },
+  { t: "Freq.", num: 1 }, { t: "Evolução", num: 1 }, { t: "Índice", num: 1 }, { t: "Situação" }];
+
+/* ===========================================================================
+   7. VISTAS
+   =========================================================================== */
+const VISTAS = {};
+
+/* -------------------------------------------------------------- dashboard */
+VISTAS.dashboard = () => ({
+  html: `
+    <div class="cabec">
+      <div>
+        <h1>Dashboard geral</h1>
+        <p>Visão consolidada da turma. Cada número vem dos lançamentos feitos no sistema —
+           nada aqui é estimado.</p>
+      </div>
+      <div class="cabec__acoes">
+        <button class="btn" data-ir="relatorios">Relatórios</button>
+        <button class="btn btn--forte" data-ir="graficos">Todos os gráficos</button>
+      </div>
+    </div>
+
+    <div class="kpis">
+      ${kpi("Alunos", DADOS.alunos.length, "1 turma · 1 disciplina")}
+      ${kpi("Aulas", DADOS.aulas.length, `${DADOS.presencas.length} presenças registradas`)}
+      ${kpi("Avaliações", DADOS.avaliacoes.length, `${DADOS.questoes.length} questões`)}
+      ${kpi("Média geral", pct(M.mediaGeral), "aproveitamento das notas lançadas", faixa(M.mediaGeral).classe)}
+      ${kpi("% de acertos", pct(M.totais.pct_acertos), `${M.totais.acertos} de ${M.totais.total} questões`, faixa(M.totais.pct_acertos).classe)}
+      ${kpi("% de erros", pct(M.totais.pct_erros), `${M.totais.branco} em branco`)}
+      ${kpi("Em evolução", M.classes.evolucao, "índice acima do corte", "bom")}
+      ${kpi("Intermediários", M.classes.intermediario, "desempenho moderado", "medio")}
+      ${kpi("Precisam de atenção", M.classes.atencao, "queda, frequência ou índice baixo", "ruim")}
+    </div>
+
+    <div class="colunas c-21">
+      <div>
+        ${painel("Evolução geral da turma", grafico("g-evolucao"),
+          { direita: '<span class="tag tag--info">média por avaliação</span>' })}
+        <div class="colunas c-2">
+          ${painel("Distribuição de desempenho", grafico("g-dist", 230))}
+          ${painel("Aproveitamento por dificuldade", grafico("g-dif", 130))}
+        </div>
+        ${painel("Aproveitamento por assunto", grafico("g-assuntos", 190),
+          { direita: '<span class="tag tag--neutro">do menor para o maior</span>' })}
+      </div>
+      <div>
+        ${painel(`Alertas pedagógicos`, listaAlertas(M.alertas, 7), {
+          nu: true,
+          direita: `<span class="tag tag--ruim">${M.alertas.filter(a => a.severity === "alta").length} alta</span>
+                    <span class="tag tag--medio">${M.alertas.filter(a => a.severity === "media").length} média</span>
+                    <span class="tag tag--bom">${M.alertas.filter(a => a.severity === "positiva").length} positiva</span>`,
+        })}
+        ${painel("Índice de Desenvolvimento", tabela(
+          [{ t: "#", num: 1 }, { t: "Aluno" }, { t: "Média", num: 1 }, { t: "Índice", num: 1 }, { t: "Situação" }],
+          M.ranking.map(r => {
+            const c = ROTULO_CLASSE[r.classificacao];
+            return `<tr class="linha-clicavel" data-aluno="${r.id}">
+              <td class="num mono">${r.posicao ?? "—"}</td><td>${h(r.aluno.full_name)}</td>
+              <td class="num">${pct(r.media, 0)}</td><td class="num mono"><strong>${num(r.indice)}</strong></td>
+              <td>${tag(c.classe, c.texto)}</td></tr>`;
+          })), {
+          nu: true,
+          direita: `<span class="mudo" style="font-size:11.5px">
+            ${fmt(CFG.peso_desempenho * 100, 0)}/${fmt(CFG.peso_evolucao * 100, 0)}/${fmt(CFG.peso_frequencia * 100, 0)}/${fmt(CFG.peso_consistencia * 100, 0)}</span>`,
+        })}
+      </div>
+    </div>`,
+  depois() {
+    grafLinha(el("g-evolucao"), {
+      labels: M.porAvaliacao.map(a => a.nome),
+      series: [{ nome: "Média da turma", dados: M.porAvaliacao.map(a => a.media) }],
+    });
+    const d = M.distribuicao;
+    grafBarrasV(el("g-dist"), {
+      labels: Object.keys(d), altura: 230,
+      max: Math.max(1, DADOS.alunos.length), passo: 1, unidade: " aluno(s)", casas: 0,
+      series: [{ nome: "Alunos", dados: Object.values(d),
+                 cores: ["var(--ruim)", "var(--medio)", "var(--serie-a)", "var(--bom)"] }],
+    });
+    grafBarrasH(el("g-dif"), M.dificuldade.map(x => ({ nome: ROTULO_DIFICULDADE[x.dificuldade], valor: x.aproveitamento, nota: `${x.respondidas} questões` })), { rotuloLargura: 110 });
+    grafBarrasH(el("g-assuntos"), M.assuntos.map(a => ({ nome: a.topic_name, valor: a.aproveitamento, nota: `${a.respondidas} respostas` })));
+  },
+});
+
+/* ----------------------------------------------------------------- alunos */
+VISTAS.alunos = () => ({
+  html: `
+    <div class="cabec">
+      <div><h1>Alunos</h1><p>${DADOS.alunos.length} alunos na turma INF01. Clique em um aluno para abrir o dashboard individual de aprendizagem.</p></div>
+      <div class="cabec__acoes"><input class="busca" id="busca-aluno" type="search" placeholder="Filtrar por nome…" aria-label="Filtrar alunos"></div>
+    </div>
+    ${painel("Situação de cada aluno", `<div id="tab-alunos">${tabela(COLS_RANKING, M.ranking.map(r => linhaRanking(r, true)))}</div>`, { nu: true })}`,
+  depois() {
+    const campo = el("busca-aluno");
+    campo.addEventListener("input", () => {
+      const termo = campo.value.toLowerCase().trim();
+      el("tab-alunos").innerHTML = tabela(COLS_RANKING,
+        M.ranking.filter(r => r.aluno.full_name.toLowerCase().includes(termo)).map(r => linhaRanking(r, true)),
+        { vazio: "Nenhum aluno corresponde ao filtro." });
+    });
+  },
+});
+
+/* ------------------------------------------- aluno: dashboard individual */
+VISTAS.aluno = () => {
+  const r = M.porAluno.get(rota.id);
+  if (!r) return { html: '<div class="vazio">Aluno não encontrado.</div>' };
+  const c = ROTULO_CLASSE[r.classificacao];
+  const serieTurma = M.porAvaliacao;
+  const labels = r.notas.map(n => n.aval.name);
+  const alertasDele = M.alertas.filter(a => a.student_id === r.id);
+
+  const mediaTurma = M.mediaGeral;
+  const delta = r.media !== null && mediaTurma !== null ? r.media - mediaTurma : null;
+
+  return {
+    html: `
+      <div class="cabec">
+        <div style="display:flex;gap:12px;align-items:center">
+          <span style="width:44px;height:44px;border-radius:50%;background:var(--acento-sup);color:var(--acento);
+                       display:grid;place-items:center;font-weight:600;font-family:var(--display);font-size:15px">${h(iniciais(r.aluno.full_name))}</span>
+          <div>
+            <h1>${h(r.aluno.full_name)}</h1>
+            <p><button class="migalha" data-ir="alunos">Alunos</button> · Turma ${h(DADOS.turma.code)} ·
+               ${tag(c.classe, c.texto)} · posição <span class="mono">${r.posicao ?? "—"}</span> de ${M.ranking.filter(x => x.indice !== null).length}</p>
+          </div>
+        </div>
+      </div>
+
+      ${r.motivos.length ? `<div class="aviso"><b>Por quê?</b><div>${h(r.motivos.join(" "))}</div></div>` : ""}
+
+      <div class="kpis">
+        ${kpi("Média geral", pct(r.media), delta === null ? "" :
+          `${delta >= 0 ? "▲" : "▼"} ${num(Math.abs(delta))} p.p. vs. turma (${pct(mediaTurma, 0)})`, faixa(r.media).classe)}
+        ${kpi("% de acertos", pct(r.acertos.pct_acertos), `${r.acertos.acertos} de ${r.acertos.total} questões`, faixa(r.acertos.pct_acertos).classe)}
+        ${kpi("% de erros", pct(r.acertos.pct_erros), `${r.acertos.branco} em branco`)}
+        ${kpi("Avaliações", r.avaliacoes, `desvio de ${num(r.desvio)} p.p.`)}
+        ${kpi("Evolução recente", r.evolucao_recente === null ? "—" : (r.evolucao_recente >= 0 ? "+" : "") + num(r.evolucao_recente),
+          `tendência ${num(r.evolucao_slope, 2)} p.p./avaliação`, r.evolucao_recente === null ? "" : (r.evolucao_recente >= 0 ? "bom" : "ruim"))}
+        ${kpi("Frequência", pct(r.frequencia), `${r.presenca.faltas} falta(s) em ${r.presenca.aulas} aula(s)`,
+          r.frequencia === null ? "" : (r.frequencia >= CFG.frequencia_minima ? "bom" : "ruim"))}
+        ${kpi("Conteúdos dominados", r.dominados, `${r.intermediarios} intermediário(s)`, "bom")}
+        ${kpi("Com dificuldade", r.dificuldades, `abaixo de ${fmt(CFG.faixa_intermediario, 0)}%`, "ruim")}
+        ${kpi("Índice de Desenvolvimento", num(r.indice), c.texto, "acento")}
+      </div>
+
+      ${painel("Como o Índice de Desenvolvimento deste aluno foi formado", grafico("g-contrib", 110),
+        { direita: '<span class="tag tag--neutro">cada faixa é componente × peso</span>' })}
+
+      <div class="colunas c-2">
+        ${painel("Evolução das notas", grafico("g-ev"), { direita: '<span class="tag tag--info">aluno × turma</span>' })}
+        ${painel("Acertos e erros por avaliação", grafico("g-ae"))}
+      </div>
+      <div class="colunas c-2">
+        ${painel("Desempenho por assunto", grafico("g-as", 180))}
+        ${painel("Desempenho por dificuldade", grafico("g-di", 120))}
+      </div>
+
+      <div class="colunas c-21">
+        <div>
+          ${painel("Mapa de conteúdos", tabela(
+            [{ t: "Assunto" }, { t: "Questões", num: 1 }, { t: "Acertos", num: 1 }, { t: "Aproveitamento" }, { t: "Situação" }],
+            r.assuntos.map(a => {
+              const f = faixa(a.amostra_suficiente ? a.aproveitamento : null);
+              return `<tr><td>${h(a.topic_name)}</td><td class="num">${a.respondidas}</td>
+                <td class="num">${a.acertos}</td><td>${barra(a.aproveitamento)}</td>
+                <td>${tag(f.classe, a.amostra_suficiente ? f.texto : "Amostra insuficiente")}</td></tr>`;
+            }), { vazio: "Nenhuma resposta por questão registrada." }), { nu: true })}
+
+          ${painel("Histórico de avaliações", tabela(
+            [{ t: "Data" }, { t: "Avaliação" }, { t: "Tipo" }, { t: "Nota", num: 1 }, { t: "Aproveitamento", num: 1 }, { t: "C / E / B", num: 1 }],
+            [...r.notas].reverse().map(n => `<tr class="linha-clicavel" data-avaliacao="${n.assessment_id}">
+              <td class="mono">${dataBr(n.aval.assessment_date)}</td><td>${h(n.aval.name)}</td>
+              <td class="mudo">${h(ROTULO_TIPO[n.aval.type])}</td>
+              <td class="num mono">${num(n.score, 2)} / ${num(n.aval.max_score, 0)}</td>
+              <td class="num">${tag(faixa(n.percentage).classe, pct(n.percentage, 0))}</td>
+              <td class="num mono">${n.correct_count}/${n.wrong_count}/${n.blank_count}</td></tr>`)), { nu: true })}
+        </div>
+        <div>
+          ${painel("Alertas deste aluno", listaAlertas(alertasDele), { nu: true })}
+          ${painel("Presença", tabela(
+            [{ t: "Data" }, { t: "Aula" }, { t: "Situação" }, { t: "Part.", num: 1 }],
+            DADOS.presencas.filter(p => p.student_id === r.id).map(p => {
+              const aula = BASE.aulaPorId.get(p.lesson_id);
+              const cl = { presente: "bom", atraso: "medio", falta: "ruim", falta_justificada: "neutro" }[p.status];
+              return `<tr><td class="mono">${dataBr(aula.lesson_date)}</td>
+                <td style="font-size:12.5px">${h(aula.title)}</td>
+                <td>${tag(cl, ROTULO_PRESENCA[p.status])}</td>
+                <td class="num">${p.participation ?? "—"}</td></tr>`;
+            })), { nu: true })}
+        </div>
+      </div>`,
+    depois() {
+      grafContribuicao(el("g-contrib"), r);
+      const mapaTurma = new Map(serieTurma.map(a => [a.assessment_id, a.media]));
+      grafLinha(el("g-ev"), {
+        labels,
+        series: [
+          { nome: r.aluno.full_name.split(" ")[0], dados: r.percentuais },
+          { nome: "Turma", dados: r.notas.map(n => mapaTurma.get(n.assessment_id) ?? null), cor: "var(--serie-c)" },
+        ],
+      });
+      grafBarrasV(el("g-ae"), {
+        labels,
+        series: [
+          { nome: "% de acertos", dados: r.notas.map(n => { const t = n.correct_count + n.wrong_count + n.blank_count; return t ? r2(n.correct_count / t * 100) : null; }), cor: "var(--bom)" },
+          { nome: "% de erros", dados: r.notas.map(n => { const t = n.correct_count + n.wrong_count + n.blank_count; return t ? r2(n.wrong_count / t * 100) : null; }), cor: "var(--ruim)" },
+        ],
+      });
+      grafBarrasH(el("g-as"), r.assuntos.map(a => ({ nome: a.topic_name, valor: a.aproveitamento, nota: `${a.respondidas} questões` })));
+      const dif = BASE.aproveitamentoPorDificuldade(BASE.respostasDoAluno(r.id));
+      grafBarrasH(el("g-di"), dif.map(x => ({ nome: ROTULO_DIFICULDADE[x.dificuldade], valor: x.aproveitamento, nota: `${x.respondidas} questões` })), { rotuloLargura: 110 });
+    },
+  };
+};
+</script>

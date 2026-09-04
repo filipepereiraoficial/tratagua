@@ -1,0 +1,2135 @@
+<title>Painel Pedagógico INF01</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+/* ============================================================ tokens ==== */
+:root {
+  color-scheme: light;
+  /* Ground & ink — neutro morno, escolhido para acompanhar o petróleo */
+  --papel:      #F7F5F1;
+  --superficie: #FFFDFA;
+  --elevado:    #FFFFFF;
+  --fio:        #DFD9D0;
+  --fio-forte:  #C3BBB0;
+  --tinta:      #12262F;
+  --tinta-2:    #47565E;
+  --tinta-3:    #74828A;
+
+  /* Institucional */
+  --petroleo:   #0E2A38;
+  --acento:     #16739B;
+  --acento-sup: #E4EFF4;
+
+  /* Séries (validadas: ΔE CVD ≥ 18) */
+  --serie-a:    #16739B;
+  --serie-b:    #CE6A16;
+  --serie-c:    #7A4FA3;
+
+  /* Faixas de aproveitamento — sempre acompanhadas de rótulo textual */
+  --bom:        #1B7F5F;
+  --bom-sup:    #E2F0EA;
+  --medio:      #C08A00;
+  --medio-sup:  #F7EEDA;
+  --ruim:       #B3243C;
+  --ruim-sup:   #F8E4E7;
+
+  --grade:      rgba(18, 38, 47, .09);
+  --sombra:     0 1px 2px rgba(14, 42, 56, .05), 0 6px 20px rgba(14, 42, 56, .05);
+
+  --r:   8px;
+  --r-s: 5px;
+  --trilho: 236px;
+  --topo: 58px;
+
+  --display: Bitter, Georgia, "Times New Roman", serif;
+  --ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+:root:not([data-theme="light"]) { }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --papel:      #12181C;
+    --superficie: #171F24;
+    --elevado:    #1D262C;
+    --fio:        #2B363D;
+    --fio-forte:  #3D4A52;
+    --tinta:      #E8EDEF;
+    --tinta-2:    #A9B6BC;
+    --tinta-3:    #7C8A92;
+    --petroleo:   #0A1A22;
+    --acento:     #4FA6CC;
+    --acento-sup: #16303C;
+    --serie-a:    #3D9CC4;
+    --serie-b:    #C0741F;
+    --serie-c:    #A47ACB;
+    --bom:        #3FA684;
+    --bom-sup:    #16302A;
+    --medio:      #B0861B;
+    --medio-sup:  #322A14;
+    --ruim:       #DE5F76;
+    --ruim-sup:   #37191F;
+    --grade:      rgba(232, 237, 239, .10);
+    --sombra:     0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.28);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --papel:      #12181C;
+  --superficie: #171F24;
+  --elevado:    #1D262C;
+  --fio:        #2B363D;
+  --fio-forte:  #3D4A52;
+  --tinta:      #E8EDEF;
+  --tinta-2:    #A9B6BC;
+  --tinta-3:    #7C8A92;
+  --petroleo:   #0A1A22;
+  --acento:     #4FA6CC;
+  --acento-sup: #16303C;
+  --serie-a:    #3D9CC4;
+  --serie-b:    #C0741F;
+  --serie-c:    #A47ACB;
+  --bom:        #3FA684;
+  --bom-sup:    #16302A;
+  --medio:      #B0861B;
+  --medio-sup:  #322A14;
+  --ruim:       #DE5F76;
+  --ruim-sup:   #37191F;
+  --grade:      rgba(232, 237, 239, .10);
+  --sombra:     0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.28);
+}
+
+/* ============================================================== base ==== */
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--ui);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { font-family: var(--display); font-weight: 600; margin: 0; text-wrap: balance; letter-spacing: -.005em; }
+h1 { font-size: 24px; line-height: 1.2; }
+h2 { font-size: 16px; }
+h3 { font-size: 14px; }
+p { margin: 0 0 10px; }
+a { color: var(--acento); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; border-radius: 3px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.num  { font-variant-numeric: tabular-nums; text-align: right; }
+.mudo { color: var(--tinta-3); }
+.rotulo {
+  font-size: 10.5px; font-weight: 600; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--tinta-3);
+}
+
+/* ============================================================= casca ==== */
+.app { display: grid; grid-template-columns: var(--trilho) minmax(0, 1fr); min-height: 100vh; }
+
+.trilho {
+  background: var(--petroleo);
+  color: #C3D5DE;
+  position: sticky; top: 0; height: 100vh;
+  display: flex; flex-direction: column;
+  overflow-y: auto;
+}
+.marca { display: flex; gap: 10px; align-items: center; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.marca__selo {
+  width: 34px; height: 34px; flex: none; border-radius: 7px;
+  background: var(--acento); color: #fff;
+  display: grid; place-items: center;
+  font-family: var(--display); font-weight: 700; font-size: 16px;
+}
+.marca__nome { color: #fff; font-family: var(--display); font-weight: 600; font-size: 14.5px; line-height: 1.15; }
+.marca__sub { font-size: 11px; color: #7FA3B5; }
+
+.trilho__grupo { padding: 14px 16px 5px; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: #5F8598; font-weight: 600; }
+.trilho nav { display: flex; flex-direction: column; gap: 1px; padding: 0 8px; }
+.item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 10px; border-radius: var(--r-s);
+  background: none; border: 0; width: 100%; text-align: left;
+  color: #C3D5DE; font-size: 13.5px; cursor: pointer;
+}
+.item:hover { background: rgba(255,255,255,.07); color: #fff; }
+.item[aria-current="page"] { background: var(--acento); color: #fff; font-weight: 500; }
+.item__ic { width: 15px; flex: none; opacity: .9; }
+.trilho__pe { margin-top: auto; padding: 14px 16px; font-size: 11px; color: #6C93A6; border-top: 1px solid rgba(255,255,255,.08); line-height: 1.45; }
+
+.topo {
+  position: sticky; top: 0; z-index: 20;
+  height: var(--topo); display: flex; align-items: center; gap: 14px;
+  padding: 0 20px; background: var(--superficie); border-bottom: 1px solid var(--fio);
+}
+.topo__ctx { font-size: 13px; color: var(--tinta-2); }
+.topo__ctx strong { color: var(--tinta); font-weight: 600; }
+.selo-demo {
+  margin-left: auto; display: inline-flex; align-items: center; gap: 7px;
+  padding: 4px 10px; border-radius: 999px;
+  background: var(--acento-sup); color: var(--acento);
+  font-size: 11.5px; font-weight: 600;
+}
+.selo-demo::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--acento); flex: none; }
+
+.vista { padding: 20px; max-width: 1420px; }
+.cabec { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin-bottom: 16px; }
+.cabec p { margin: 3px 0 0; color: var(--tinta-2); font-size: 13px; max-width: 68ch; }
+.cabec__acoes { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: var(--r-s);
+  border: 1px solid var(--fio-forte); background: var(--elevado); color: var(--tinta);
+  font-size: 13px; cursor: pointer;
+}
+.btn:hover { background: var(--acento-sup); border-color: var(--acento); color: var(--acento); }
+.btn--forte { background: var(--acento); border-color: var(--acento); color: #fff; }
+.btn--forte:hover { filter: brightness(1.08); color: #fff; }
+.btn--min { padding: 3px 8px; font-size: 12px; }
+
+/* ======================================================= indicadores ==== */
+/* Um painel só, dividido por fios — não seis cartões soltos. */
+/* Flex em vez de grid: os tiles da última linha crescem e preenchem a faixa,
+   em vez de deixar células vazias emolduradas. */
+.kpis {
+  display: flex; flex-wrap: wrap;
+  background: var(--superficie); border: 1px solid var(--fio); border-radius: var(--r);
+  overflow: hidden; margin-bottom: 16px;
+}
+.kpi {
+  flex: 1 1 168px; min-width: 0; padding: 12px 14px;
+  border-right: 1px solid var(--fio); border-bottom: 1px solid var(--fio);
+}
+.kpi__v { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 25px; font-weight: 500; line-height: 1.1; margin-top: 3px; letter-spacing: -.02em; }
+.kpi__n { font-size: 11.5px; color: var(--tinta-3); margin-top: 3px; line-height: 1.35; }
+.kpi--bom .kpi__v { color: var(--bom); }
+.kpi--medio .kpi__v { color: var(--medio); }
+.kpi--ruim .kpi__v { color: var(--ruim); }
+.kpi--acento .kpi__v { color: var(--acento); }
+
+/* ============================================================ painel ==== */
+.painel { background: var(--superficie); border: 1px solid var(--fio); border-radius: var(--r); margin-bottom: 16px; overflow: hidden; }
+.painel__t { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid var(--fio); flex-wrap: wrap; }
+.painel__t h2 { font-size: 14.5px; }
+.painel__t .direita { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.painel__c { padding: 14px; }
+.painel__c--nu { padding: 0; }
+
+.colunas { display: grid; gap: 16px; }
+.c-2 { grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
+.c-21 { grid-template-columns: minmax(0, 1.9fr) minmax(280px, 1fr); }
+@media (max-width: 1080px) { .c-21 { grid-template-columns: 1fr; } }
+
+/* ========================================================== tabelas ===== */
+.rolagem { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { padding: 7px 12px; text-align: left; }
+thead th {
+  font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase;
+  color: var(--tinta-3); font-weight: 600; white-space: nowrap;
+  border-bottom: 1.5px solid var(--fio-forte);
+}
+tbody tr { border-bottom: 1px solid var(--fio); }
+tbody tr:last-child { border-bottom: 0; }
+tbody tr:hover { background: var(--acento-sup); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.linha-clicavel { cursor: pointer; }
+
+/* ========================================================= etiquetas ==== */
+.tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 1px 7px; border-radius: 4px;
+  font-size: 11.5px; font-weight: 600; white-space: nowrap;
+}
+.tag--bom   { background: var(--bom-sup); color: var(--bom); }
+.tag--medio { background: var(--medio-sup); color: var(--medio); }
+.tag--ruim  { background: var(--ruim-sup); color: var(--ruim); }
+.tag--info  { background: var(--acento-sup); color: var(--acento); }
+.tag--neutro{ background: var(--papel); color: var(--tinta-2); border: 1px solid var(--fio); }
+
+/* barra de aproveitamento dentro da tabela */
+.barra { display: flex; align-items: center; gap: 8px; min-width: 132px; }
+.barra__t { flex: 1; height: 6px; border-radius: 3px; background: var(--grade); overflow: hidden; }
+.barra__p { height: 100%; border-radius: 3px; }
+.barra__v { font-family: var(--mono); font-size: 12px; min-width: 44px; text-align: right; }
+
+/* =========================================================== alertas ==== */
+.alerta { display: flex; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--fio); }
+.alerta:last-child { border-bottom: 0; }
+.alerta__f { width: 3px; flex: none; border-radius: 2px; background: var(--tinta-3); }
+.alerta--alta .alerta__f { background: var(--ruim); }
+.alerta--media .alerta__f { background: var(--medio); }
+.alerta--positiva .alerta__f { background: var(--bom); }
+.alerta__t { font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.alerta__m { font-size: 12.5px; color: var(--tinta-2); margin-top: 1px; }
+
+/* ========================================================== gráficos ==== */
+.graf { position: relative; }
+.graf svg { display: block; width: 100%; height: auto; overflow: visible; }
+.graf text { font-family: var(--ui); fill: var(--tinta-3); }
+.legenda { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--tinta-2); padding: 0 2px 8px; }
+.legenda span { display: inline-flex; align-items: center; gap: 6px; }
+.legenda i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.dica {
+  position: absolute; pointer-events: none; z-index: 5;
+  background: var(--petroleo); color: #fff; padding: 6px 9px; border-radius: var(--r-s);
+  font-size: 12px; line-height: 1.4; box-shadow: var(--sombra); white-space: nowrap;
+  opacity: 0; transform: translate(-50%, -108%); transition: opacity .1s;
+}
+.dica b { font-family: var(--mono); font-weight: 600; }
+:root[data-theme="dark"] .dica, :root:not([data-theme="light"]) .dica { border: 1px solid var(--fio); }
+
+/* =========================================== grade de resultados C/E/N == */
+.grade-res { overflow: auto; max-height: 62vh; }
+.grade-res table { border-collapse: separate; border-spacing: 0; font-size: 12px; }
+.grade-res th, .grade-res td { border-bottom: 1px solid var(--fio); border-right: 1px solid var(--fio); padding: 4px 6px; }
+.grade-res thead th { position: sticky; top: 0; z-index: 2; background: var(--superficie); }
+.grade-res tbody th {
+  position: sticky; left: 0; z-index: 1; background: var(--superficie);
+  text-align: left; font-weight: 500; min-width: 176px; font-size: 12.5px;
+}
+.grade-res thead th:first-child { z-index: 3; }
+.marcas { display: flex; gap: 2px; justify-content: center; }
+.marcas button {
+  width: 21px; height: 21px; border-radius: 4px; cursor: pointer;
+  border: 1px solid var(--fio-forte); background: var(--elevado);
+  color: var(--tinta-3); font-size: 10.5px; font-weight: 700; font-family: var(--mono);
+  display: grid; place-items: center; padding: 0;
+}
+.marcas button:hover { border-color: var(--acento); color: var(--acento); }
+.marcas button[aria-pressed="true"] { color: #fff; border-color: transparent; }
+.marcas .c[aria-pressed="true"] { background: var(--bom); }
+.marcas .e[aria-pressed="true"] { background: var(--ruim); }
+.marcas .n[aria-pressed="true"] { background: var(--tinta-3); }
+
+/* ===================================================== configurações ==== */
+.campo { display: flex; flex-direction: column; gap: 4px; }
+.campo label { font-size: 12px; font-weight: 600; color: var(--tinta-2); }
+.campo input[type="number"] {
+  width: 100%; padding: 6px 8px; border: 1px solid var(--fio-forte);
+  border-radius: var(--r-s); background: var(--elevado); color: var(--tinta);
+  font-family: var(--mono); font-size: 13px;
+}
+.grade-campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap: 12px; }
+
+/* Régua de faixas — o controle que dá nome à tela */
+.regua { padding: 6px 2px 2px; }
+.regua__t {
+  position: relative; height: 34px; border-radius: 6px; overflow: hidden;
+  border: 1px solid var(--fio); display: flex;
+}
+.regua__f { display: grid; place-items: center; font-size: 11.5px; font-weight: 600; }
+.regua__f--ruim  { background: var(--ruim-sup); color: var(--ruim); }
+.regua__f--medio { background: var(--medio-sup); color: var(--medio); }
+.regua__f--bom   { background: var(--bom-sup); color: var(--bom); }
+.regua__marcas { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; color: var(--tinta-3); margin-top: 3px; }
+.regua__assuntos { display: flex; flex-direction: column; gap: 5px; margin-top: 14px; }
+.regua__linha { display: grid; grid-template-columns: 168px 1fr 96px; gap: 10px; align-items: center; font-size: 12.5px; }
+.regua__pista { height: 16px; border-radius: 4px; background: var(--grade); position: relative; overflow: hidden; }
+.regua__valor { height: 100%; border-radius: 4px; }
+input[type="range"] { width: 100%; accent-color: var(--acento); }
+
+.aviso {
+  display: flex; gap: 9px; padding: 10px 13px; border-radius: var(--r);
+  background: var(--acento-sup); color: var(--tinta); font-size: 12.5px;
+  border: 1px solid color-mix(in srgb, var(--acento) 30%, transparent);
+  margin-bottom: 16px; line-height: 1.5;
+}
+.aviso b { color: var(--acento); }
+
+.vazio { padding: 30px 16px; text-align: center; color: var(--tinta-3); font-size: 13px; }
+
+.busca {
+  padding: 5px 10px; border: 1px solid var(--fio-forte); border-radius: var(--r-s);
+  background: var(--elevado); color: var(--tinta); font-size: 13px; width: 190px;
+}
+
+.migalha { background: none; border: 0; padding: 0; color: var(--acento); cursor: pointer; font-size: 13px; }
+.migalha:hover { text-decoration: underline; }
+
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  .trilho { position: static; height: auto; }
+  .trilho nav { flex-direction: row; flex-wrap: wrap; }
+  .item { width: auto; }
+  .trilho__pe { display: none; }
+  .vista { padding: 14px; }
+  .c-21 { grid-template-columns: 1fr; }
+}
+</style>
+
+
+<div class="app">
+  <aside class="trilho">
+    <div class="marca">
+      <span class="marca__selo">P</span>
+      <span>
+        <span class="marca__nome">Painel Pedagógico</span>
+        <span class="marca__sub">Acompanhamento de alunos</span>
+      </span>
+    </div>
+
+    <div class="trilho__grupo">Cadastros e registros</div>
+    <nav id="nav-1" aria-label="Cadastros e registros"></nav>
+    <div class="trilho__grupo">Análise</div>
+    <nav id="nav-2" aria-label="Análise"></nav>
+    <div class="trilho__grupo">Sistema</div>
+    <nav id="nav-3" aria-label="Sistema"></nav>
+
+    <div class="trilho__pe">
+      Demonstração navegável do sistema entregue.<br>
+      Os cálculos rodam aqui, no seu navegador, com as mesmas fórmulas do servidor.
+    </div>
+  </aside>
+
+  <div>
+    <header class="topo">
+      <div class="topo__ctx">
+        <strong>Preparatório para Guarda Municipal</strong> · Turma <span class="mono">INF01</span> · 2026
+      </div>
+      <span class="selo-demo">Demonstração · dados de exemplo</span>
+    </header>
+    <main class="vista" id="vista" tabindex="-1"></main>
+  </div>
+</div>
+
+<script type="application/json" id="dados">{"curso":{"id":1,"name":"Preparatório para Guarda Municipal"},"turma":{"id":1,"code":"INF01","name":"Turma Informática 2026","year":2026,"period":"Noturno","start_date":"2026-02-02","end_date":"2026-11-30","status":"em_andamento"},"disciplina":{"id":1,"name":"Informática","description":"Noções de informática para concursos públicos.","workload_hours":40},"topicos":[{"id":1,"parent_id":null,"subject_id":1,"name":"Hardware e Software"},{"id":2,"parent_id":1,"subject_id":1,"name":"Componentes do computador"},{"id":3,"parent_id":1,"subject_id":1,"name":"Periféricos"},{"id":4,"parent_id":1,"subject_id":1,"name":"Sistemas operacionais"},{"id":5,"parent_id":null,"subject_id":1,"name":"Sistemas Operacionais"},{"id":6,"parent_id":5,"subject_id":1,"name":"Windows"},{"id":7,"parent_id":5,"subject_id":1,"name":"Linux"},{"id":8,"parent_id":5,"subject_id":1,"name":"Gerenciamento de arquivos"},{"id":9,"parent_id":null,"subject_id":1,"name":"Pacote Office"},{"id":10,"parent_id":9,"subject_id":1,"name":"Word"},{"id":11,"parent_id":9,"subject_id":1,"name":"Excel"},{"id":12,"parent_id":9,"subject_id":1,"name":"PowerPoint"},{"id":13,"parent_id":null,"subject_id":1,"name":"Internet e Navegadores"},{"id":14,"parent_id":13,"subject_id":1,"name":"Protocolos"},{"id":15,"parent_id":13,"subject_id":1,"name":"Navegadores"},{"id":16,"parent_id":13,"subject_id":1,"name":"Correio eletrônico"},{"id":17,"parent_id":null,"subject_id":1,"name":"Redes de Computadores"},{"id":18,"parent_id":17,"subject_id":1,"name":"Topologias"},{"id":19,"parent_id":17,"subject_id":1,"name":"Endereçamento IP"},{"id":20,"parent_id":17,"subject_id":1,"name":"Equipamentos de rede"},{"id":21,"parent_id":null,"subject_id":1,"name":"Segurança da Informação"},{"id":22,"parent_id":21,"subject_id":1,"name":"Malwares"},{"id":23,"parent_id":21,"subject_id":1,"name":"Backup"},{"id":24,"parent_id":21,"subject_id":1,"name":"Criptografia"}],"alunos":[{"id":1,"full_name":"Ana Beatriz Souza","email":"ana@exemplo.com","phone":null,"birth_date":null,"enrolled_at":"2026-02-02","status":"ativo","notes":"Aluno de demonstração — pode ser excluído com segurança."},{"id":2,"full_name":"Bruno Carvalho Lima","email":"bruno@exemplo.com","phone":null,"birth_date":null,"enrolled_at":"2026-02-02","status":"ativo","notes":"Aluno de demonstração — pode ser excluído com segurança."},{"id":3,"full_name":"Carla Mendes Rocha","email":"carla@exemplo.com","phone":null,"birth_date":null,"enrolled_at":"2026-02-02","status":"ativo","notes":"Aluno de demonstração — pode ser excluído com segurança."},{"id":4,"full_name":"Diego Nunes Ferreira","email":"diego@exemplo.com","phone":null,"birth_date":null,"enrolled_at":"2026-02-02","status":"ativo","notes":"Aluno de demonstração — pode ser excluído com segurança."},{"id":5,"full_name":"Eduarda Prado Alves","email":"eduarda@exemplo.com","phone":null,"birth_date":null,"enrolled_at":"2026-02-02","status":"ativo","notes":"Aluno de demonstração — pode ser excluído com segurança."}],"aulas":[{"id":1,"title":"Aula 1 — Hardware e Software","lesson_date":"2026-02-09","content":"Conteúdo trabalhado: Hardware e Software.","duration_minutes":100},{"id":2,"title":"Aula 2 — Sistemas Operacionais","lesson_date":"2026-02-16","content":"Conteúdo trabalhado: Sistemas Operacionais.","duration_minutes":100},{"id":3,"title":"Aula 3 — Pacote Office","lesson_date":"2026-02-23","content":"Conteúdo trabalhado: Pacote Office.","duration_minutes":100},{"id":4,"title":"Aula 4 — Internet e Navegadores","lesson_date":"2026-03-02","content":"Conteúdo trabalhado: Internet e Navegadores.","duration_minutes":100},{"id":5,"title":"Aula 5 — Redes de Computadores","lesson_date":"2026-03-09","content":"Conteúdo trabalhado: Redes de Computadores.","duration_minutes":100},{"id":6,"title":"Aula 6 — Segurança da Informação","lesson_date":"2026-03-16","content":"Conteúdo trabalhado: Segurança da Informação.","duration_minutes":100}],"aula_topicos":[{"lesson_id":1,"topic_id":1},{"lesson_id":2,"topic_id":5},{"lesson_id":3,"topic_id":9},{"lesson_id":4,"topic_id":13},{"lesson_id":5,"topic_id":17},{"lesson_id":6,"topic_id":21}],"presencas":[{"lesson_id":1,"student_id":1,"status":"presente","participation":3},{"lesson_id":1,"student_id":2,"status":"presente","participation":4},{"lesson_id":1,"student_id":3,"status":"presente","participation":4},{"lesson_id":1,"student_id":4,"status":"presente","participation":2},{"lesson_id":1,"student_id":5,"status":"presente","participation":3},{"lesson_id":2,"student_id":1,"status":"falta","participation":null},{"lesson_id":2,"student_id":2,"status":"presente","participation":4},{"lesson_id":2,"student_id":3,"status":"presente","participation":4},{"lesson_id":2,"student_id":4,"status":"falta","participation":null},{"lesson_id":2,"student_id":5,"status":"presente","participation":3},{"lesson_id":3,"student_id":1,"status":"presente","participation":3},{"lesson_id":3,"student_id":2,"status":"falta","participation":null},{"lesson_id":3,"student_id":3,"status":"presente","participation":4},{"lesson_id":3,"student_id":4,"status":"presente","participation":2},{"lesson_id":3,"student_id":5,"status":"presente","participation":3},{"lesson_id":4,"student_id":1,"status":"presente","participation":3},{"lesson_id":4,"student_id":2,"status":"presente","participation":4},{"lesson_id":4,"student_id":3,"status":"falta","participation":null},{"lesson_id":4,"student_id":4,"status":"presente","participation":2},{"lesson_id":4,"student_id":5,"status":"presente","participation":3},{"lesson_id":5,"student_id":1,"status":"presente","participation":3},{"lesson_id":5,"student_id":2,"status":"presente","participation":4},{"lesson_id":5,"student_id":3,"status":"presente","participation":4},{"lesson_id":5,"student_id":4,"status":"falta","participation":null},{"lesson_id":5,"student_id":5,"status":"presente","participation":3},{"lesson_id":6,"student_id":1,"status":"presente","participation":3},{"lesson_id":6,"student_id":2,"status":"presente","participation":4},{"lesson_id":6,"student_id":3,"status":"presente","participation":4},{"lesson_id":6,"student_id":4,"status":"presente","participation":2},{"lesson_id":6,"student_id":5,"status":"presente","participation":3}],"avaliacoes":[{"id":1,"name":"Avaliação diagnóstica","type":"diagnostica","assessment_date":"2026-02-16","max_score":10,"weight":1,"description":"Avaliação de demonstração cobrindo os assuntos da disciplina.","status":"corrigida"},{"id":2,"name":"Simulado 1","type":"simulado","assessment_date":"2026-03-16","max_score":10,"weight":1.5,"description":"Avaliação de demonstração cobrindo os assuntos da disciplina.","status":"corrigida"},{"id":3,"name":"Prova bimestral","type":"prova","assessment_date":"2026-04-13","max_score":10,"weight":1,"description":"Avaliação de demonstração cobrindo os assuntos da disciplina.","status":"corrigida"},{"id":4,"name":"Simulado 2","type":"simulado","assessment_date":"2026-05-11","max_score":10,"weight":1.5,"description":"Avaliação de demonstração cobrindo os assuntos da disciplina.","status":"corrigida"}],"questoes":[{"id":1,"assessment_id":1,"number":1,"topic_id":2,"difficulty":"medio","points":0.83,"answer_key":"B"},{"id":2,"assessment_id":1,"number":2,"topic_id":3,"difficulty":"dificil","points":0.83,"answer_key":"C"},{"id":3,"assessment_id":1,"number":3,"topic_id":6,"difficulty":"facil","points":0.83,"answer_key":"D"},{"id":4,"assessment_id":1,"number":4,"topic_id":7,"difficulty":"medio","points":0.83,"answer_key":"A"},{"id":5,"assessment_id":1,"number":5,"topic_id":10,"difficulty":"dificil","points":0.83,"answer_key":"B"},{"id":6,"assessment_id":1,"number":6,"topic_id":11,"difficulty":"facil","points":0.83,"answer_key":"C"},{"id":7,"assessment_id":1,"number":7,"topic_id":14,"difficulty":"medio","points":0.83,"answer_key":"D"},{"id":8,"assessment_id":1,"number":8,"topic_id":15,"difficulty":"dificil","points":0.83,"answer_key":"A"},{"id":9,"assessment_id":1,"number":9,"topic_id":18,"difficulty":"facil","points":0.83,"answer_key":"B"},{"id":10,"assessment_id":1,"number":10,"topic_id":19,"difficulty":"medio","points":0.83,"answer_key":"C"},{"id":11,"assessment_id":1,"number":11,"topic_id":22,"difficulty":"dificil","points":0.83,"answer_key":"D"},{"id":12,"assessment_id":1,"number":12,"topic_id":23,"difficulty":"facil","points":0.83,"answer_key":"A"},{"id":13,"assessment_id":2,"number":1,"topic_id":2,"difficulty":"dificil","points":0.83,"answer_key":"B"},{"id":14,"assessment_id":2,"number":2,"topic_id":3,"difficulty":"facil","points":0.83,"answer_key":"C"},{"id":15,"assessment_id":2,"number":3,"topic_id":6,"difficulty":"medio","points":0.83,"answer_key":"D"},{"id":16,"assessment_id":2,"number":4,"topic_id":7,"difficulty":"dificil","points":0.83,"answer_key":"A"},{"id":17,"assessment_id":2,"number":5,"topic_id":10,"difficulty":"facil","points":0.83,"answer_key":"B"},{"id":18,"assessment_id":2,"number":6,"topic_id":11,"difficulty":"medio","points":0.83,"answer_key":"C"},{"id":19,"assessment_id":2,"number":7,"topic_id":14,"difficulty":"dificil","points":0.83,"answer_key":"D"},{"id":20,"assessment_id":2,"number":8,"topic_id":15,"difficulty":"facil","points":0.83,"answer_key":"A"},{"id":21,"assessment_id":2,"number":9,"topic_id":18,"difficulty":"medio","points":0.83,"answer_key":"B"},{"id":22,"assessment_id":2,"number":10,"topic_id":19,"difficulty":"dificil","points":0.83,"answer_key":"C"},{"id":23,"assessment_id":2,"number":11,"topic_id":22,"difficulty":"facil","points":0.83,"answer_key":"D"},{"id":24,"assessment_id":2,"number":12,"topic_id":23,"difficulty":"medio","points":0.83,"answer_key":"A"},{"id":25,"assessment_id":3,"number":1,"topic_id":2,"difficulty":"facil","points":0.83,"answer_key":"B"},{"id":26,"assessment_id":3,"number":2,"topic_id":3,"difficulty":"medio","points":0.83,"answer_key":"C"},{"id":27,"assessment_id":3,"number":3,"topic_id":6,"difficulty":"dificil","points":0.83,"answer_key":"D"},{"id":28,"assessment_id":3,"number":4,"topic_id":7,"difficulty":"facil","points":0.83,"answer_key":"A"},{"id":29,"assessment_id":3,"number":5,"topic_id":10,"difficulty":"medio","points":0.83,"answer_key":"B"},{"id":30,"assessment_id":3,"number":6,"topic_id":11,"difficulty":"dificil","points":0.83,"answer_key":"C"},{"id":31,"assessment_id":3,"number":7,"topic_id":14,"difficulty":"facil","points":0.83,"answer_key":"D"},{"id":32,"assessment_id":3,"number":8,"topic_id":15,"difficulty":"medio","points":0.83,"answer_key":"A"},{"id":33,"assessment_id":3,"number":9,"topic_id":18,"difficulty":"dificil","points":0.83,"answer_key":"B"},{"id":34,"assessment_id":3,"number":10,"topic_id":19,"difficulty":"facil","points":0.83,"answer_key":"C"},{"id":35,"assessment_id":3,"number":11,"topic_id":22,"difficulty":"medio","points":0.83,"answer_key":"D"},{"id":36,"assessment_id":3,"number":12,"topic_id":23,"difficulty":"dificil","points":0.83,"answer_key":"A"},{"id":37,"assessment_id":4,"number":1,"topic_id":2,"difficulty":"medio","points":0.83,"answer_key":"B"},{"id":38,"assessment_id":4,"number":2,"topic_id":3,"difficulty":"dificil","points":0.83,"answer_key":"C"},{"id":39,"assessment_id":4,"number":3,"topic_id":6,"difficulty":"facil","points":0.83,"answer_key":"D"},{"id":40,"assessment_id":4,"number":4,"topic_id":7,"difficulty":"medio","points":0.83,"answer_key":"A"},{"id":41,"assessment_id":4,"number":5,"topic_id":10,"difficulty":"dificil","points":0.83,"answer_key":"B"},{"id":42,"assessment_id":4,"number":6,"topic_id":11,"difficulty":"facil","points":0.83,"answer_key":"C"},{"id":43,"assessment_id":4,"number":7,"topic_id":14,"difficulty":"medio","points":0.83,"answer_key":"D"},{"id":44,"assessment_id":4,"number":8,"topic_id":15,"difficulty":"dificil","points":0.83,"answer_key":"A"},{"id":45,"assessment_id":4,"number":9,"topic_id":18,"difficulty":"facil","points":0.83,"answer_key":"B"},{"id":46,"assessment_id":4,"number":10,"topic_id":19,"difficulty":"medio","points":0.83,"answer_key":"C"},{"id":47,"assessment_id":4,"number":11,"topic_id":22,"difficulty":"dificil","points":0.83,"answer_key":"D"},{"id":48,"assessment_id":4,"number":12,"topic_id":23,"difficulty":"facil","points":0.83,"answer_key":"A"}],"respostas":[{"question_id":1,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":2,"student_id":1,"result":"nao_respondida","score_earned":0},{"question_id":3,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":4,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":5,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":6,"student_id":1,"result":"incorreta","score_earned":0},{"question_id":7,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":8,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":9,"student_id":1,"result":"incorreta","score_earned":0},{"question_id":10,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":11,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":12,"student_id":1,"result":"incorreta","score_earned":0},{"question_id":1,"student_id":2,"result":"incorreta","score_earned":0},{"question_id":2,"student_id":2,"result":"incorreta","score_earned":0},{"question_id":3,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":4,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":5,"student_id":2,"result":"incorreta","score_earned":0},{"question_id":6,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":7,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":8,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":9,"student_id":2,"result":"incorreta","score_earned":0},{"question_id":10,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":11,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":12,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":1,"student_id":3,"result":"incorreta","score_earned":0},{"question_id":2,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":3,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":4,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":5,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":6,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":7,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":8,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":9,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":10,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":11,"student_id":3,"result":"incorreta","score_earned":0},{"question_id":12,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":1,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":2,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":3,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":4,"student_id":4,"result":"incorreta","score_earned":0},{"question_id":5,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":6,"student_id":4,"result":"incorreta","score_earned":0},{"question_id":7,"student_id":4,"result":"incorreta","score_earned":0},{"question_id":8,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":9,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":10,"student_id":4,"result":"incorreta","score_earned":0},{"question_id":11,"student_id":4,"result":"incorreta","score_earned":0},{"question_id":12,"student_id":4,"result":"incorreta","score_earned":0},{"question_id":1,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":2,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":3,"student_id":5,"result":"incorreta","score_earned":0},{"question_id":4,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":5,"student_id":5,"result":"incorreta","score_earned":0},{"question_id":6,"student_id":5,"result":"incorreta","score_earned":0},{"question_id":7,"student_id":5,"result":"nao_respondida","score_earned":0},{"question_id":8,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":9,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":10,"student_id":5,"result":"incorreta","score_earned":0},{"question_id":11,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":12,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":13,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":14,"student_id":1,"result":"incorreta","score_earned":0},{"question_id":15,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":16,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":17,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":18,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":19,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":20,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":21,"student_id":1,"result":"incorreta","score_earned":0},{"question_id":22,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":23,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":24,"student_id":1,"result":"incorreta","score_earned":0},{"question_id":13,"student_id":2,"result":"incorreta","score_earned":0},{"question_id":14,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":15,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":16,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":17,"student_id":2,"result":"incorreta","score_earned":0},{"question_id":18,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":19,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":20,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":21,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":22,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":23,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":24,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":13,"student_id":3,"result":"incorreta","score_earned":0},{"question_id":14,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":15,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":16,"student_id":3,"result":"incorreta","score_earned":0},{"question_id":17,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":18,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":19,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":20,"student_id":3,"result":"nao_respondida","score_earned":0},{"question_id":21,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":22,"student_id":3,"result":"nao_respondida","score_earned":0},{"question_id":23,"student_id":3,"result":"incorreta","score_earned":0},{"question_id":24,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":13,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":14,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":15,"student_id":4,"result":"incorreta","score_earned":0},{"question_id":16,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":17,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":18,"student_id":4,"result":"incorreta","score_earned":0},{"question_id":19,"student_id":4,"result":"incorreta","score_earned":0},{"question_id":20,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":21,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":22,"student_id":4,"result":"incorreta","score_earned":0},{"question_id":23,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":24,"student_id":4,"result":"incorreta","score_earned":0},{"question_id":13,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":14,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":15,"student_id":5,"result":"nao_respondida","score_earned":0},{"question_id":16,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":17,"student_id":5,"result":"nao_respondida","score_earned":0},{"question_id":18,"student_id":5,"result":"incorreta","score_earned":0},{"question_id":19,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":20,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":21,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":22,"student_id":5,"result":"incorreta","score_earned":0},{"question_id":23,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":24,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":25,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":26,"student_id":1,"result":"incorreta","score_earned":0},{"question_id":27,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":28,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":29,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":30,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":31,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":32,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":33,"student_id":1,"result":"nao_respondida","score_earned":0},{"question_id":34,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":35,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":36,"student_id":1,"result":"incorreta","score_earned":0},{"question_id":25,"student_id":2,"result":"incorreta","score_earned":0},{"question_id":26,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":27,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":28,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":29,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":30,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":31,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":32,"student_id":2,"result":"incorreta","score_earned":0},{"question_id":33,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":34,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":35,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":36,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":25,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":26,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":27,"student_id":3,"result":"incorreta","score_earned":0},{"question_id":28,"student_id":3,"result":"nao_respondida","score_earned":0},{"question_id":29,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":30,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":31,"student_id":3,"result":"incorreta","score_earned":0},{"question_id":32,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":33,"student_id":3,"result":"incorreta","score_earned":0},{"question_id":34,"student_id":3,"result":"incorreta","score_earned":0},{"question_id":35,"student_id":3,"result":"incorreta","score_earned":0},{"question_id":36,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":25,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":26,"student_id":4,"result":"incorreta","score_earned":0},{"question_id":27,"student_id":4,"result":"incorreta","score_earned":0},{"question_id":28,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":29,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":30,"student_id":4,"result":"incorreta","score_earned":0},{"question_id":31,"student_id":4,"result":"incorreta","score_earned":0},{"question_id":32,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":33,"student_id":4,"result":"incorreta","score_earned":0},{"question_id":34,"student_id":4,"result":"nao_respondida","score_earned":0},{"question_id":35,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":36,"student_id":4,"result":"nao_respondida","score_earned":0},{"question_id":25,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":26,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":27,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":28,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":29,"student_id":5,"result":"incorreta","score_earned":0},{"question_id":30,"student_id":5,"result":"incorreta","score_earned":0},{"question_id":31,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":32,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":33,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":34,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":35,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":36,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":37,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":38,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":39,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":40,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":41,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":42,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":43,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":44,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":45,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":46,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":47,"student_id":1,"result":"correta","score_earned":0.83},{"question_id":48,"student_id":1,"result":"incorreta","score_earned":0},{"question_id":37,"student_id":2,"result":"incorreta","score_earned":0},{"question_id":38,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":39,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":40,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":41,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":42,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":43,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":44,"student_id":2,"result":"incorreta","score_earned":0},{"question_id":45,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":46,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":47,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":48,"student_id":2,"result":"correta","score_earned":0.83},{"question_id":37,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":38,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":39,"student_id":3,"result":"incorreta","score_earned":0},{"question_id":40,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":41,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":42,"student_id":3,"result":"incorreta","score_earned":0},{"question_id":43,"student_id":3,"result":"incorreta","score_earned":0},{"question_id":44,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":45,"student_id":3,"result":"incorreta","score_earned":0},{"question_id":46,"student_id":3,"result":"incorreta","score_earned":0},{"question_id":47,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":48,"student_id":3,"result":"correta","score_earned":0.83},{"question_id":37,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":38,"student_id":4,"result":"incorreta","score_earned":0},{"question_id":39,"student_id":4,"result":"incorreta","score_earned":0},{"question_id":40,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":41,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":42,"student_id":4,"result":"nao_respondida","score_earned":0},{"question_id":43,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":44,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":45,"student_id":4,"result":"incorreta","score_earned":0},{"question_id":46,"student_id":4,"result":"incorreta","score_earned":0},{"question_id":47,"student_id":4,"result":"correta","score_earned":0.83},{"question_id":48,"student_id":4,"result":"incorreta","score_earned":0},{"question_id":37,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":38,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":39,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":40,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":41,"student_id":5,"result":"incorreta","score_earned":0},{"question_id":42,"student_id":5,"result":"incorreta","score_earned":0},{"question_id":43,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":44,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":45,"student_id":5,"result":"incorreta","score_earned":0},{"question_id":46,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":47,"student_id":5,"result":"correta","score_earned":0.83},{"question_id":48,"student_id":5,"result":"correta","score_earned":0.83}],"notas":[{"assessment_id":1,"student_id":1,"score":6.67,"percentage":66.67,"correct_count":8,"wrong_count":3,"blank_count":1},{"assessment_id":1,"student_id":2,"score":6.67,"percentage":66.67,"correct_count":8,"wrong_count":4,"blank_count":0},{"assessment_id":1,"student_id":3,"score":8.33,"percentage":83.33,"correct_count":10,"wrong_count":2,"blank_count":0},{"assessment_id":1,"student_id":4,"score":5,"percentage":50,"correct_count":6,"wrong_count":6,"blank_count":0},{"assessment_id":1,"student_id":5,"score":5.83,"percentage":58.33,"correct_count":7,"wrong_count":4,"blank_count":1},{"assessment_id":2,"student_id":1,"score":7.5,"percentage":75,"correct_count":9,"wrong_count":3,"blank_count":0},{"assessment_id":2,"student_id":2,"score":8.33,"percentage":83.33,"correct_count":10,"wrong_count":2,"blank_count":0},{"assessment_id":2,"student_id":3,"score":5.83,"percentage":58.33,"correct_count":7,"wrong_count":3,"blank_count":2},{"assessment_id":2,"student_id":4,"score":5.83,"percentage":58.33,"correct_count":7,"wrong_count":5,"blank_count":0},{"assessment_id":2,"student_id":5,"score":6.67,"percentage":66.67,"correct_count":8,"wrong_count":2,"blank_count":2},{"assessment_id":3,"student_id":1,"score":7.5,"percentage":75,"correct_count":9,"wrong_count":2,"blank_count":1},{"assessment_id":3,"student_id":2,"score":8.33,"percentage":83.33,"correct_count":10,"wrong_count":2,"blank_count":0},{"assessment_id":3,"student_id":3,"score":5,"percentage":50,"correct_count":6,"wrong_count":5,"blank_count":1},{"assessment_id":3,"student_id":4,"score":4.17,"percentage":41.67,"correct_count":5,"wrong_count":5,"blank_count":2},{"assessment_id":3,"student_id":5,"score":8.33,"percentage":83.33,"correct_count":10,"wrong_count":2,"blank_count":0},{"assessment_id":4,"student_id":1,"score":9.17,"percentage":91.67,"correct_count":11,"wrong_count":1,"blank_count":0},{"assessment_id":4,"student_id":2,"score":8.33,"percentage":83.33,"correct_count":10,"wrong_count":2,"blank_count":0},{"assessment_id":4,"student_id":3,"score":5.83,"percentage":58.33,"correct_count":7,"wrong_count":5,"blank_count":0},{"assessment_id":4,"student_id":4,"score":5,"percentage":50,"correct_count":6,"wrong_count":5,"blank_count":1},{"assessment_id":4,"student_id":5,"score":7.5,"percentage":75,"correct_count":9,"wrong_count":3,"blank_count":0}]}</script>
+<script>
+"use strict";
+const DADOS = JSON.parse(document.getElementById("dados").textContent);
+
+/* ===========================================================================
+   1. MOTOR ANALÍTICO
+   Porte fiel de src/Services/{Analytics,Ranking,Alert}Service.php.
+   Verificado no Node contra os valores calculados pelo PHP: ranking, médias,
+   frequência, aproveitamento por assunto e as 21 mensagens de alerta batem.
+   =========================================================================== */
+
+const PADROES = {
+  faixa_dominio: 80, faixa_intermediario: 60,
+  peso_desempenho: 0.40, peso_evolucao: 0.25, peso_frequencia: 0.15, peso_consistencia: 0.20,
+  id_evolucao: 75, id_atencao: 55,
+  min_questoes_assunto: 3, min_avaliacoes_evolucao: 3, min_avaliacoes_indice: 2,
+  janela_recente: 3, fator_evolucao: 5, fator_consistencia: 2,
+  frequencia_minima: 75, media_alerta: 60, queda_alerta: 10, evolucao_alerta: 10,
+  limite_dificuldade: 60, ocorrencias_persistente: 3, justificada_conta: false,
+};
+
+const r2 = (v) => v === null ? null : Math.round(v * 100) / 100;
+const clamp = (v, min = 0, max = 100) => Math.max(min, Math.min(max, v));
+
+function pesos(cfg) {
+  const w = {
+    desempenho: cfg.peso_desempenho, evolucao: cfg.peso_evolucao,
+    frequencia: cfg.peso_frequencia, consistencia: cfg.peso_consistencia,
+  };
+  const soma = w.desempenho + w.evolucao + w.frequencia + w.consistencia;
+  if (soma <= 0) return { desempenho: .4, evolucao: .25, frequencia: .15, consistencia: .2 };
+  return {
+    desempenho: w.desempenho / soma, evolucao: w.evolucao / soma,
+    frequencia: w.frequencia / soma, consistencia: w.consistencia / soma,
+  };
+}
+
+/** Média ponderada dos percentuais (peso = peso da avaliação). */
+function mediaPonderada(notas) {
+  let soma = 0, pesosTotal = 0;
+  for (const n of notas) { soma += n.percentage * n.weight; pesosTotal += n.weight; }
+  return pesosTotal > 0 ? r2(soma / pesosTotal) : null;
+}
+
+/** Coeficiente angular da reta de tendência: p.p. ganhos por avaliação. */
+function tendencia(percentuais) {
+  const n = percentuais.length;
+  if (n < 2) return null;
+  const mediaX = (n + 1) / 2;
+  const mediaY = percentuais.reduce((a, b) => a + b, 0) / n;
+  let num = 0, den = 0;
+  percentuais.forEach((y, i) => { const dx = (i + 1) - mediaX; num += dx * (y - mediaY); den += dx * dx; });
+  return den > 0 ? Math.round(num / den * 1000) / 1000 : null;
+}
+
+function desvioPadrao(valores) {
+  const n = valores.length;
+  if (n < 2) return null;
+  const media = valores.reduce((a, b) => a + b, 0) / n;
+  const variancia = valores.reduce((acc, v) => acc + (v - media) ** 2, 0) / n;
+  return r2(Math.sqrt(variancia));
+}
+
+/** Média das últimas N avaliações menos a média das anteriores. */
+function evolucaoRecente(percentuais, janela) {
+  const n = percentuais.length;
+  if (n < 2) return null;
+  janela = Math.min(janela, Math.floor(n / 2)) || 1;
+  const recentes = percentuais.slice(-janela);
+  const anteriores = percentuais.slice(0, n - janela);
+  if (anteriores.length === 0) return null;
+  const m = (a) => a.reduce((x, y) => x + y, 0) / a.length;
+  return r2(m(recentes) - m(anteriores));
+}
+
+function classificarConteudo(aproveitamento, cfg) {
+  if (aproveitamento === null) return 'sem_dados';
+  if (aproveitamento >= cfg.faixa_dominio) return 'dominio';
+  if (aproveitamento >= cfg.faixa_intermediario) return 'intermediario';
+  return 'dificuldade';
+}
+
+/* ------------------------------------------------------------------ base */
+
+class Base {
+  constructor(dados) {
+    this.d = dados;
+    this.topicoPorId = new Map(dados.topicos.map(t => [t.id, t]));
+    this.questaoPorId = new Map(dados.questoes.map(q => [q.id, q]));
+    this.avaliacaoPorId = new Map(dados.avaliacoes.map(a => [a.id, a]));
+    this.alunoPorId = new Map(dados.alunos.map(a => [a.id, a]));
+    this.aulaPorId = new Map(dados.aulas.map(l => [l.id, l]));
+    // Avaliações em ordem cronológica — base de toda série temporal.
+    this.avaliacoesOrdenadas = [...dados.avaliacoes].sort(
+      (a, b) => a.assessment_date.localeCompare(b.assessment_date) || a.id - b.id
+    );
+  }
+
+  /** Assunto raiz de um tópico (o tópico filho é consolidado no assunto pai). */
+  raiz(topicId) {
+    const t = this.topicoPorId.get(topicId);
+    if (!t) return null;
+    return t.parent_id ? this.topicoPorId.get(t.parent_id) : t;
+  }
+
+  notasDoAluno(studentId, filtros = {}) {
+    return this.d.notas
+      .filter(n => n.student_id === studentId)
+      .map(n => ({ ...n, aval: this.avaliacaoPorId.get(n.assessment_id) }))
+      .filter(n => n.aval && (!filtros.tipo || n.aval.type === filtros.tipo))
+      .sort((a, b) => a.aval.assessment_date.localeCompare(b.aval.assessment_date) || a.aval.id - b.aval.id)
+      .map(n => ({ ...n, weight: n.aval.weight }));
+  }
+
+  respostasDoAluno(studentId) {
+    return this.d.respostas.filter(r => r.student_id === studentId);
+  }
+
+  /** Presença: faltas justificadas saem do denominador por padrão. */
+  frequencia(studentId, cfg) {
+    const regs = this.d.presencas.filter(p => p.student_id === studentId);
+    const conta = (s) => regs.filter(p => p.status === s).length;
+    const presentes = conta('presente'), atrasos = conta('atraso');
+    const faltas = conta('falta'), justificadas = conta('falta_justificada');
+    const total = regs.length;
+    const base = cfg.justificada_conta ? total : total - justificadas;
+    const participacoes = regs.map(p => p.participation).filter(v => v !== null && v !== undefined);
+    return {
+      aulas: total, presentes, atrasos, faltas, justificadas,
+      frequencia: base > 0 ? r2((presentes + atrasos * 0.5) / base * 100) : null,
+      participacao: participacoes.length ? r2(participacoes.reduce((a, b) => a + b, 0) / participacoes.length) : null,
+    };
+  }
+
+  /** Acertos / erros / em branco de um recorte de respostas. */
+  totaisDeResposta(respostas) {
+    const total = respostas.length;
+    const conta = (s) => respostas.filter(r => r.result === s).length;
+    const acertos = conta('correta'), erros = conta('incorreta'), branco = conta('nao_respondida');
+    return {
+      total, acertos, erros, branco,
+      pct_acertos: total ? r2(acertos / total * 100) : null,
+      pct_erros: total ? r2(erros / total * 100) : null,
+      pct_branco: total ? r2(branco / total * 100) : null,
+    };
+  }
+
+  /**
+   * Aproveitamento por assunto: pontos obtidos ÷ pontos possíveis, consolidado
+   * no assunto raiz e classificado nas faixas configuradas.
+   */
+  aproveitamentoPorAssunto(respostas, cfg) {
+    const grupos = new Map();
+    for (const resp of respostas) {
+      const q = this.questaoPorId.get(resp.question_id);
+      if (!q || !q.topic_id) continue;
+      const raiz = this.raiz(q.topic_id);
+      if (!raiz) continue;
+      if (!grupos.has(raiz.id)) {
+        grupos.set(raiz.id, {
+          topic_id: raiz.id, topic_name: raiz.name,
+          respondidas: 0, acertos: 0, erros: 0, branco: 0,
+          pontos_obtidos: 0, pontos_possiveis: 0, alunos: new Set(),
+        });
+      }
+      const g = grupos.get(raiz.id);
+      g.respondidas++;
+      g.alunos.add(resp.student_id);
+      if (resp.result === 'correta') g.acertos++;
+      else if (resp.result === 'incorreta') g.erros++;
+      else g.branco++;
+      g.pontos_obtidos += resp.score_earned;
+      g.pontos_possiveis += q.points;
+    }
+
+    return [...grupos.values()].map(g => {
+      const aprov = g.pontos_possiveis > 0 ? r2(g.pontos_obtidos / g.pontos_possiveis * 100) : null;
+      const amostra = g.respondidas >= cfg.min_questoes_assunto;
+      return {
+        ...g, alunos: g.alunos.size, aproveitamento: aprov,
+        amostra_suficiente: amostra,
+        classificacao: amostra ? classificarConteudo(aprov, cfg) : 'sem_dados',
+      };
+    }).sort((a, b) => (a.aproveitamento ?? 999) - (b.aproveitamento ?? 999));
+  }
+
+  /** Aproveitamento por nível de dificuldade das questões. */
+  aproveitamentoPorDificuldade(respostas) {
+    const ordem = ['facil', 'medio', 'dificil'];
+    const grupos = new Map(ordem.map(d => [d, { dificuldade: d, respondidas: 0, acertos: 0, obtidos: 0, possiveis: 0 }]));
+    for (const resp of respostas) {
+      const q = this.questaoPorId.get(resp.question_id);
+      if (!q) continue;
+      const g = grupos.get(q.difficulty);
+      g.respondidas++;
+      if (resp.result === 'correta') g.acertos++;
+      g.obtidos += resp.score_earned;
+      g.possiveis += q.points;
+    }
+    return ordem.map(d => grupos.get(d)).filter(g => g.respondidas > 0).map(g => ({
+      dificuldade: g.dificuldade, respondidas: g.respondidas, acertos: g.acertos,
+      aproveitamento: g.possiveis > 0 ? r2(g.obtidos / g.possiveis * 100) : null,
+    }));
+  }
+
+  /** Painel completo de um aluno — fonte única do dashboard individual. */
+  resumoDoAluno(studentId, cfg) {
+    const notas = this.notasDoAluno(studentId);
+    const percentuais = notas.map(n => n.percentage);
+    const media = mediaPonderada(notas);
+    const slope = tendencia(percentuais);
+    const delta = evolucaoRecente(percentuais, cfg.janela_recente);
+    const desvio = desvioPadrao(percentuais);
+    const presenca = this.frequencia(studentId, cfg);
+    const respostas = this.respostasDoAluno(studentId);
+    const assuntos = this.aproveitamentoPorAssunto(respostas, cfg);
+
+    const conta = (c) => assuntos.filter(a => a.classificacao === c).length;
+
+    const scoreEvolucao = (slope !== null && notas.length >= cfg.min_avaliacoes_evolucao)
+      ? clamp(50 + slope * cfg.fator_evolucao) : 50;
+    const scoreConsistencia = desvio !== null
+      ? clamp(100 - desvio * cfg.fator_consistencia) : 50;
+
+    const w = pesos(cfg);
+    const confiavel = notas.length >= cfg.min_avaliacoes_indice;
+    const indice = confiavel ? r2(
+      w.desempenho * media + w.evolucao * scoreEvolucao +
+      w.frequencia * (presenca.frequencia ?? 50) + w.consistencia * scoreConsistencia
+    ) : null;
+
+    const { classificacao, motivos } = classificarAluno(indice, delta, presenca.frequencia, confiavel, cfg);
+
+    return {
+      id: studentId, aluno: this.alunoPorId.get(studentId),
+      avaliacoes: notas.length, notas, percentuais, media,
+      evolucao_slope: slope,
+      evolucao_total: slope !== null ? r2(slope * (notas.length - 1)) : null,
+      evolucao_recente: delta, desvio,
+      score_evolucao: r2(scoreEvolucao), score_consistencia: r2(scoreConsistencia),
+      frequencia: presenca.frequencia, participacao: presenca.participacao, presenca,
+      acertos: this.totaisDeResposta(respostas),
+      assuntos,
+      dominados: conta('dominio'), intermediarios: conta('intermediario'), dificuldades: conta('dificuldade'),
+      indice, indice_confiavel: confiavel, classificacao, motivos,
+      // Contribuição de cada componente para o índice — usada no gráfico do perfil.
+      componentes: [
+        { nome: 'Desempenho',   valor: media ?? 0,                 peso: w.desempenho },
+        { nome: 'Evolução',     valor: scoreEvolucao,              peso: w.evolucao },
+        { nome: 'Frequência',   valor: presenca.frequencia ?? 50,  peso: w.frequencia },
+        { nome: 'Consistência', valor: scoreConsistencia,          peso: w.consistencia },
+      ],
+    };
+  }
+
+  /** Ranking pelo Índice de Desenvolvimento (não pela maior nota). */
+  ranking(cfg) {
+    const linhas = this.d.alunos
+      .filter(a => a.status !== 'inativo')
+      .map(a => this.resumoDoAluno(a.id, cfg));
+
+    linhas.sort((x, y) => {
+      if (x.indice === null && y.indice === null) return x.aluno.full_name.localeCompare(y.aluno.full_name);
+      if (x.indice === null) return 1;
+      if (y.indice === null) return -1;
+      return y.indice - x.indice;
+    });
+
+    let posicao = 0;
+    linhas.forEach(l => { l.posicao = l.indice === null ? null : ++posicao; });
+    return linhas;
+  }
+
+  /** Médias e séries agregadas do recorte inteiro. */
+  mediaGeral() {
+    if (!this.d.notas.length) return null;
+    return r2(this.d.notas.reduce((a, n) => a + n.percentage, 0) / this.d.notas.length);
+  }
+
+  mediaPorAvaliacao() {
+    return this.avaliacoesOrdenadas.map(av => {
+      const notas = this.d.notas.filter(n => n.assessment_id === av.id);
+      const p = notas.map(n => n.percentage);
+      return {
+        assessment_id: av.id, nome: av.name, data: av.assessment_date, tipo: av.type,
+        alunos: notas.length,
+        media: p.length ? r2(p.reduce((a, b) => a + b, 0) / p.length) : null,
+        minima: p.length ? Math.min(...p) : null,
+        maxima: p.length ? Math.max(...p) : null,
+      };
+    });
+  }
+
+  distribuicao() {
+    const faixas = { '0 a 39%': 0, '40 a 59%': 0, '60 a 79%': 0, '80 a 100%': 0 };
+    for (const aluno of this.d.alunos) {
+      const notas = this.d.notas.filter(n => n.student_id === aluno.id);
+      if (!notas.length) continue;
+      const m = notas.reduce((a, n) => a + n.percentage, 0) / notas.length;
+      if (m < 40) faixas['0 a 39%']++;
+      else if (m < 60) faixas['40 a 59%']++;
+      else if (m < 80) faixas['60 a 79%']++;
+      else faixas['80 a 100%']++;
+    }
+    return faixas;
+  }
+
+  /** Índice de acerto por questão de uma avaliação. */
+  analiseDaAvaliacao(assessmentId, cfg) {
+    const questoes = this.d.questoes
+      .filter(q => q.assessment_id === assessmentId)
+      .sort((a, b) => (a.number ?? a.id) - (b.number ?? b.id));
+
+    return questoes.map(q => {
+      const resp = this.d.respostas.filter(r => r.question_id === q.id);
+      const acertos = resp.filter(r => r.result === 'correta').length;
+      const indice = resp.length ? r2(acertos / resp.length * 100) : null;
+      const raiz = q.topic_id ? this.raiz(q.topic_id) : null;
+      return {
+        ...q, assunto: raiz ? raiz.name : null,
+        respondidas: resp.length, acertos,
+        erros: resp.filter(r => r.result === 'incorreta').length,
+        branco: resp.filter(r => r.result === 'nao_respondida').length,
+        indice_acerto: indice, classificacao: classificarConteudo(indice, cfg),
+      };
+    });
+  }
+}
+
+/** Classificação do aluno com a justificativa que o professor lê na tela. */
+function classificarAluno(indice, delta, frequencia, confiavel, cfg) {
+  if (!confiavel || indice === null) {
+    return { classificacao: 'sem_dados', motivos: [`Menos de ${cfg.min_avaliacoes_indice} avaliação(ões) registrada(s).`] };
+  }
+  const motivos = [];
+  let atencao = false;
+
+  if (delta !== null && delta <= -cfg.queda_alerta) {
+    atencao = true;
+    motivos.push(`Queda de ${fmt(Math.abs(delta), 1)} p.p. no desempenho recente.`);
+  }
+  if (frequencia !== null && frequencia < cfg.frequencia_minima) {
+    atencao = true;
+    motivos.push(`Frequência de ${fmt(frequencia, 1)}%, abaixo do mínimo de ${fmt(cfg.frequencia_minima, 0)}%.`);
+  }
+
+  if (atencao || indice < cfg.id_atencao) {
+    if (indice < cfg.id_atencao) motivos.push(`Índice de Desenvolvimento em ${fmt(indice, 1)}.`);
+    return { classificacao: 'atencao', motivos };
+  }
+  if (indice >= cfg.id_evolucao) {
+    motivos.push(`Índice de Desenvolvimento em ${fmt(indice, 1)}.`);
+    if (delta !== null && delta > 0) motivos.push(`Ganho de ${fmt(delta, 1)} p.p. nas avaliações recentes.`);
+    return { classificacao: 'evolucao', motivos };
+  }
+  motivos.push(`Índice de Desenvolvimento em ${fmt(indice, 1)}.`);
+  return { classificacao: 'intermediario', motivos };
+}
+
+/** Número no formato pt-BR (vírgula decimal), como o PHP escreve nas mensagens. */
+function fmt(valor, casas = 1) {
+  return Number(valor).toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas });
+}
+
+/* ---------------------------------------------------------------- alertas */
+
+function gerarAlertas(base, ranking, cfg) {
+  const alertas = [];
+  const novo = (chave, sev, titulo, alunoId, msg) =>
+    alertas.push({ key: chave, severity: sev, title: titulo, student_id: alunoId, message: msg });
+
+  for (const a of ranking) {
+    const nome = a.aluno.full_name;
+
+    if (a.evolucao_recente !== null && a.evolucao_recente <= -cfg.queda_alerta) {
+      const janela = Math.min(cfg.janela_recente, Math.max(1, Math.floor(a.percentuais.length / 2)));
+      const recentes = a.percentuais.slice(-janela);
+      const anteriores = a.percentuais.slice(0, a.percentuais.length - janela);
+      const m = (arr) => arr.length ? arr.reduce((x, y) => x + y, 0) / arr.length : 0;
+      novo(`queda:${a.id}`, 'alta', 'Queda de desempenho', a.id,
+        `${nome} teve queda de ${fmt(Math.abs(a.evolucao_recente))} pontos percentuais nas avaliações mais recentes (de ${fmt(m(anteriores))}% para ${fmt(m(recentes))}%).`);
+    }
+
+    if (a.frequencia !== null && a.frequencia < cfg.frequencia_minima && a.presenca.aulas > 0) {
+      novo(`frequencia:${a.id}`, 'alta', 'Frequência baixa', a.id,
+        `${nome} está com ${fmt(a.frequencia)}% de frequência (mínimo configurado: ${fmt(cfg.frequencia_minima, 0)}%), com ${a.presenca.faltas} falta(s) em ${a.presenca.aulas} aula(s).`);
+    }
+
+    if (a.media !== null && a.media < cfg.media_alerta && a.avaliacoes > 0) {
+      novo(`media:${a.id}`, 'alta', 'Baixo aproveitamento', a.id,
+        `${nome} está com média de ${fmt(a.media)}% em ${a.avaliacoes} avaliação(ões), abaixo do mínimo de ${fmt(cfg.media_alerta, 0)}%.`);
+    }
+
+    if (a.evolucao_recente !== null && a.evolucao_recente >= cfg.evolucao_alerta) {
+      novo(`evolucao:${a.id}`, 'positiva', 'Evolução significativa', a.id,
+        `${nome} evoluiu ${fmt(a.evolucao_recente)} pontos percentuais nas avaliações mais recentes. Vale registrar o reconhecimento.`);
+    }
+
+    if (a.avaliacoes === 0) {
+      novo(`sem_avaliacao:${a.id}`, 'media', 'Aluno sem resultados', a.id,
+        `${nome} está vinculado a uma turma mas ainda não possui nenhum resultado registrado.`);
+    }
+  }
+
+  // Dificuldade persistente: mesmo assunto abaixo do limite em N avaliações.
+  for (const a of ranking) {
+    const porAssuntoAvaliacao = new Map();
+    for (const resp of base.respostasDoAluno(a.id)) {
+      const q = base.questaoPorId.get(resp.question_id);
+      if (!q || !q.topic_id) continue;
+      const raiz = base.raiz(q.topic_id);
+      if (!raiz) continue;
+      const chave = `${raiz.id}|${q.assessment_id}`;
+      if (!porAssuntoAvaliacao.has(chave)) {
+        porAssuntoAvaliacao.set(chave, { topico: raiz, obtidos: 0, possiveis: 0 });
+      }
+      const g = porAssuntoAvaliacao.get(chave);
+      g.obtidos += resp.score_earned;
+      g.possiveis += q.points;
+    }
+    const ocorrencias = new Map();
+    for (const [chave, g] of porAssuntoAvaliacao) {
+      if (g.possiveis <= 0) continue;
+      const aprov = g.obtidos / g.possiveis * 100;
+      if (aprov >= cfg.limite_dificuldade) continue;
+      const id = chave.split('|')[0];
+      if (!ocorrencias.has(id)) ocorrencias.set(id, { topico: g.topico, n: 0 });
+      ocorrencias.get(id).n++;
+    }
+    for (const [id, o] of ocorrencias) {
+      if (o.n < cfg.ocorrencias_persistente) continue;
+      novo(`persistente:${a.id}:${id}`, 'alta', 'Dificuldade persistente', a.id,
+        `Atenção: ${a.aluno.full_name} apresentou aproveitamento inferior a ${fmt(cfg.limite_dificuldade, 0)}% em ${o.topico.name} nas últimas ${o.n} avaliações.`);
+    }
+  }
+
+  // Conteúdo crítico da turma.
+  const assuntosTurma = base.aproveitamentoPorAssunto(base.d.respostas, cfg);
+  for (const t of assuntosTurma) {
+    if (t.aproveitamento === null || t.aproveitamento >= cfg.limite_dificuldade || t.respondidas < 5) continue;
+    novo(`turma_conteudo:${t.topic_id}`, 'media', 'Conteúdo crítico da turma', null,
+      `A turma ${base.d.turma.code} obteve apenas ${fmt(t.aproveitamento)}% de aproveitamento em ${t.topic_name} (${t.respondidas} respostas de ${t.alunos} aluno(s)). Conteúdo candidato a revisão.`);
+  }
+
+  const ordem = { alta: 0, media: 1, positiva: 2 };
+  alertas.sort((x, y) => (ordem[x.severity] ?? 3) - (ordem[y.severity] ?? 3));
+  return alertas;
+}
+
+/* ===========================================================================
+   2. ESTADO
+   =========================================================================== */
+let CFG = { ...PADROES };
+let BASE = new Base(DADOS);
+let M = null;                       // modelo derivado da rodada atual
+let rota = { vista: "dashboard", id: null };
+
+function recalcular() {
+  BASE = new Base(DADOS);
+  const ranking = BASE.ranking(CFG);
+  M = {
+    ranking,
+    porAluno: new Map(ranking.map(r => [r.id, r])),
+    alertas: gerarAlertas(BASE, ranking, CFG),
+    assuntos: BASE.aproveitamentoPorAssunto(DADOS.respostas, CFG),
+    dificuldade: BASE.aproveitamentoPorDificuldade(DADOS.respostas),
+    porAvaliacao: BASE.mediaPorAvaliacao(),
+    distribuicao: BASE.distribuicao(),
+    mediaGeral: BASE.mediaGeral(),
+    totais: BASE.totaisDeResposta(DADOS.respostas),
+  };
+  M.classes = { evolucao: 0, intermediario: 0, atencao: 0, sem_dados: 0 };
+  ranking.forEach(r => M.classes[r.classificacao]++);
+}
+
+/** Recalcula a nota de um aluno numa avaliação — espelha Grade::recalculate. */
+function recalcularNota(assessmentId, studentId) {
+  const av = BASE.avaliacaoPorId.get(assessmentId);
+  const qs = DADOS.questoes.filter(q => q.assessment_id === assessmentId);
+  const ids = new Set(qs.map(q => q.id));
+  const resp = DADOS.respostas.filter(r => r.student_id === studentId && ids.has(r.question_id));
+
+  const idx = DADOS.notas.findIndex(n => n.assessment_id === assessmentId && n.student_id === studentId);
+  if (!resp.length) { if (idx >= 0) DADOS.notas.splice(idx, 1); return; }
+
+  let obtidos = 0, possiveis = 0, c = 0, e = 0, b = 0;
+  for (const r of resp) {
+    const q = qs.find(x => x.id === r.question_id);
+    obtidos += r.score_earned; possiveis += q.points;
+    if (r.result === "correta") c++; else if (r.result === "incorreta") e++; else b++;
+  }
+  const percentage = possiveis > 0 ? r2(obtidos / possiveis * 100) : 0;
+  const nota = {
+    assessment_id: assessmentId, student_id: studentId,
+    score: r2(percentage / 100 * av.max_score), percentage,
+    correct_count: c, wrong_count: e, blank_count: b,
+  };
+  if (idx >= 0) DADOS.notas[idx] = nota; else DADOS.notas.push(nota);
+}
+
+/* ===========================================================================
+   3. UTILITÁRIOS DE APRESENTAÇÃO
+   =========================================================================== */
+const h = (v) => String(v ?? "").replace(/[&<>"']/g, (c) =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const pct = (v, casas = 1) => v === null || v === undefined ? "—" : fmt(v, casas) + "%";
+const num = (v, casas = 1) => v === null || v === undefined ? "—" : fmt(v, casas);
+const dataBr = (iso) => iso ? iso.split("-").reverse().join("/") : "—";
+const iniciais = (nome) => {
+  const p = nome.trim().split(/\s+/);
+  return ((p[0]?.[0] ?? "") + (p.length > 1 ? p[p.length - 1][0] : "")).toUpperCase();
+};
+
+/** Faixa visual de um aproveitamento — sempre exibida junto do número. */
+function faixa(v) {
+  if (v === null || v === undefined) return { classe: "neutro", cor: "var(--tinta-3)", texto: "Sem dados" };
+  if (v >= CFG.faixa_dominio) return { classe: "bom", cor: "var(--bom)", texto: "Domínio" };
+  if (v >= CFG.faixa_intermediario) return { classe: "medio", cor: "var(--medio)", texto: "Intermediário" };
+  return { classe: "ruim", cor: "var(--ruim)", texto: "Dificuldade" };
+}
+const ROTULO_CLASSE = {
+  evolucao: { texto: "Em evolução", classe: "bom" },
+  intermediario: { texto: "Intermediário", classe: "medio" },
+  atencao: { texto: "Precisa de atenção", classe: "ruim" },
+  sem_dados: { texto: "Sem dados suficientes", classe: "neutro" },
+};
+const ROTULO_DIFICULDADE = { facil: "Fácil", medio: "Médio", dificil: "Difícil" };
+const ROTULO_TIPO = {
+  prova: "Prova", simulado: "Simulado", atividade: "Atividade",
+  exercicio: "Exercício", diagnostica: "Avaliação diagnóstica", revisao: "Avaliação de revisão",
+};
+const ROTULO_PRESENCA = { presente: "Presente", falta: "Falta", falta_justificada: "Justificada", atraso: "Atraso" };
+
+/** Barra de aproveitamento usada nas tabelas — cor + número, nunca só cor. */
+function barra(v) {
+  const f = faixa(v);
+  return `<div class="barra">
+    <span class="barra__t"><span class="barra__p" style="width:${Math.max(0, Math.min(100, v ?? 0))}%;background:${f.cor}"></span></span>
+    <span class="barra__v">${pct(v, 0)}</span>
+  </div>`;
+}
+const tag = (classe, texto) => `<span class="tag tag--${classe}">${h(texto)}</span>`;
+
+/* ===========================================================================
+   4. GRÁFICOS — SVG próprio, com camada de hover
+   =========================================================================== */
+/** Largura de desenho = largura real do container, para o SVG sair em escala
+ *  1:1 e o texto continuar legível dentro de colunas estreitas. */
+const cortar = (texto, max) => texto.length > max ? texto.slice(0, Math.max(3, max - 1)) + "…" : texto;
+
+function larguraDe(alvo) {
+  return Math.max(340, Math.round(alvo.clientWidth || 720));
+}
+
+const G = {
+  L: 44, R: 18, T: 14, B: 30,        // margens do painel de plotagem
+  cor: { a: "var(--serie-a)", b: "var(--serie-b)", c: "var(--serie-c)" },
+};
+
+/** Eixo Y de 0 a 100 com grade recessiva. */
+function eixoY(w, h, max = 100, passo = 25, margemDireita = G.R) {
+  let s = "";
+  for (let v = 0; v <= max; v += passo) {
+    const y = G.T + (h - G.T - G.B) * (1 - v / max);
+    s += `<line x1="${G.L}" y1="${y}" x2="${w - margemDireita}" y2="${y}" stroke="var(--grade)" stroke-width="1"/>`;
+    s += `<text x="${G.L - 8}" y="${y + 4}" text-anchor="end" font-size="11">${v}</text>`;
+  }
+  return s;
+}
+
+/**
+ * Linha com 1..3 séries, marcadores, rótulo direto no fim de cada série
+ * e cruz + balão no hover.
+ */
+function grafLinha(alvo, { labels, series, altura = 250 }) {
+  if (!labels.length) { alvo.innerHTML = '<div class="vazio">Sem dados para este gráfico.</div>'; return; }
+  const w = larguraDe(alvo), hh = altura;
+  const margemDireita = series.length > 1 ? 74 : 22;   // espaço p/ o rótulo direto
+  const pw = w - G.L - margemDireita, ph = hh - G.T - G.B;
+  const x = (i) => labels.length === 1 ? G.L + pw / 2 : G.L + pw * i / (labels.length - 1);
+  const y = (v) => G.T + ph * (1 - Math.max(0, Math.min(100, v)) / 100);
+
+  let corpo = eixoY(w, hh, 100, 25, margemDireita);
+  labels.forEach((l, i) => {
+    corpo += `<text x="${x(i)}" y="${hh - G.B + 16}" text-anchor="middle" font-size="11">${h(l.length > 16 ? l.slice(0, 15) + "…" : l)}</text>`;
+  });
+
+  series.forEach((s, si) => {
+    const cor = s.cor || [G.cor.a, G.cor.b, G.cor.c][si % 3];
+    const pontos = s.dados.map((v, i) => v === null ? null : [x(i), y(v)]).filter(Boolean);
+    if (pontos.length > 1) {
+      corpo += `<polyline points="${pontos.map(p => p.join(",")).join(" ")}" fill="none"
+        stroke="${cor}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    }
+    s.dados.forEach((v, i) => {
+      if (v === null) return;
+      corpo += `<circle cx="${x(i)}" cy="${y(v)}" r="4" fill="${cor}" stroke="var(--superficie)" stroke-width="2"/>`;
+    });
+    // Rótulo direto no último ponto — identidade sem depender só da cor.
+    const ult = s.dados.map((v, i) => [v, i]).filter(([v]) => v !== null).pop();
+    if (ult && series.length > 1) {
+      corpo += `<text x="${x(ult[1]) + 8}" y="${y(ult[0]) + 4}" font-size="11.5" font-weight="600" fill="${cor}">${h(s.nome)}</text>`;
+    }
+  });
+
+  const legenda = series.length > 1
+    ? `<div class="legenda">${series.map((s, i) =>
+        `<span><i style="background:${s.cor || [G.cor.a, G.cor.b, G.cor.c][i % 3]}"></i>${h(s.nome)}</span>`).join("")}</div>`
+    : "";
+
+  alvo.innerHTML = `${legenda}<div class="graf">
+    <svg viewBox="0 0 ${w} ${hh}" role="img" aria-label="${h(series.map(s => s.nome).join(", "))}">
+      ${corpo}
+      <line id="cruz" x1="0" y1="${G.T}" x2="0" y2="${hh - G.B}" stroke="var(--fio-forte)" stroke-width="1" opacity="0"/>
+    </svg>
+    <div class="dica"></div>
+  </div>`;
+
+  ligarHover(alvo.querySelector(".graf"), labels, series, w, hh, x, y);
+}
+
+function ligarHover(graf, labels, series, w, hh, x, y) {
+  const svg = graf.querySelector("svg"), dica = graf.querySelector(".dica"), cruz = graf.querySelector("#cruz");
+  graf.addEventListener("pointermove", (ev) => {
+    const r = svg.getBoundingClientRect();
+    const vx = (ev.clientX - r.left) / r.width * w;
+    let melhor = 0, dist = Infinity;
+    labels.forEach((_, i) => { const d = Math.abs(x(i) - vx); if (d < dist) { dist = d; melhor = i; } });
+    cruz.setAttribute("x1", x(melhor)); cruz.setAttribute("x2", x(melhor));
+    cruz.setAttribute("opacity", "1");
+    dica.innerHTML = `${h(labels[melhor])}<br>` + series.map((s, si) => {
+      const v = s.dados[melhor];
+      const cor = s.cor || [G.cor.a, G.cor.b, G.cor.c][si % 3];
+      return `<span style="color:${cor}">■</span> ${h(s.nome)}: <b>${v === null ? "—" : fmt(v, 1) + "%"}</b>`;
+    }).join("<br>");
+    const alturas = series.map(s => s.dados[melhor]).filter(v => v !== null);
+    const yv = alturas.length ? y(Math.max(...alturas)) : G.T;
+    dica.style.left = (x(melhor) / w * r.width) + "px";
+    dica.style.top = (yv / hh * r.height) + "px";
+    dica.style.opacity = "1";
+  });
+  graf.addEventListener("pointerleave", () => { dica.style.opacity = "0"; cruz.setAttribute("opacity", "0"); });
+}
+
+/** Barras horizontais — nome à esquerda, valor rotulado no fim da barra. */
+function grafBarrasH(alvo, itens, { rotuloLargura = 190, max = 100, unidade = "%" } = {}) {
+  if (!itens.length) { alvo.innerHTML = '<div class="vazio">Sem dados para este gráfico.</div>'; return; }
+  const w = larguraDe(alvo), alturaLinha = 27, hh = itens.length * alturaLinha + 22;
+  const x0 = Math.min(rotuloLargura, Math.round(w * 0.42));
+  const pw = w - x0 - 62;
+  let corpo = "";
+
+  itens.forEach((it, i) => {
+    const yTopo = i * alturaLinha + 8;
+    const v = Math.max(0, Math.min(max, it.valor ?? 0));
+    const larg = pw * v / max;
+    const cor = it.cor || faixa(it.valor).cor;
+    corpo += `<text x="${x0 - 10}" y="${yTopo + 13}" text-anchor="end" font-size="12" fill="var(--tinta-2)">${h(cortar(it.nome, Math.floor(x0 / 6.6)))}</text>`;
+    corpo += `<rect x="${x0}" y="${yTopo + 3}" width="${pw}" height="13" rx="3" fill="var(--grade)"/>`;
+    if (it.valor !== null) {
+      corpo += `<rect x="${x0}" y="${yTopo + 3}" width="${Math.max(3, larg)}" height="13" rx="3" fill="${cor}"><title>${h(it.nome)}: ${fmt(it.valor, 1)}${unidade}</title></rect>`;
+    }
+    corpo += `<text x="${x0 + Math.max(3, larg) + 8}" y="${yTopo + 14}" font-size="11.5" font-family="var(--mono)" fill="var(--tinta-2)">${it.valor === null ? "—" : fmt(it.valor, 1) + unidade}</text>`;
+    if (it.nota) corpo += `<text x="${x0 - 10}" y="${yTopo + 24}" text-anchor="end" font-size="10" fill="var(--tinta-3)">${h(it.nota)}</text>`;
+  });
+
+  alvo.innerHTML = `<div class="graf"><svg viewBox="0 0 ${w} ${hh}" role="img" aria-label="Barras de aproveitamento">${corpo}</svg></div>`;
+}
+
+/** Barras verticais agrupadas, com 2px de respiro entre barras vizinhas. */
+function grafBarrasV(alvo, { labels, series, altura = 250, max = 100, passo = 25, unidade = "%", casas = 1 }) {
+  if (!labels.length) { alvo.innerHTML = '<div class="vazio">Sem dados para este gráfico.</div>'; return; }
+  const w = larguraDe(alvo), hh = altura, pw = w - G.L - G.R, ph = hh - G.T - G.B;
+  const largGrupo = Math.min(64, (pw / labels.length) * 0.66);
+  const largBarra = (largGrupo - (series.length - 1) * 2) / series.length;
+  let corpo = eixoY(w, hh, max, passo);
+  const largura = pw / labels.length;
+
+  labels.forEach((l, i) => {
+    const cx = G.L + largura * (i + 0.5);
+    series.forEach((s, si) => {
+      const v = s.dados[i];
+      if (v === null || v === undefined) return;
+      const alt = ph * Math.max(0, Math.min(max, v)) / max;
+      const bx = cx - largGrupo / 2 + si * (largBarra + 2);
+      const cor = s.cores ? s.cores[i] : (s.cor || [G.cor.a, G.cor.b, G.cor.c][si % 3]);
+      corpo += `<rect x="${bx}" y="${G.T + ph - alt}" width="${largBarra}" height="${Math.max(2, alt)}" rx="4"
+        fill="${cor}"><title>${h(l)} · ${h(s.nome)}: ${fmt(v, casas)}${unidade}</title></rect>`;
+    });
+    corpo += `<text x="${cx}" y="${hh - G.B + 16}" text-anchor="middle" font-size="11">${h(l.length > 14 ? l.slice(0, 13) + "…" : l)}</text>`;
+  });
+
+  const legenda = series.length > 1
+    ? `<div class="legenda">${series.map((s, i) => `<span><i style="background:${s.cor || [G.cor.a, G.cor.b, G.cor.c][i % 3]}"></i>${h(s.nome)}</span>`).join("")}</div>`
+    : "";
+  alvo.innerHTML = `${legenda}<div class="graf"><svg viewBox="0 0 ${w} ${hh}" role="img" aria-label="${h(series.map(s => s.nome).join(", "))}">${corpo}</svg></div>`;
+}
+
+/**
+ * Contribuição de cada componente para o Índice de Desenvolvimento.
+ * Uma barra empilhada que soma exatamente o índice — o gráfico é a fórmula.
+ */
+function grafContribuicao(alvo, resumo) {
+  if (resumo.indice === null) { alvo.innerHTML = '<div class="vazio">Índice indisponível: avaliações insuficientes.</div>'; return; }
+  const w = larguraDe(alvo), hh = 96, x0 = 8, pw = w - 74;
+  const cores = [G.cor.a, G.cor.b, G.cor.c, "var(--bom)"];
+  let x = x0, corpo = "", legenda = "";
+
+  resumo.componentes.forEach((c, i) => {
+    const contrib = c.valor * c.peso;
+    const larg = pw * contrib / 100;
+    corpo += `<rect x="${x}" y="18" width="${Math.max(0, larg - 2)}" height="30" rx="3" fill="${cores[i]}">
+      <title>${h(c.nome)}: ${fmt(c.valor, 1)} × ${fmt(c.peso * 100, 0)}% = ${fmt(contrib, 1)} pontos do índice</title></rect>`;
+    if (larg > 46) {
+      corpo += `<text x="${x + larg / 2 - 1}" y="${38}" text-anchor="middle" font-size="12" font-weight="600" fill="#fff" font-family="var(--mono)">${fmt(contrib, 1)}</text>`;
+    }
+    legenda += `<span><i style="background:${cores[i]}"></i>${h(c.nome)} ${fmt(c.valor, 1)} × ${fmt(c.peso * 100, 0)}%</span>`;
+    x += larg;
+  });
+
+  // Marcas dos cortes de classificação, para situar o índice na escala.
+  [[CFG.id_atencao, "atenção"], [CFG.id_evolucao, "evolução"]].forEach(([v, rot]) => {
+    const px = x0 + pw * v / 100;
+    corpo += `<line x1="${px}" y1="12" x2="${px}" y2="54" stroke="var(--tinta-3)" stroke-width="1" stroke-dasharray="3 3"/>`;
+    corpo += `<text x="${px}" y="68" text-anchor="middle" font-size="10.5" fill="var(--tinta-3)">corte ${h(rot)} ${fmt(v, 0)}</text>`;
+  });
+  corpo += `<text x="${x0}" y="12" font-size="11" fill="var(--tinta-3)">0</text>`;
+  corpo += `<text x="${x0 + pw}" y="12" text-anchor="end" font-size="11" fill="var(--tinta-3)">100</text>`;
+  corpo += `<text x="${Math.min(x + 8, w - 60)}" y="${38}" font-size="13" font-weight="700" font-family="var(--mono)" fill="var(--tinta)">= ${fmt(resumo.indice, 1)}</text>`;
+
+  alvo.innerHTML = `<div class="legenda">${legenda}</div>
+    <div class="graf"><svg viewBox="0 0 ${w} ${hh}" role="img" aria-label="Composição do Índice de Desenvolvimento">${corpo}</svg></div>`;
+}
+</script>
+
+<script>
+/* ===========================================================================
+   5. NAVEGAÇÃO
+   =========================================================================== */
+const IC = {
+  dashboard: 'M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H2zM9 9h5v5H9z',
+  alunos:    'M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 14.5c0-2.5 2.7-4 6-4s6 1.5 6 4',
+  turmas:    'M2 13V5l6-3 6 3v8M6 13V9h4v4',
+  disciplinas:'M3 2.5h4.2c.9 0 1.3.6 1.3 1.3v9.4M13 2.5H8.8c-.9 0-1.3.6-1.3 1.3v9.4M2 3.5v9.8h12V3.5',
+  aulas:     'M2.5 3.5h11v10h-11zM2.5 6.5h11M5.5 2v3M10.5 2v3M5 9.5h2M9 9.5h2',
+  avaliacoes:'M3.5 1.5h6l3 3v10h-9zM9.5 1.5v3.2h3M5.5 9l1.6 1.6L10.5 7.5',
+  questoes:  'M2.5 4h4M2.5 8h4M2.5 12h4M9.5 3.6c0-1 .8-1.6 1.7-1.6s1.8.6 1.8 1.7c0 1.6-1.8 1.5-1.8 3M11.2 10.6v.1',
+  relatorios:'M3.5 1.5h6l3 3v10h-9zM9.5 1.5v3.2h3M5.5 8.5h5M5.5 11h5',
+  graficos:  'M2 14h12M4.5 11.5v-4M7.5 11.5v-7M10.5 11.5v-2.5M13 11.5V6',
+  config:    'M2 4.5h5M10 4.5h4M2 11.5h3M8 11.5h6M8.5 4.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM7 11.5a1.5 1.5 0 1 0 3 0 1.5 1.5 0 0 0-3 0z',
+};
+const icone = (k) => `<svg class="item__ic" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+  stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${IC[k]}"/></svg>`;
+
+const MENU = [
+  ["nav-1", [["dashboard", "Dashboard"], ["alunos", "Alunos"], ["turmas", "Turmas"],
+             ["disciplinas", "Disciplinas"], ["aulas", "Aulas"], ["avaliacoes", "Avaliações"], ["questoes", "Questões"]]],
+  ["nav-2", [["relatorios", "Relatórios"], ["graficos", "Gráficos"]]],
+  ["nav-3", [["config", "Configurações"]]],
+];
+const ICONE_DE = { turmas: "turmas", disciplinas: "disciplinas" };
+
+function montarMenu() {
+  for (const [id, itens] of MENU) {
+    document.getElementById(id).innerHTML = itens.map(([chave, texto]) =>
+      `<button class="item" data-ir="${chave}" ${rotaBase() === chave ? 'aria-current="page"' : ""}>
+         ${icone(ICONE_DE[chave] || chave)}${h(texto)}
+       </button>`).join("");
+  }
+}
+function rotaBase() {
+  return { aluno: "alunos", chamada: "aulas", avaliacao: "avaliacoes" }[rota.vista] || rota.vista;
+}
+function ir(vista, id = null) {
+  rota = { vista, id };
+  render();
+  document.getElementById("vista").focus({ preventScroll: true });
+  window.scrollTo({ top: 0, behavior: "instant" });
+}
+
+/* ===========================================================================
+   6. PEÇAS REUTILIZÁVEIS
+   =========================================================================== */
+const painel = (titulo, corpo, { direita = "", nu = false } = {}) => `
+  <section class="painel">
+    <div class="painel__t"><h2>${titulo}</h2>${direita ? `<div class="direita">${direita}</div>` : ""}</div>
+    <div class="painel__c${nu ? " painel__c--nu" : ""}">${corpo}</div>
+  </section>`;
+
+const kpi = (rotulo, valor, nota = "", tom = "") =>
+  `<div class="kpi ${tom ? "kpi--" + tom : ""}"><div class="rotulo">${h(rotulo)}</div>
+   <div class="kpi__v">${valor}</div>${nota ? `<div class="kpi__n">${nota}</div>` : ""}</div>`;
+
+const grafico = (id, altura = 250) => `<div id="${id}" style="min-height:${altura}px"></div>`;
+
+function tabela(colunas, linhas, { vazio = "Sem registros." } = {}) {
+  if (!linhas.length) return `<div class="vazio">${h(vazio)}</div>`;
+  return `<div class="rolagem"><table>
+    <thead><tr>${colunas.map(c => `<th class="${c.num ? "num" : ""}">${h(c.t)}</th>`).join("")}</tr></thead>
+    <tbody>${linhas.join("")}</tbody></table></div>`;
+}
+
+const listaAlertas = (alertas, limite = 99) => alertas.length === 0
+  ? '<div class="vazio">Nenhum alerta ativo com os critérios atuais.</div>'
+  : alertas.slice(0, limite).map(a => `
+      <div class="alerta alerta--${a.severity}">
+        <div class="alerta__f"></div>
+        <div>
+          <div class="alerta__t">${h(a.title)}
+            ${a.student_id ? `<button class="migalha" data-aluno="${a.student_id}" style="font-size:11.5px">ver aluno</button>` : ""}</div>
+          <div class="alerta__m">${h(a.message)}</div>
+        </div>
+      </div>`).join("");
+
+function linhaRanking(r, comTurma = false) {
+  const c = ROTULO_CLASSE[r.classificacao];
+  return `<tr class="linha-clicavel" data-aluno="${r.id}">
+    <td class="num mono">${r.posicao ?? "—"}</td>
+    <td>${h(r.aluno.full_name)}${comTurma ? `<div class="mudo" style="font-size:11.5px">${h(DADOS.turma.code)}</div>` : ""}</td>
+    <td class="num">${r.avaliacoes}</td>
+    <td class="num">${pct(r.media, 1)}</td>
+    <td class="num">${pct(r.frequencia, 0)}</td>
+    <td class="num">${r.evolucao_recente === null ? "—"
+      : `<span class="tag tag--${r.evolucao_recente >= 0 ? "bom" : "ruim"}">${r.evolucao_recente >= 0 ? "+" : ""}${num(r.evolucao_recente)}</span>`}</td>
+    <td class="num mono"><strong>${num(r.indice)}</strong></td>
+    <td>${tag(c.classe, c.texto)}</td>
+  </tr>`;
+}
+const COLS_RANKING = [{ t: "#", num: 1 }, { t: "Aluno" }, { t: "Aval.", num: 1 }, { t: "Média", num: 1 },
+  { t: "Freq.", num: 1 }, { t: "Evolução", num: 1 }, { t: "Índice", num: 1 }, { t: "Situação" }];
+
+/* ===========================================================================
+   7. VISTAS
+   =========================================================================== */
+const VISTAS = {};
+
+/* -------------------------------------------------------------- dashboard */
+VISTAS.dashboard = () => ({
+  html: `
+    <div class="cabec">
+      <div>
+        <h1>Dashboard geral</h1>
+        <p>Visão consolidada da turma. Cada número vem dos lançamentos feitos no sistema —
+           nada aqui é estimado.</p>
+      </div>
+      <div class="cabec__acoes">
+        <button class="btn" data-ir="relatorios">Relatórios</button>
+        <button class="btn btn--forte" data-ir="graficos">Todos os gráficos</button>
+      </div>
+    </div>
+
+    <div class="kpis">
+      ${kpi("Alunos", DADOS.alunos.length, "1 turma · 1 disciplina")}
+      ${kpi("Aulas", DADOS.aulas.length, `${DADOS.presencas.length} presenças registradas`)}
+      ${kpi("Avaliações", DADOS.avaliacoes.length, `${DADOS.questoes.length} questões`)}
+      ${kpi("Média geral", pct(M.mediaGeral), "aproveitamento das notas lançadas", faixa(M.mediaGeral).classe)}
+      ${kpi("% de acertos", pct(M.totais.pct_acertos), `${M.totais.acertos} de ${M.totais.total} questões`, faixa(M.totais.pct_acertos).classe)}
+      ${kpi("% de erros", pct(M.totais.pct_erros), `${M.totais.branco} em branco`)}
+      ${kpi("Em evolução", M.classes.evolucao, "índice acima do corte", "bom")}
+      ${kpi("Intermediários", M.classes.intermediario, "desempenho moderado", "medio")}
+      ${kpi("Precisam de atenção", M.classes.atencao, "queda, frequência ou índice baixo", "ruim")}
+    </div>
+
+    <div class="colunas c-21">
+      <div>
+        ${painel("Evolução geral da turma", grafico("g-evolucao"),
+          { direita: '<span class="tag tag--info">média por avaliação</span>' })}
+        <div class="colunas c-2">
+          ${painel("Distribuição de desempenho", grafico("g-dist", 230))}
+          ${painel("Aproveitamento por dificuldade", grafico("g-dif", 130))}
+        </div>
+        ${painel("Aproveitamento por assunto", grafico("g-assuntos", 190),
+          { direita: '<span class="tag tag--neutro">do menor para o maior</span>' })}
+      </div>
+      <div>
+        ${painel(`Alertas pedagógicos`, listaAlertas(M.alertas, 7), {
+          nu: true,
+          direita: `<span class="tag tag--ruim">${M.alertas.filter(a => a.severity === "alta").length} alta</span>
+                    <span class="tag tag--medio">${M.alertas.filter(a => a.severity === "media").length} média</span>
+                    <span class="tag tag--bom">${M.alertas.filter(a => a.severity === "positiva").length} positiva</span>`,
+        })}
+        ${painel("Índice de Desenvolvimento", tabela(
+          [{ t: "#", num: 1 }, { t: "Aluno" }, { t: "Média", num: 1 }, { t: "Índice", num: 1 }, { t: "Situação" }],
+          M.ranking.map(r => {
+            const c = ROTULO_CLASSE[r.classificacao];
+            return `<tr class="linha-clicavel" data-aluno="${r.id}">
+              <td class="num mono">${r.posicao ?? "—"}</td><td>${h(r.aluno.full_name)}</td>
+              <td class="num">${pct(r.media, 0)}</td><td class="num mono"><strong>${num(r.indice)}</strong></td>
+              <td>${tag(c.classe, c.texto)}</td></tr>`;
+          })), {
+          nu: true,
+          direita: `<span class="mudo" style="font-size:11.5px">
+            ${fmt(CFG.peso_desempenho * 100, 0)}/${fmt(CFG.peso_evolucao * 100, 0)}/${fmt(CFG.peso_frequencia * 100, 0)}/${fmt(CFG.peso_consistencia * 100, 0)}</span>`,
+        })}
+      </div>
+    </div>`,
+  depois() {
+    grafLinha(el("g-evolucao"), {
+      labels: M.porAvaliacao.map(a => a.nome),
+      series: [{ nome: "Média da turma", dados: M.porAvaliacao.map(a => a.media) }],
+    });
+    const d = M.distribuicao;
+    grafBarrasV(el("g-dist"), {
+      labels: Object.keys(d), altura: 230,
+      max: Math.max(1, DADOS.alunos.length), passo: 1, unidade: " aluno(s)", casas: 0,
+      series: [{ nome: "Alunos", dados: Object.values(d),
+                 cores: ["var(--ruim)", "var(--medio)", "var(--serie-a)", "var(--bom)"] }],
+    });
+    grafBarrasH(el("g-dif"), M.dificuldade.map(x => ({ nome: ROTULO_DIFICULDADE[x.dificuldade], valor: x.aproveitamento, nota: `${x.respondidas} questões` })), { rotuloLargura: 110 });
+    grafBarrasH(el("g-assuntos"), M.assuntos.map(a => ({ nome: a.topic_name, valor: a.aproveitamento, nota: `${a.respondidas} respostas` })));
+  },
+});
+
+/* ----------------------------------------------------------------- alunos */
+VISTAS.alunos = () => ({
+  html: `
+    <div class="cabec">
+      <div><h1>Alunos</h1><p>${DADOS.alunos.length} alunos na turma INF01. Clique em um aluno para abrir o dashboard individual de aprendizagem.</p></div>
+      <div class="cabec__acoes"><input class="busca" id="busca-aluno" type="search" placeholder="Filtrar por nome…" aria-label="Filtrar alunos"></div>
+    </div>
+    ${painel("Situação de cada aluno", `<div id="tab-alunos">${tabela(COLS_RANKING, M.ranking.map(r => linhaRanking(r, true)))}</div>`, { nu: true })}`,
+  depois() {
+    const campo = el("busca-aluno");
+    campo.addEventListener("input", () => {
+      const termo = campo.value.toLowerCase().trim();
+      el("tab-alunos").innerHTML = tabela(COLS_RANKING,
+        M.ranking.filter(r => r.aluno.full_name.toLowerCase().includes(termo)).map(r => linhaRanking(r, true)),
+        { vazio: "Nenhum aluno corresponde ao filtro." });
+    });
+  },
+});
+
+/* ------------------------------------------- aluno: dashboard individual */
+VISTAS.aluno = () => {
+  const r = M.porAluno.get(rota.id);
+  if (!r) return { html: '<div class="vazio">Aluno não encontrado.</div>' };
+  const c = ROTULO_CLASSE[r.classificacao];
+  const serieTurma = M.porAvaliacao;
+  const labels = r.notas.map(n => n.aval.name);
+  const alertasDele = M.alertas.filter(a => a.student_id === r.id);
+
+  const mediaTurma = M.mediaGeral;
+  const delta = r.media !== null && mediaTurma !== null ? r.media - mediaTurma : null;
+
+  return {
+    html: `
+      <div class="cabec">
+        <div style="display:flex;gap:12px;align-items:center">
+          <span style="width:44px;height:44px;border-radius:50%;background:var(--acento-sup);color:var(--acento);
+                       display:grid;place-items:center;font-weight:600;font-family:var(--display);font-size:15px">${h(iniciais(r.aluno.full_name))}</span>
+          <div>
+            <h1>${h(r.aluno.full_name)}</h1>
+            <p><button class="migalha" data-ir="alunos">Alunos</button> · Turma ${h(DADOS.turma.code)} ·
+               ${tag(c.classe, c.texto)} · posição <span class="mono">${r.posicao ?? "—"}</span> de ${M.ranking.filter(x => x.indice !== null).length}</p>
+          </div>
+        </div>
+      </div>
+
+      ${r.motivos.length ? `<div class="aviso"><b>Por quê?</b><div>${h(r.motivos.join(" "))}</div></div>` : ""}
+
+      <div class="kpis">
+        ${kpi("Média geral", pct(r.media), delta === null ? "" :
+          `${delta >= 0 ? "▲" : "▼"} ${num(Math.abs(delta))} p.p. vs. turma (${pct(mediaTurma, 0)})`, faixa(r.media).classe)}
+        ${kpi("% de acertos", pct(r.acertos.pct_acertos), `${r.acertos.acertos} de ${r.acertos.total} questões`, faixa(r.acertos.pct_acertos).classe)}
+        ${kpi("% de erros", pct(r.acertos.pct_erros), `${r.acertos.branco} em branco`)}
+        ${kpi("Avaliações", r.avaliacoes, `desvio de ${num(r.desvio)} p.p.`)}
+        ${kpi("Evolução recente", r.evolucao_recente === null ? "—" : (r.evolucao_recente >= 0 ? "+" : "") + num(r.evolucao_recente),
+          `tendência ${num(r.evolucao_slope, 2)} p.p./avaliação`, r.evolucao_recente === null ? "" : (r.evolucao_recente >= 0 ? "bom" : "ruim"))}
+        ${kpi("Frequência", pct(r.frequencia), `${r.presenca.faltas} falta(s) em ${r.presenca.aulas} aula(s)`,
+          r.frequencia === null ? "" : (r.frequencia >= CFG.frequencia_minima ? "bom" : "ruim"))}
+        ${kpi("Conteúdos dominados", r.dominados, `${r.intermediarios} intermediário(s)`, "bom")}
+        ${kpi("Com dificuldade", r.dificuldades, `abaixo de ${fmt(CFG.faixa_intermediario, 0)}%`, "ruim")}
+        ${kpi("Índice de Desenvolvimento", num(r.indice), c.texto, "acento")}
+      </div>
+
+      ${painel("Como o Índice de Desenvolvimento deste aluno foi formado", grafico("g-contrib", 110),
+        { direita: '<span class="tag tag--neutro">cada faixa é componente × peso</span>' })}
+
+      <div class="colunas c-2">
+        ${painel("Evolução das notas", grafico("g-ev"), { direita: '<span class="tag tag--info">aluno × turma</span>' })}
+        ${painel("Acertos e erros por avaliação", grafico("g-ae"))}
+      </div>
+      <div class="colunas c-2">
+        ${painel("Desempenho por assunto", grafico("g-as", 180))}
+        ${painel("Desempenho por dificuldade", grafico("g-di", 120))}
+      </div>
+
+      <div class="colunas c-21">
+        <div>
+          ${painel("Mapa de conteúdos", tabela(
+            [{ t: "Assunto" }, { t: "Questões", num: 1 }, { t: "Acertos", num: 1 }, { t: "Aproveitamento" }, { t: "Situação" }],
+            r.assuntos.map(a => {
+              const f = faixa(a.amostra_suficiente ? a.aproveitamento : null);
+              return `<tr><td>${h(a.topic_name)}</td><td class="num">${a.respondidas}</td>
+                <td class="num">${a.acertos}</td><td>${barra(a.aproveitamento)}</td>
+                <td>${tag(f.classe, a.amostra_suficiente ? f.texto : "Amostra insuficiente")}</td></tr>`;
+            }), { vazio: "Nenhuma resposta por questão registrada." }), { nu: true })}
+
+          ${painel("Histórico de avaliações", tabela(
+            [{ t: "Data" }, { t: "Avaliação" }, { t: "Tipo" }, { t: "Nota", num: 1 }, { t: "Aproveitamento", num: 1 }, { t: "C / E / B", num: 1 }],
+            [...r.notas].reverse().map(n => `<tr class="linha-clicavel" data-avaliacao="${n.assessment_id}">
+              <td class="mono">${dataBr(n.aval.assessment_date)}</td><td>${h(n.aval.name)}</td>
+              <td class="mudo">${h(ROTULO_TIPO[n.aval.type])}</td>
+              <td class="num mono">${num(n.score, 2)} / ${num(n.aval.max_score, 0)}</td>
+              <td class="num">${tag(faixa(n.percentage).classe, pct(n.percentage, 0))}</td>
+              <td class="num mono">${n.correct_count}/${n.wrong_count}/${n.blank_count}</td></tr>`)), { nu: true })}
+        </div>
+        <div>
+          ${painel("Alertas deste aluno", listaAlertas(alertasDele), { nu: true })}
+          ${painel("Presença", tabela(
+            [{ t: "Data" }, { t: "Aula" }, { t: "Situação" }, { t: "Part.", num: 1 }],
+            DADOS.presencas.filter(p => p.student_id === r.id).map(p => {
+              const aula = BASE.aulaPorId.get(p.lesson_id);
+              const cl = { presente: "bom", atraso: "medio", falta: "ruim", falta_justificada: "neutro" }[p.status];
+              return `<tr><td class="mono">${dataBr(aula.lesson_date)}</td>
+                <td style="font-size:12.5px">${h(aula.title)}</td>
+                <td>${tag(cl, ROTULO_PRESENCA[p.status])}</td>
+                <td class="num">${p.participation ?? "—"}</td></tr>`;
+            })), { nu: true })}
+        </div>
+      </div>`,
+    depois() {
+      grafContribuicao(el("g-contrib"), r);
+      const mapaTurma = new Map(serieTurma.map(a => [a.assessment_id, a.media]));
+      grafLinha(el("g-ev"), {
+        labels,
+        series: [
+          { nome: r.aluno.full_name.split(" ")[0], dados: r.percentuais },
+          { nome: "Turma", dados: r.notas.map(n => mapaTurma.get(n.assessment_id) ?? null), cor: "var(--serie-c)" },
+        ],
+      });
+      grafBarrasV(el("g-ae"), {
+        labels,
+        series: [
+          { nome: "% de acertos", dados: r.notas.map(n => { const t = n.correct_count + n.wrong_count + n.blank_count; return t ? r2(n.correct_count / t * 100) : null; }), cor: "var(--bom)" },
+          { nome: "% de erros", dados: r.notas.map(n => { const t = n.correct_count + n.wrong_count + n.blank_count; return t ? r2(n.wrong_count / t * 100) : null; }), cor: "var(--ruim)" },
+        ],
+      });
+      grafBarrasH(el("g-as"), r.assuntos.map(a => ({ nome: a.topic_name, valor: a.aproveitamento, nota: `${a.respondidas} questões` })));
+      const dif = BASE.aproveitamentoPorDificuldade(BASE.respostasDoAluno(r.id));
+      grafBarrasH(el("g-di"), dif.map(x => ({ nome: ROTULO_DIFICULDADE[x.dificuldade], valor: x.aproveitamento, nota: `${x.respondidas} questões` })), { rotuloLargura: 110 });
+    },
+  };
+};
+</script>
+
+<script>
+/* ------------------------------------------------------- turma (painel) */
+VISTAS.turmas = () => {
+  const t = DADOS.turma;
+  const freqTurma = (() => {
+    const regs = DADOS.presencas;
+    const conta = (s) => regs.filter(p => p.status === s).length;
+    const base = CFG.justificada_conta ? regs.length : regs.length - conta("falta_justificada");
+    return base > 0 ? r2((conta("presente") + conta("atraso") * 0.5) / base * 100) : null;
+  })();
+
+  return {
+    html: `
+      <div class="cabec">
+        <div>
+          <h1>Turma ${h(t.code)}</h1>
+          <p>${h(DADOS.curso.name)} · ${t.year} · ${h(t.period)} ·
+             ${dataBr(t.start_date)} a ${dataBr(t.end_date)} · ${tag("info", "Em andamento")}</p>
+        </div>
+        <div class="cabec__acoes"><button class="btn" data-ir="relatorios">Relatório da turma</button></div>
+      </div>
+
+      <div class="kpis">
+        ${kpi("Média da turma", pct(M.mediaGeral), `${DADOS.alunos.length} alunos`, faixa(M.mediaGeral).classe)}
+        ${kpi("% de acertos", pct(M.totais.pct_acertos), `${M.totais.total} respostas`, faixa(M.totais.pct_acertos).classe)}
+        ${kpi("Frequência média", pct(freqTurma), `${DADOS.aulas.length} aulas registradas`,
+          freqTurma !== null && freqTurma >= CFG.frequencia_minima ? "bom" : "medio")}
+        ${kpi("Em evolução", M.classes.evolucao, "", "bom")}
+        ${kpi("Intermediários", M.classes.intermediario, "", "medio")}
+        ${kpi("Precisam de atenção", M.classes.atencao, "", "ruim")}
+      </div>
+
+      <div class="colunas c-2">
+        ${painel("Evolução da turma", grafico("t-ev"))}
+        ${painel("Assuntos ordenados pelo aproveitamento", grafico("t-as", 190))}
+      </div>
+
+      <div class="colunas c-21">
+        <div>${painel("Alunos e Índice de Desenvolvimento",
+          tabela(COLS_RANKING, M.ranking.map(r => linhaRanking(r))), { nu: true })}</div>
+        <div>
+          ${painel("Disciplinas da turma", `
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+              <div><strong>${h(DADOS.disciplina.name)}</strong>
+                <div class="mudo" style="font-size:12px">${DADOS.aulas.length} aulas · ${DADOS.avaliacoes.length} avaliações · ${DADOS.disciplina.workload_hours}h</div></div>
+              <button class="btn btn--min" data-ir="disciplinas">Abrir</button>
+            </div>`)}
+          ${painel("Alertas da turma", listaAlertas(M.alertas.filter(a => !a.student_id).concat(M.alertas.filter(a => a.student_id)), 8), { nu: true })}
+        </div>
+      </div>`,
+    depois() {
+      grafLinha(el("t-ev"), { labels: M.porAvaliacao.map(a => a.nome), series: [{ nome: "Média da turma", dados: M.porAvaliacao.map(a => a.media) }] });
+      grafBarrasH(el("t-as"), M.assuntos.map(a => ({ nome: a.topic_name, valor: a.aproveitamento, nota: `${a.alunos} alunos · ${a.respondidas} respostas` })));
+    },
+  };
+};
+
+/* ------------------------------------------------------------ disciplina */
+VISTAS.disciplinas = () => {
+  const d = DADOS.disciplina;
+  const raizes = DADOS.topicos.filter(t => t.parent_id === null);
+  const porAssunto = new Map(M.assuntos.map(a => [a.topic_id, a]));
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>${h(d.name)}</h1>
+          <p>${h(d.description)} · ${d.workload_hours}h · ${raizes.length} assuntos ·
+             ${DADOS.topicos.length - raizes.length} tópicos · ${DADOS.questoes.length} questões</p></div>
+      </div>
+
+      <div class="kpis">
+        ${kpi("Média da disciplina", pct(M.mediaGeral), "", faixa(M.mediaGeral).classe)}
+        ${kpi("% de acertos", pct(M.totais.pct_acertos), `${M.totais.total} respostas`, faixa(M.totais.pct_acertos).classe)}
+        ${kpi("Assuntos mapeados", raizes.length, "com aproveitamento medido")}
+        ${kpi("Aulas / Avaliações", `${DADOS.aulas.length} / ${DADOS.avaliacoes.length}`, "na turma INF01")}
+      </div>
+
+      <div class="colunas c-2">
+        ${painel("Aproveitamento por assunto", grafico("d-as", 190))}
+        ${painel("Aproveitamento por dificuldade", grafico("d-di", 130))}
+      </div>
+
+      ${painel("Assuntos e tópicos", `
+        <div style="display:grid;gap:10px">
+          ${raizes.map(raiz => {
+            const stat = porAssunto.get(raiz.id);
+            const filhos = DADOS.topicos.filter(t => t.parent_id === raiz.id);
+            const f = faixa(stat?.aproveitamento ?? null);
+            return `<div style="border:1px solid var(--fio);border-radius:var(--r-s);padding:10px 12px">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <strong>${h(raiz.name)}</strong>
+                ${tag("info", "assunto")}
+                <span style="margin-left:auto;min-width:150px">${barra(stat?.aproveitamento ?? null)}</span>
+                ${tag(f.classe, f.texto)}
+              </div>
+              <div class="mudo" style="font-size:12px;margin-top:5px">
+                ${filhos.map(t => h(t.name)).join(" · ")}
+              </div>
+            </div>`;
+          }).join("")}
+        </div>`)}`,
+    depois() {
+      grafBarrasH(el("d-as"), M.assuntos.map(a => ({ nome: a.topic_name, valor: a.aproveitamento, nota: `${a.respondidas} respostas` })));
+      grafBarrasH(el("d-di"), M.dificuldade.map(x => ({ nome: ROTULO_DIFICULDADE[x.dificuldade], valor: x.aproveitamento, nota: `${x.respondidas} questões` })), { rotuloLargura: 110 });
+    },
+  };
+};
+
+/* ----------------------------------------------------------------- aulas */
+VISTAS.aulas = () => ({
+  html: `
+    <div class="cabec">
+      <div><h1>Aulas</h1><p>Histórico da disciplina Informática na turma INF01. Abra a chamada para ver — e alterar — a frequência.</p></div>
+    </div>
+    ${painel("Aulas registradas", tabela(
+      [{ t: "Data" }, { t: "Aula" }, { t: "Tópicos" }, { t: "Duração", num: 1 }, { t: "Chamada" }, { t: "" }],
+      DADOS.aulas.map(a => {
+        const regs = DADOS.presencas.filter(p => p.lesson_id === a.id);
+        const presentes = regs.filter(p => p.status === "presente" || p.status === "atraso").length;
+        const tops = DADOS.aula_topicos.filter(t => t.lesson_id === a.id)
+          .map(t => BASE.topicoPorId.get(t.topic_id)?.name).filter(Boolean);
+        return `<tr class="linha-clicavel" data-aula="${a.id}">
+          <td class="mono">${dataBr(a.lesson_date)}</td>
+          <td><strong>${h(a.title)}</strong><div class="mudo" style="font-size:11.5px">${h(a.content)}</div></td>
+          <td class="mudo" style="font-size:12px">${h(tops.join(" · ")) || "—"}</td>
+          <td class="num">${a.duration_minutes} min</td>
+          <td>${tag(presentes === regs.length ? "bom" : "medio", `${presentes}/${regs.length} presentes`)}</td>
+          <td class="num"><span class="btn btn--min">Chamada</span></td></tr>`;
+      })), { nu: true })}`,
+});
+
+/* -------------------------------------------------------------- chamada */
+VISTAS.chamada = () => {
+  const aula = BASE.aulaPorId.get(rota.id);
+  if (!aula) return { html: '<div class="vazio">Aula não encontrada.</div>' };
+  const opcoes = [["presente", "Presente"], ["atraso", "Atraso"], ["falta", "Falta"], ["falta_justificada", "Justificada"]];
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>Chamada</h1>
+          <p><button class="migalha" data-ir="aulas">Aulas</button> · <strong>${h(aula.title)}</strong> ·
+             ${dataBr(aula.lesson_date)} · ${aula.duration_minutes} min</p></div>
+      </div>
+      <div class="aviso"><b>Interativo</b><div>Troque a situação de um aluno: a frequência, o Índice de
+        Desenvolvimento, o ranking e os alertas são recalculados na hora — como no sistema real.</div></div>
+      ${painel(`${DADOS.alunos.length} alunos`, tabela(
+        [{ t: "Aluno" }, { t: "Situação" }, { t: "Participação", num: 1 }, { t: "Frequência acumulada", num: 1 }],
+        DADOS.alunos.map(al => {
+          const p = DADOS.presencas.find(x => x.lesson_id === aula.id && x.student_id === al.id);
+          const r = M.porAluno.get(al.id);
+          return `<tr>
+            <td>${h(al.full_name)}</td>
+            <td><select data-presenca="${al.id}" style="padding:4px 6px;border-radius:5px;border:1px solid var(--fio-forte);background:var(--elevado);color:var(--tinta);font:inherit;font-size:12.5px">
+              ${opcoes.map(([v, t]) => `<option value="${v}" ${p?.status === v ? "selected" : ""}>${t}</option>`).join("")}
+            </select></td>
+            <td class="num mono">${p?.participation ?? "—"}</td>
+            <td class="num">${tag(r.frequencia >= CFG.frequencia_minima ? "bom" : "ruim", pct(r.frequencia, 1))}</td>
+          </tr>`;
+        })), { nu: true })}`,
+    depois() {
+      document.querySelectorAll("[data-presenca]").forEach(sel => {
+        sel.addEventListener("change", () => {
+          const id = Number(sel.dataset.presenca);
+          const reg = DADOS.presencas.find(x => x.lesson_id === aula.id && x.student_id === id);
+          if (reg) reg.status = sel.value;
+          recalcular(); render();
+        });
+      });
+    },
+  };
+};
+
+/* ----------------------------------------------------------- avaliações */
+VISTAS.avaliacoes = () => ({
+  html: `
+    <div class="cabec">
+      <div><h1>Avaliações</h1><p>Abra uma avaliação para ver a análise item a item e lançar resultados por questão.</p></div>
+    </div>
+    ${painel("Avaliações da turma", tabela(
+      [{ t: "Data" }, { t: "Avaliação" }, { t: "Tipo" }, { t: "Peso", num: 1 }, { t: "Questões", num: 1 },
+       { t: "Lançados", num: 1 }, { t: "Média", num: 1 }, { t: "" }],
+      M.porAvaliacao.map(a => {
+        const av = BASE.avaliacaoPorId.get(a.assessment_id);
+        const qs = DADOS.questoes.filter(q => q.assessment_id === av.id).length;
+        return `<tr class="linha-clicavel" data-avaliacao="${av.id}">
+          <td class="mono">${dataBr(av.assessment_date)}</td>
+          <td><strong>${h(av.name)}</strong></td>
+          <td class="mudo">${h(ROTULO_TIPO[av.type])}</td>
+          <td class="num mono">${num(av.weight, 1)}</td>
+          <td class="num">${qs}</td>
+          <td class="num">${a.alunos}</td>
+          <td class="num">${tag(faixa(a.media).classe, pct(a.media, 1))}</td>
+          <td class="num"><span class="btn btn--min">Resultados</span></td></tr>`;
+      })), { nu: true })}`,
+});
+
+/* ------------------------------- avaliação: análise + lançamento por questão */
+VISTAS.avaliacao = () => {
+  const av = BASE.avaliacaoPorId.get(rota.id);
+  if (!av) return { html: '<div class="vazio">Avaliação não encontrada.</div>' };
+  const questoes = BASE.analiseDaAvaliacao(av.id, CFG);
+  const notas = DADOS.notas.filter(n => n.assessment_id === av.id);
+  const p = notas.map(n => n.percentage);
+  const media = p.length ? r2(p.reduce((a, b) => a + b, 0) / p.length) : null;
+  const respostasAv = DADOS.respostas.filter(r => questoes.some(q => q.id === r.question_id));
+  const assuntosAv = BASE.aproveitamentoPorAssunto(respostasAv, CFG);
+  const totaisAv = BASE.totaisDeResposta(respostasAv);
+
+  const matriz = new Map();
+  for (const r of respostasAv) matriz.set(r.student_id + ":" + r.question_id, r);
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>${h(av.name)}</h1>
+          <p><button class="migalha" data-ir="avaliacoes">Avaliações</button> ·
+             ${h(ROTULO_TIPO[av.type])} · ${dataBr(av.assessment_date)} ·
+             valor ${num(av.max_score, 0)} · peso ${num(av.weight, 1)}</p></div>
+      </div>
+
+      <div class="kpis">
+        ${kpi("Média", pct(media), `${notas.length} alunos com resultado`, faixa(media).classe)}
+        ${kpi("Menor / Maior", `${pct(p.length ? Math.min(...p) : null, 0)} / ${pct(p.length ? Math.max(...p) : null, 0)}`,
+          `desvio de ${num(desvioPadrao(p))} p.p.`)}
+        ${kpi("% de acertos", pct(totaisAv.pct_acertos), `${totaisAv.branco} em branco`, faixa(totaisAv.pct_acertos).classe)}
+        ${kpi("Questões", questoes.length, `somando ${num(questoes.reduce((a, q) => a + q.points, 0), 2)} pontos`)}
+      </div>
+
+      <div class="colunas c-2">
+        ${painel("Índice de acerto por questão", grafico("a-q", 250))}
+        ${painel("Aproveitamento por assunto nesta prova", grafico("a-as", 190))}
+      </div>
+
+      <div class="aviso"><b>Interativo</b><div>Clique em <b>C</b>, <b>E</b> ou <b>N</b> para lançar o resultado de
+        um aluno em uma questão. A nota, o percentual, o mapa de conteúdos, o ranking e os alertas são recalculados
+        imediatamente — é o mesmo cálculo que o servidor faz ao salvar.</div></div>
+
+      ${painel("Resultados por questão", `<div class="grade-res">
+        <table>
+          <thead><tr><th>Aluno</th>
+            ${questoes.map(q => `<th class="num" title="${h(q.assunto || "sem assunto")} · ${h(ROTULO_DIFICULDADE[q.difficulty])} · ${num(q.points, 2)} pt">${q.number}</th>`).join("")}
+            <th class="num">Nota</th></tr></thead>
+          <tbody>
+            ${DADOS.alunos.map(al => {
+              const nota = notas.find(n => n.student_id === al.id);
+              return `<tr><th>${h(al.full_name)}</th>
+                ${questoes.map(q => {
+                  const r = matriz.get(al.id + ":" + q.id);
+                  const marca = (v, rot) => `<button class="${v[0]}" data-marca="${al.id}|${q.id}|${v}"
+                    aria-pressed="${r?.result === v}" title="${rot}">${rot[0]}</button>`;
+                  return `<td><div class="marcas">${marca("correta", "Certo")}${marca("incorreta", "Errado")}${marca("nao_respondida", "Não respondeu")}</div></td>`;
+                }).join("")}
+                <td class="num mono">${nota ? `<strong>${num(nota.score, 2)}</strong><br><span class="tag tag--${faixa(nota.percentage).classe}">${pct(nota.percentage, 0)}</span>` : "—"}</td>
+              </tr>`;
+            }).join("")}
+          </tbody>
+        </table></div>`, { nu: true, direita: '<span class="tag tag--neutro">C = certo · E = errado · N = não respondeu</span>' })}
+
+      ${painel("Detalhe das questões", tabela(
+        [{ t: "#", num: 1 }, { t: "Assunto" }, { t: "Dificuldade" }, { t: "Pontos", num: 1 },
+         { t: "C / E / B", num: 1 }, { t: "Índice de acerto" }],
+        questoes.map(q => `<tr>
+          <td class="num mono">${q.number}</td>
+          <td>${h(q.assunto || "—")}</td>
+          <td>${tag({ facil: "bom", medio: "medio", dificil: "ruim" }[q.difficulty], ROTULO_DIFICULDADE[q.difficulty])}</td>
+          <td class="num mono">${num(q.points, 2)}</td>
+          <td class="num mono">${q.acertos}/${q.erros}/${q.branco}</td>
+          <td>${barra(q.indice_acerto)}</td></tr>`)), { nu: true })}`,
+    depois() {
+      grafBarrasV(el("a-q"), {
+        labels: questoes.map(q => "Q" + q.number),
+        series: [{ nome: "Índice de acerto", dados: questoes.map(q => q.indice_acerto),
+                   cores: questoes.map(q => faixa(q.indice_acerto).cor) }],
+      });
+      grafBarrasH(el("a-as"), assuntosAv.map(a => ({ nome: a.topic_name, valor: a.aproveitamento, nota: `${a.respondidas} respostas` })));
+
+      document.querySelectorAll("[data-marca]").forEach(b => {
+        b.addEventListener("click", () => {
+          const [alunoId, questaoId, valor] = b.dataset.marca.split("|");
+          const q = BASE.questaoPorId.get(Number(questaoId));
+          let r = DADOS.respostas.find(x => x.student_id === +alunoId && x.question_id === +questaoId);
+          if (!r) { r = { question_id: +questaoId, student_id: +alunoId, result: valor, score_earned: 0 }; DADOS.respostas.push(r); }
+          r.result = valor;
+          r.score_earned = valor === "correta" ? q.points : 0;
+          recalcularNota(av.id, +alunoId);
+          recalcular(); render();
+        });
+      });
+    },
+  };
+};
+
+/* -------------------------------------------------------------- questões */
+VISTAS.questoes = () => {
+  const linhas = DADOS.questoes.map(q => {
+    const resp = DADOS.respostas.filter(r => r.question_id === q.id);
+    const acertos = resp.filter(r => r.result === "correta").length;
+    const raiz = q.topic_id ? BASE.raiz(q.topic_id) : null;
+    const filho = q.topic_id ? BASE.topicoPorId.get(q.topic_id) : null;
+    return { q, raiz, filho, respondidas: resp.length, acertos,
+             indice: resp.length ? r2(acertos / resp.length * 100) : null,
+             avaliacao: BASE.avaliacaoPorId.get(q.assessment_id) };
+  });
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>Banco de questões</h1>
+          <p>${DADOS.questoes.length} questões classificadas por assunto e dificuldade, com o índice de acerto real.
+             É essa classificação que permite dizer <em>em que</em> o aluno tem dificuldade.</p></div>
+        <div class="cabec__acoes">
+          <select id="f-dif" class="busca" aria-label="Filtrar por dificuldade">
+            <option value="">Todas as dificuldades</option>
+            <option value="facil">Fácil</option><option value="medio">Médio</option><option value="dificil">Difícil</option>
+          </select>
+        </div>
+      </div>
+      ${painel("Questões", `<div id="tab-q"></div>`, { nu: true })}`,
+    depois() {
+      const desenhar = () => {
+        const dif = el("f-dif").value;
+        const filtradas = linhas.filter(l => !dif || l.q.difficulty === dif);
+        el("tab-q").innerHTML = tabela(
+          [{ t: "Avaliação" }, { t: "#", num: 1 }, { t: "Assunto / tópico" }, { t: "Dificuldade" },
+           { t: "Pontos", num: 1 }, { t: "Gabarito" }, { t: "Índice de acerto" }],
+          filtradas.map(l => `<tr>
+            <td style="font-size:12.5px">${h(l.avaliacao.name)}<div class="mudo mono" style="font-size:11px">${dataBr(l.avaliacao.assessment_date)}</div></td>
+            <td class="num mono">${l.q.number}</td>
+            <td>${h(l.raiz?.name ?? "—")}<div class="mudo" style="font-size:11.5px">${h(l.filho && l.filho.id !== l.raiz?.id ? l.filho.name : "")}</div></td>
+            <td>${tag({ facil: "bom", medio: "medio", dificil: "ruim" }[l.q.difficulty], ROTULO_DIFICULDADE[l.q.difficulty])}</td>
+            <td class="num mono">${num(l.q.points, 2)}</td>
+            <td class="mono">${h(l.q.answer_key ?? "—")}</td>
+            <td>${barra(l.indice)}<div class="mudo" style="font-size:11px">${l.respondidas} respostas</div></td>
+          </tr>`), { vazio: "Nenhuma questão nesse filtro." });
+      };
+      el("f-dif").addEventListener("change", desenhar);
+      desenhar();
+    },
+  };
+};
+</script>
+
+<script>
+/* ------------------------------------------------------------ relatórios */
+const RELATORIOS = {
+  turma: () => ({
+    titulo: "Desempenho da turma",
+    colunas: ["Posição", "Aluno", "Avaliações", "Média", "% acertos", "Frequência", "Evolução (p.p.)", "Índice", "Classificação"],
+    linhas: M.ranking.map(r => [r.posicao ?? "—", r.aluno.full_name, r.avaliacoes,
+      { v: r.media }, { v: r.acertos.pct_acertos }, { v: r.frequencia }, num(r.evolucao_recente),
+      num(r.indice), ROTULO_CLASSE[r.classificacao].texto]),
+    resumo: { "Alunos": M.ranking.length, "Média geral": pct(M.mediaGeral),
+      "Em evolução": M.classes.evolucao, "Intermediários": M.classes.intermediario, "Precisam de atenção": M.classes.atencao },
+  }),
+  aluno: () => {
+    const r = M.ranking[0];
+    return {
+      titulo: `Relatório individual — ${r.aluno.full_name}`,
+      nota: "No sistema instalado, escolha o aluno no filtro. Aqui a demonstração mostra o primeiro do ranking.",
+      colunas: ["Data", "Avaliação", "Tipo", "Nota", "Valor máximo", "Aproveitamento", "Acertos", "Erros", "Em branco"],
+      linhas: r.notas.map(n => [dataBr(n.aval.assessment_date), n.aval.name, ROTULO_TIPO[n.aval.type],
+        num(n.score, 2), num(n.aval.max_score, 0), { v: n.percentage }, n.correct_count, n.wrong_count, n.blank_count]),
+      resumo: { "Turma": DADOS.turma.code, "Avaliações realizadas": r.avaliacoes, "Média geral": pct(r.media),
+        "Frequência": pct(r.frequencia), "Evolução recente": num(r.evolucao_recente) + " p.p.",
+        "Índice de Desenvolvimento": num(r.indice), "Classificação": ROTULO_CLASSE[r.classificacao].texto,
+        "Conteúdos dominados": r.dominados, "Conteúdos com dificuldade": r.dificuldades },
+    };
+  },
+  disciplina: () => ({
+    titulo: "Desempenho por disciplina",
+    colunas: ["Disciplina", "Alunos", "Avaliações", "Lançamentos", "Média", "% acertos", "% erros"],
+    linhas: [[DADOS.disciplina.name, DADOS.alunos.length, DADOS.avaliacoes.length, DADOS.notas.length,
+      { v: M.mediaGeral }, { v: M.totais.pct_acertos }, { v: M.totais.pct_erros }]],
+  }),
+  avaliacao: () => ({
+    titulo: "Desempenho por avaliação",
+    colunas: ["Data", "Avaliação", "Tipo", "Alunos", "Média", "Menor", "Maior"],
+    linhas: M.porAvaliacao.map(a => {
+      const av = BASE.avaliacaoPorId.get(a.assessment_id);
+      return [dataBr(a.data), a.nome, ROTULO_TIPO[av.type], a.alunos, { v: a.media }, { v: a.minima }, { v: a.maxima }];
+    }),
+  }),
+  assunto: () => ({
+    titulo: "Desempenho por assunto",
+    colunas: ["Assunto", "Alunos", "Questões respondidas", "Acertos", "Erros", "Aproveitamento", "Situação"],
+    linhas: [...M.assuntos].reverse().map(a => [a.topic_name, a.alunos, a.respondidas, a.acertos, a.erros,
+      { v: a.aproveitamento }, faixa(a.amostra_suficiente ? a.aproveitamento : null).texto]),
+  }),
+  dificuldade: () => {
+    const criticos = M.assuntos.filter(a => a.aproveitamento !== null && a.aproveitamento < CFG.limite_dificuldade);
+    return {
+      titulo: `Dificuldades (aproveitamento abaixo de ${fmt(CFG.limite_dificuldade, 0)}%)`,
+      colunas: ["Assunto", "Aproveitamento", "Alunos", "Questões respondidas", "Erros", "Amostra"],
+      linhas: criticos.map(a => [a.topic_name, { v: a.aproveitamento }, a.alunos, a.respondidas, a.erros,
+        a.amostra_suficiente ? "Suficiente" : "Insuficiente"]),
+      vazio: "Nenhum assunto ficou abaixo do limite configurado.",
+    };
+  },
+  evolucao: () => ({
+    titulo: "Evolução dos alunos",
+    colunas: ["Aluno", "Avaliações", "Primeira nota", "Última nota", "Tendência (p.p./aval.)", "Evolução recente", "Consistência", "Classificação"],
+    linhas: [...M.ranking].sort((a, b) => (b.evolucao_recente ?? -999) - (a.evolucao_recente ?? -999))
+      .map(r => [r.aluno.full_name, r.avaliacoes,
+        { v: r.percentuais[0] ?? null }, { v: r.percentuais[r.percentuais.length - 1] ?? null },
+        num(r.evolucao_slope, 2), num(r.evolucao_recente), num(r.score_consistencia),
+        ROTULO_CLASSE[r.classificacao].texto]),
+  }),
+  frequencia: () => ({
+    titulo: "Frequência",
+    colunas: ["Aluno", "Aulas", "Presenças", "Atrasos", "Faltas", "Justificadas", "Frequência", "Participação", "Situação"],
+    linhas: M.ranking.map(r => [r.aluno.full_name, r.presenca.aulas, r.presenca.presentes, r.presenca.atrasos,
+      r.presenca.faltas, r.presenca.justificadas, { v: r.frequencia }, num(r.participacao, 1),
+      r.frequencia === null ? "Sem aulas" : (r.frequencia < CFG.frequencia_minima ? "Abaixo do mínimo" : "Regular")]),
+  }),
+};
+const NOMES_RELATORIO = {
+  aluno: "Individual do aluno", turma: "Desempenho da turma", disciplina: "Por disciplina",
+  avaliacao: "Por avaliação", assunto: "Por assunto", dificuldade: "Dificuldades",
+  evolucao: "Evolução", frequencia: "Frequência",
+};
+
+VISTAS.relatorios = () => {
+  const tipo = rota.id && RELATORIOS[rota.id] ? rota.id : "turma";
+  const rel = RELATORIOS[tipo]();
+  // Uma coluna é numérica quando a primeira linha traz número, percentual
+  // embrulhado ou texto que é só dígitos — nunca por posição.
+  const numerica = (i) => {
+    const c = rel.linhas[0]?.[i];
+    if (c === undefined) return false;
+    if (typeof c === "object" && c !== null) return true;
+    if (typeof c === "number") return true;
+    return /^[-+]?[\d.,]+$/.test(String(c).trim());
+  };
+  const celula = (c) => typeof c === "object" && c !== null
+    ? (c.v === null || c.v === undefined ? '<span class="mudo">—</span>' : tag(faixa(c.v).classe, pct(c.v, 1)))
+    : h(c);
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>Relatórios</h1>
+          <p>Curso Preparatório para Guarda Municipal · Turma INF01 · todos os registros.
+             No sistema instalado, cada relatório aceita filtros por curso, turma, disciplina, aluno, assunto,
+             período e dificuldade, exporta CSV e tem versão para impressão em PDF.</p></div>
+      </div>
+
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px">
+        ${Object.keys(RELATORIOS).map(k =>
+          `<button class="btn ${k === tipo ? "btn--forte" : ""}" data-rel="${k}">${h(NOMES_RELATORIO[k])}</button>`).join("")}
+      </div>
+
+      ${rel.resumo ? `<div class="kpis">${Object.entries(rel.resumo).map(([k, v]) => kpi(k, `<span style="font-size:18px">${h(String(v))}</span>`)).join("")}</div>` : ""}
+      ${rel.nota ? `<div class="aviso"><b>Nota</b><div>${h(rel.nota)}</div></div>` : ""}
+
+      ${painel(h(rel.titulo), tabela(
+        rel.colunas.map((c, i) => ({ t: c, num: numerica(i) })),
+        rel.linhas.map(l => `<tr>${l.map((c, i) => `<td class="${numerica(i) ? "num" : ""}">${celula(c)}</td>`).join("")}</tr>`),
+        { vazio: rel.vazio || "Sem dados." }),
+        { nu: true, direita: `<span class="tag tag--neutro">${rel.linhas.length} linha(s)</span>` })}`,
+    depois() {
+      document.querySelectorAll("[data-rel]").forEach(b =>
+        b.addEventListener("click", () => ir("relatorios", b.dataset.rel)));
+    },
+  };
+};
+
+/* ---------------------------------------------------------------- gráficos */
+VISTAS.graficos = () => {
+  const a = rota.id?.a ?? M.ranking[0].id;
+  const b = rota.id?.b ?? M.ranking[M.ranking.length - 1].id;
+  const ra = M.porAluno.get(a), rb = M.porAluno.get(b);
+  const rotulos = M.porAvaliacao.map(x => x.nome);
+  const alinhar = (r) => M.porAvaliacao.map(x => r.notas.find(n => n.assessment_id === x.assessment_id)?.percentage ?? null);
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>Gráficos e comparações</h1>
+          <p>Todos os gráficos saem dos mesmos dados; a comparação aceita aluno × aluno, aluno × turma,
+             turma × turma, disciplina × disciplina e avaliação × avaliação no sistema instalado.</p></div>
+      </div>
+
+      ${painel("Comparação entre alunos", `
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+          <div class="campo"><label for="cmp-a">Primeiro aluno</label>
+            <select id="cmp-a" class="busca">${M.ranking.map(r => `<option value="${r.id}" ${r.id === a ? "selected" : ""}>${h(r.aluno.full_name)}</option>`).join("")}</select></div>
+          <div class="campo"><label for="cmp-b">Segundo aluno</label>
+            <select id="cmp-b" class="busca">${M.ranking.map(r => `<option value="${r.id}" ${r.id === b ? "selected" : ""}>${h(r.aluno.full_name)}</option>`).join("")}</select></div>
+        </div>
+        ${grafico("g-cmp")}
+        <div class="colunas c-2" style="margin-top:12px">
+          ${[ra, rb].map((r, i) => `
+            <div style="border:1px solid var(--fio);border-radius:var(--r-s);padding:10px 12px">
+              <div style="display:flex;align-items:center;gap:7px">
+                <i style="width:10px;height:10px;border-radius:2px;display:inline-block;background:${i ? "var(--serie-b)" : "var(--serie-a)"}"></i>
+                <strong>${h(r.aluno.full_name)}</strong></div>
+              <div class="mudo" style="font-size:12.5px;margin-top:4px">
+                Média ${pct(r.media)} · Frequência ${pct(r.frequencia, 0)} ·
+                Evolução ${num(r.evolucao_recente)} p.p. · Índice ${num(r.indice)}</div>
+            </div>`).join("")}
+        </div>
+        <div class="aviso" style="margin:12px 0 0">
+          <b>Diferença</b><div>${h(ra.aluno.full_name)} está
+          ${ra.media >= rb.media ? "<b>acima</b>" : "<b>abaixo</b>"} de ${h(rb.aluno.full_name)} em
+          <b>${num(Math.abs((ra.media ?? 0) - (rb.media ?? 0)))} p.p.</b> de média.</div>
+        </div>`)}
+
+      <div class="colunas c-2">
+        ${painel("Evolução geral", grafico("gg-ev"))}
+        ${painel("Média por avaliação", grafico("gg-av"))}
+      </div>
+      <div class="colunas c-2">
+        ${painel("Melhores assuntos", grafico("gg-melhor", 190))}
+        ${painel("Assuntos mais críticos", grafico("gg-pior", 190))}
+      </div>
+      ${painel("Frequência por aluno", grafico("gg-freq", 190))}`,
+    depois() {
+      const desenharCmp = () => {
+        const x = M.porAluno.get(+el("cmp-a").value), y = M.porAluno.get(+el("cmp-b").value);
+        grafLinha(el("g-cmp"), { labels: rotulos, series: [
+          { nome: x.aluno.full_name.split(" ")[0], dados: alinhar(x) },
+          { nome: y.aluno.full_name.split(" ")[0], dados: alinhar(y), cor: "var(--serie-b)" },
+        ]});
+      };
+      el("cmp-a").addEventListener("change", () => ir("graficos", { a: +el("cmp-a").value, b: +el("cmp-b").value }));
+      el("cmp-b").addEventListener("change", () => ir("graficos", { a: +el("cmp-a").value, b: +el("cmp-b").value }));
+      desenharCmp();
+
+      grafLinha(el("gg-ev"), { labels: rotulos, series: [{ nome: "Média da turma", dados: M.porAvaliacao.map(x => x.media) }] });
+      grafBarrasV(el("gg-av"), { labels: rotulos, series: [{ nome: "Média (%)", dados: M.porAvaliacao.map(x => x.media),
+        cores: M.porAvaliacao.map(x => faixa(x.media).cor) }] });
+      const ord = [...M.assuntos].sort((p, q) => (q.aproveitamento ?? 0) - (p.aproveitamento ?? 0));
+      grafBarrasH(el("gg-melhor"), ord.slice(0, 4).map(x => ({ nome: x.topic_name, valor: x.aproveitamento })));
+      grafBarrasH(el("gg-pior"), ord.slice(-4).reverse().map(x => ({ nome: x.topic_name, valor: x.aproveitamento })));
+      grafBarrasH(el("gg-freq"), M.ranking.map(r => ({ nome: r.aluno.full_name, valor: r.frequencia,
+        cor: r.frequencia >= CFG.frequencia_minima ? "var(--bom)" : "var(--ruim)" })));
+    },
+  };
+};
+
+/* ----------------------------------------------------------- configurações */
+const CONTROLES = [
+  ["Faixas de classificação", [
+    ["faixa_dominio", "Domínio a partir de (%)", 1, 100, 1],
+    ["faixa_intermediario", "Intermediário a partir de (%)", 0, 99, 1],
+    ["min_questoes_assunto", "Mínimo de questões por assunto", 1, 20, 1],
+  ]],
+  ["Pesos do Índice de Desenvolvimento", [
+    ["peso_desempenho", "Desempenho", 0, 1, .05],
+    ["peso_evolucao", "Evolução", 0, 1, .05],
+    ["peso_frequencia", "Frequência", 0, 1, .05],
+    ["peso_consistencia", "Consistência", 0, 1, .05],
+    ["id_evolucao", "Corte “em evolução” (índice ≥)", 1, 100, 1],
+    ["id_atencao", "Corte “precisa de atenção” (índice <)", 0, 99, 1],
+  ]],
+  ["Alertas e frequência", [
+    ["frequencia_minima", "Frequência mínima (%)", 0, 100, 1],
+    ["media_alerta", "Alerta de média abaixo de (%)", 0, 100, 1],
+    ["queda_alerta", "Alerta de queda (p.p.)", 1, 40, 1],
+    ["evolucao_alerta", "Destaque de evolução (p.p.)", 1, 40, 1],
+    ["limite_dificuldade", "Limite de dificuldade (%)", 0, 100, 1],
+    ["ocorrencias_persistente", "Ocorrências para dificuldade persistente", 2, 8, 1],
+  ]],
+];
+
+VISTAS.config = () => {
+  const w = (() => { const s = CFG.peso_desempenho + CFG.peso_evolucao + CFG.peso_frequencia + CFG.peso_consistencia;
+    return s > 0 ? [CFG.peso_desempenho / s, CFG.peso_evolucao / s, CFG.peso_frequencia / s, CFG.peso_consistencia / s] : [.4, .25, .15, .2]; })();
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>Configurações</h1>
+          <p>Estes são os critérios que produzem toda a análise. Mexa neles e veja a turma inteira
+             ser reclassificada na hora — é exatamente o que o item “critérios configuráveis” pede.</p></div>
+        <div class="cabec__acoes"><button class="btn" id="restaurar">Restaurar padrões</button></div>
+      </div>
+
+      ${painel("Régua de faixas", `
+        <div class="regua">
+          <div class="regua__t">
+            <div class="regua__f regua__f--ruim" style="width:${CFG.faixa_intermediario}%">Dificuldade</div>
+            <div class="regua__f regua__f--medio" style="width:${Math.max(0, CFG.faixa_dominio - CFG.faixa_intermediario)}%">Intermediário</div>
+            <div class="regua__f regua__f--bom" style="width:${Math.max(0, 100 - CFG.faixa_dominio)}%">Domínio</div>
+          </div>
+          <div class="regua__marcas"><span>0%</span>
+            <span>corte ${fmt(CFG.faixa_intermediario, 0)}% · ${fmt(CFG.faixa_dominio, 0)}%</span><span>100%</span></div>
+
+          <div class="regua__assuntos">
+            ${M.assuntos.map(a => {
+              const f = faixa(a.aproveitamento);
+              return `<div class="regua__linha">
+                <span>${h(a.topic_name)}</span>
+                <span class="regua__pista"><span class="regua__valor" style="width:${a.aproveitamento ?? 0}%;background:${f.cor}"></span></span>
+                <span style="display:flex;gap:6px;align-items:center;justify-content:flex-end">
+                  <span class="mono" style="font-size:12px">${pct(a.aproveitamento, 0)}</span>${tag(f.classe, f.texto)}</span>
+              </div>`;
+            }).join("")}
+          </div>
+        </div>`, { direita: '<span class="tag tag--neutro">os 6 assuntos, reclassificados ao vivo</span>' })}
+
+      ${CONTROLES.map(([titulo, campos]) => painel(h(titulo), `
+        <div class="grade-campos">
+          ${campos.map(([chave, rot, min, max, passo]) => `
+            <div class="campo">
+              <label for="c-${chave}">${h(rot)}</label>
+              <input type="range" id="r-${chave}" data-cfg="${chave}" min="${min}" max="${max}" step="${passo}" value="${CFG[chave]}">
+              <input type="number" id="c-${chave}" data-cfg="${chave}" min="${min}" max="${max}" step="${passo}" value="${CFG[chave]}">
+            </div>`).join("")}
+        </div>
+        ${titulo.startsWith("Pesos") ? `<div class="mudo" style="font-size:12.5px;margin-top:10px">
+          Em uso após normalização: desempenho <b>${fmt(w[0] * 100, 0)}%</b> · evolução <b>${fmt(w[1] * 100, 0)}%</b> ·
+          frequência <b>${fmt(w[2] * 100, 0)}%</b> · consistência <b>${fmt(w[3] * 100, 0)}%</b>.
+          Se a soma não for 1, o sistema normaliza sozinho.</div>` : ""}`)).join("")}
+
+      ${painel("Efeito imediato na turma", tabela(COLS_RANKING, M.ranking.map(r => linhaRanking(r))), {
+        nu: true,
+        direita: `<span class="tag tag--bom">${M.classes.evolucao} em evolução</span>
+                  <span class="tag tag--medio">${M.classes.intermediario} intermediários</span>
+                  <span class="tag tag--ruim">${M.classes.atencao} precisam de atenção</span>
+                  <span class="tag tag--neutro">${M.alertas.length} alertas</span>`,
+      })}`,
+    depois() {
+      document.querySelectorAll("[data-cfg]").forEach(campo => {
+        const evento = campo.type === "range" ? "input" : "change";
+        campo.addEventListener(evento, () => {
+          const v = parseFloat(campo.value);
+          if (Number.isNaN(v)) return;
+          CFG[campo.dataset.cfg] = v;
+          recalcular(); render();
+          const foco = document.getElementById(campo.id);
+          if (foco) foco.focus({ preventScroll: true });
+        });
+      });
+      el("restaurar").addEventListener("click", () => { CFG = { ...PADROES }; recalcular(); render(); });
+    },
+  };
+};
+
+/* ===========================================================================
+   8. RENDERIZAÇÃO E EVENTOS
+   =========================================================================== */
+const el = (id) => document.getElementById(id);
+
+function render() {
+  // Preserva a rolagem: relançar um resultado não deve tirar o professor do lugar.
+  const janela = window.scrollY;
+  const gradeAntes = document.querySelector(".grade-res");
+  const rolagem = gradeAntes ? { x: gradeAntes.scrollLeft, y: gradeAntes.scrollTop } : null;
+
+  const vista = (VISTAS[rota.vista] || VISTAS.dashboard)();
+  el("vista").innerHTML = vista.html;
+  montarMenu();
+  vista.depois?.();
+
+  const gradeDepois = document.querySelector(".grade-res");
+  if (rolagem && gradeDepois) { gradeDepois.scrollLeft = rolagem.x; gradeDepois.scrollTop = rolagem.y; }
+  window.scrollTo({ top: janela, behavior: "instant" });
+}
+
+document.addEventListener("click", (ev) => {
+  const irPara = ev.target.closest("[data-ir]");
+  if (irPara) { ir(irPara.dataset.ir); return; }
+  const aluno = ev.target.closest("[data-aluno]");
+  if (aluno) { ir("aluno", Number(aluno.dataset.aluno)); return; }
+  const aula = ev.target.closest("[data-aula]");
+  if (aula) { ir("chamada", Number(aula.dataset.aula)); return; }
+  const av = ev.target.closest("[data-avaliacao]");
+  if (av) { ir("avaliacao", Number(av.dataset.avaliacao)); return; }
+});
+
+/* O viewBox dos gráficos acompanha a largura real do container: ao
+   redimensionar, redesenha (com folga para não disparar a cada pixel). */
+let temporizador;
+window.addEventListener("resize", () => {
+  clearTimeout(temporizador);
+  temporizador = setTimeout(render, 180);
+});
+
+recalcular();
+render();
+</script>
