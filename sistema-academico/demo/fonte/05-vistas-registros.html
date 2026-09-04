@@ -1,0 +1,505 @@
+<script>
+/* ------------------------------------------------------------------ turmas */
+VISTAS.turmas = () => ({
+  html: `
+    <div class="cabec">
+      <div><h1>Turmas</h1><p>${M.turmas.length} turma(s) no seu escopo.</p></div>
+    </div>
+    ${avisoEscopo()}
+    ${painel("Turmas", tabela(
+      [{ t: "Turma" }, { t: "Curso" }, { t: "Período" }, { t: "Alunos", num: 1 },
+       { t: "Disciplinas", num: 1 }, { t: "Média", num: 1 }],
+      M.turmas.map(t => {
+        const f = { ...escopo(), turma: t.id };
+        const media = BASE.mediaGeral(f);
+        const ofertas = DADOS.ofertas.filter(o => o.class_id === t.id && BASE.ofertaPassa(o.id, escopo()));
+        return `<tr class="linha-clicavel" data-turma="${t.id}">
+          <td><strong>${h(t.code)}</strong><div class="mudo" style="font-size:11.5px">${h(t.name ?? "")}</div></td>
+          <td>${h(BASE.cursoPorId.get(t.course_id).name)}<div class="mudo" style="font-size:11.5px">${t.year}</div></td>
+          <td class="mudo" style="font-size:12px">${h(t.period ?? "—")}<div>${dataBr(t.start_date)} a ${dataBr(t.end_date)}</div></td>
+          <td class="num">${DADOS.alunos.filter(a => a.class_id === t.id).length}</td>
+          <td class="num">${ofertas.length}</td>
+          <td class="num">${tag(faixa(media).classe, pct(media, 0))}</td></tr>`;
+      })), { nu: true })}`,
+});
+
+VISTAS.turma = () => {
+  const t = BASE.turmaPorId.get(rota.id);
+  if (!t) return { html: '<div class="vazio">Turma não encontrada.</div>' };
+  const f = { ...escopo(), turma: t.id };
+  const rk = BASE.ranking(CFG, f);
+  const classes = { evolucao: 0, intermediario: 0, atencao: 0, sem_dados: 0 };
+  rk.forEach(r => classes[r.classificacao]++);
+  const assuntos = BASE.aproveitamentoPorAssunto(BASE.respostas(f), CFG);
+  const serie = BASE.mediaPorAvaliacao(f);
+  const ofertas = DADOS.ofertas.filter(o => o.class_id === t.id && BASE.ofertaPassa(o.id, escopo()));
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>Turma ${h(t.code)}</h1>
+          <p><button class="migalha" data-ir="turmas">Turmas</button> · ${h(BASE.cursoPorId.get(t.course_id).name)}
+            · ${t.year} · ${h(t.period ?? "")}</p></div>
+      </div>
+      <div class="kpis">
+        ${kpi("Média da turma", pct(BASE.mediaGeral(f)), `${rk.length} aluno(s)`, faixa(BASE.mediaGeral(f)).classe)}
+        ${kpi("% de acertos", pct(BASE.totaisDeResposta(BASE.respostas(f)).pct_acertos), "", faixa(BASE.totaisDeResposta(BASE.respostas(f)).pct_acertos).classe)}
+        ${kpi("Disciplinas", ofertas.length, "no seu escopo")}
+        ${kpi("Em evolução", classes.evolucao, "", "bom")}
+        ${kpi("Intermediários", classes.intermediario, "", "medio")}
+        ${kpi("Precisam de atenção", classes.atencao, "", "ruim")}
+      </div>
+      <div class="colunas c-2">
+        ${painel("Evolução da turma", grafico("tu-ev"))}
+        ${painel("Assuntos", grafico("tu-as", 200))}
+      </div>
+      ${painel("Disciplinas da turma", tabela(
+        [{ t: "Disciplina" }, { t: "Professor" }, { t: "Aulas", num: 1 }, { t: "Avaliações", num: 1 }, { t: "Média", num: 1 }],
+        ofertas.map(o => {
+          const d = BASE.disciplinaPorId.get(o.subject_id);
+          const prof = o.teacher_user_id ? BASE.professorPorId.get(o.teacher_user_id) : null;
+          const m = BASE.mediaGeral({ ...escopo(), ofertas: [o.id] });
+          return `<tr><td><strong>${h(d.name)}</strong></td>
+            <td>${prof ? h(prof.name) : '<span class="mudo">sem professor</span>'}</td>
+            <td class="num">${DADOS.aulas.filter(l => l.class_subject_id === o.id).length}</td>
+            <td class="num">${DADOS.avaliacoes.filter(a => a.class_subject_id === o.id).length}</td>
+            <td class="num">${tag(faixa(m).classe, pct(m, 0))}</td></tr>`;
+        })), { nu: true })}
+      ${painel("Alunos", tabela(COLS_RANKING, rk.map(r => linhaRanking(r))), { nu: true })}`,
+    depois() {
+      grafLinha(el("tu-ev"), { labels: serie.map(a => a.nome), series: [{ nome: "Média (%)", dados: serie.map(a => a.media) }] });
+      grafBarrasH(el("tu-as"), assuntos.map(a => ({ nome: a.topic_name, valor: a.aproveitamento, nota: a.subject_name })));
+    },
+  };
+};
+
+/* ------------------------------------------------------------- disciplinas */
+VISTAS.disciplinas = () => ({
+  html: `
+    <div class="cabec">
+      <div><h1>Disciplinas</h1><p>${M.disciplinas.length} disciplina(s) no seu escopo.</p></div>
+    </div>
+    ${avisoEscopo()}
+    ${painel("Disciplinas", tabela(
+      [{ t: "Disciplina" }, { t: "Professor responsável" }, { t: "Carga", num: 1 },
+       { t: "Turmas", num: 1 }, { t: "Assuntos", num: 1 }, { t: "Questões", num: 1 }, { t: "Média", num: 1 }],
+      M.disciplinas.map(d => {
+        const f = { ...escopo(), disciplina: d.id };
+        const media = BASE.mediaGeral(f);
+        const prof = d.teacher_user_id ? BASE.professorPorId.get(d.teacher_user_id) : null;
+        return `<tr class="linha-clicavel" data-disciplina="${d.id}">
+          <td><strong>${h(d.name)}</strong><div class="mudo" style="font-size:11.5px">${h(cortar(d.description ?? "", 60))}</div></td>
+          <td>${prof ? h(prof.name) : '<span class="mudo">—</span>'}</td>
+          <td class="num">${d.workload_hours ?? "—"}h</td>
+          <td class="num">${DADOS.ofertas.filter(o => o.subject_id === d.id && BASE.ofertaPassa(o.id, escopo())).length}</td>
+          <td class="num">${DADOS.topicos.filter(t => t.subject_id === d.id && t.parent_id === null).length}</td>
+          <td class="num">${DADOS.questoes.filter(q => { const t = BASE.topicoPorId.get(q.topic_id); return t && t.subject_id === d.id; }).length}</td>
+          <td class="num">${tag(faixa(media).classe, pct(media, 0))}</td></tr>`;
+      })), { nu: true })}`,
+});
+
+VISTAS.disciplina = () => {
+  const d = BASE.disciplinaPorId.get(rota.id);
+  if (!d) return { html: '<div class="vazio">Disciplina não encontrada.</div>' };
+  const f = { ...escopo(), disciplina: d.id };
+  const assuntos = BASE.aproveitamentoPorAssunto(BASE.respostas(f), CFG);
+  const porAssunto = new Map(assuntos.map(a => [a.topic_id, a]));
+  const raizes = DADOS.topicos.filter(t => t.subject_id === d.id && t.parent_id === null);
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>${h(d.name)}</h1>
+          <p><button class="migalha" data-ir="disciplinas">Disciplinas</button> · ${h(d.description ?? "")}
+            · ${raizes.length} assuntos</p></div>
+      </div>
+      <div class="kpis">
+        ${kpi("Média da disciplina", pct(BASE.mediaGeral(f)), "", faixa(BASE.mediaGeral(f)).classe)}
+        ${kpi("% de acertos", pct(BASE.totaisDeResposta(BASE.respostas(f)).pct_acertos), "", faixa(BASE.totaisDeResposta(BASE.respostas(f)).pct_acertos).classe)}
+        ${kpi("Assuntos", raizes.length, `${DADOS.topicos.filter(t => t.subject_id === d.id && t.parent_id !== null).length} tópicos`)}
+        ${kpi("Turmas", DADOS.ofertas.filter(o => o.subject_id === d.id && BASE.ofertaPassa(o.id, escopo())).length, "no seu escopo")}
+      </div>
+      <div class="colunas c-2">
+        ${painel("Aproveitamento por assunto", grafico("di-as", 200))}
+        ${painel("Por nível de dificuldade", grafico("di-dif", 130))}
+      </div>
+      ${painel("Assuntos e tópicos", `<div style="display:grid;gap:8px">
+        ${raizes.map(raiz => {
+          const stat = porAssunto.get(raiz.id);
+          const filhos = DADOS.topicos.filter(t => t.parent_id === raiz.id);
+          const fx = faixa(stat?.aproveitamento ?? null);
+          return `<div style="border:1px solid var(--fio);border-radius:var(--r-s);padding:9px 11px">
+            <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+              <strong>${h(raiz.name)}</strong>${tag("info", "assunto")}
+              <span style="margin-left:auto;min-width:150px">${barra(stat?.aproveitamento ?? null)}</span>
+              ${tag(fx.classe, fx.texto)}
+            </div>
+            <div class="mudo" style="font-size:12px;margin-top:4px">${filhos.map(t => h(t.name)).join(" · ")}</div>
+          </div>`;
+        }).join("")}</div>`)}`,
+    depois() {
+      grafBarrasH(el("di-as"), assuntos.map(a => ({ nome: a.topic_name, valor: a.aproveitamento, nota: `${a.respondidas} respostas` })));
+      grafBarrasH(el("di-dif"), BASE.aproveitamentoPorDificuldade(BASE.respostas(f))
+        .map(x => ({ nome: DIFICULDADE[x.dificuldade], valor: x.aproveitamento, nota: `${x.respondidas} questões` })), { rotuloLargura: 110 });
+    },
+  };
+};
+
+/* ------------------------------------------------------------------- aulas */
+VISTAS.aulas = () => ({
+  html: `
+    <div class="cabec">
+      <div><h1>Aulas</h1><p>${M.aulas.length} aula(s) no seu escopo. Abra a chamada para ver — e alterar — a frequência.</p></div>
+    </div>
+    ${avisoEscopo()}
+    ${painel("Aulas registradas", tabela(
+      [{ t: "Data" }, { t: "Aula" }, { t: "Turma / Disciplina" }, { t: "Duração", num: 1 }, { t: "Chamada" }, { t: "" }],
+      [...M.aulas].reverse().map(a => {
+        const regs = DADOS.presencas.filter(p => p.lesson_id === a.id);
+        const presentes = regs.filter(p => p.status === "presente" || p.status === "atraso").length;
+        const t = BASE.turmaDaOferta(a.class_subject_id), d = BASE.disciplinaDaOferta(a.class_subject_id);
+        return `<tr class="linha-clicavel" data-aula="${a.id}">
+          <td class="mono nowrap">${dataBr(a.lesson_date)}</td>
+          <td><strong>${h(a.title)}</strong><div class="mudo" style="font-size:11.5px">${h(cortar(a.content ?? "", 70))}</div></td>
+          <td class="pequeno">${h(t.code)}<div class="mudo">${h(d.name)}</div></td>
+          <td class="num">${a.duration_minutes} min</td>
+          <td>${tag(presentes === regs.length ? "bom" : "medio", `${presentes}/${regs.length} presentes`)}</td>
+          <td class="num"><span class="btn btn--min">Chamada</span></td></tr>`;
+      })), { nu: true })}`,
+});
+
+VISTAS.chamada = () => {
+  const aula = BASE.aulaPorId.get(rota.id);
+  if (!aula) return { html: '<div class="vazio">Aula não encontrada.</div>' };
+  const t = BASE.turmaDaOferta(aula.class_subject_id), d = BASE.disciplinaDaOferta(aula.class_subject_id);
+  const alunos = DADOS.alunos.filter(a => a.class_id === t.id);
+  const opcoes = [["presente", "Presente"], ["atraso", "Atraso"], ["falta", "Falta"], ["falta_justificada", "Justificada"]];
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>Chamada</h1>
+          <p><button class="migalha" data-ir="aulas">Aulas</button> · <strong>${h(aula.title)}</strong>
+            · ${dataBr(aula.lesson_date)} · ${h(t.code)} — ${h(d.name)}</p></div>
+      </div>
+      <div class="aviso"><b>Interativo</b><div>Troque a situação de um aluno: frequência, Índice de
+        Desenvolvimento, ranking e alertas são recalculados na hora — como no sistema real.</div></div>
+      ${painel(`${alunos.length} aluno(s)`, tabela(
+        [{ t: "Aluno" }, { t: "Situação" }, { t: "Participação", num: 1 }, { t: "Frequência acumulada", num: 1 }],
+        alunos.map(al => {
+          const p = DADOS.presencas.find(x => x.lesson_id === aula.id && x.student_id === al.id);
+          const freq = BASE.frequencia(al.id, CFG, escopo()).frequencia;
+          return `<tr>
+            <td>${h(al.full_name)}</td>
+            <td><select data-presenca="${al.id}" style="padding:4px 6px;border-radius:5px;border:1px solid var(--fio-forte);background:var(--elevado);color:var(--tinta);font:inherit;font-size:12.5px">
+              ${opcoes.map(([v, txt]) => `<option value="${v}" ${p?.status === v ? "selected" : ""}>${txt}</option>`).join("")}
+            </select></td>
+            <td class="num mono">${p?.participation ?? "—"}</td>
+            <td class="num">${tag(freq >= CFG.frequencia_minima ? "bom" : "ruim", pct(freq, 1))}</td></tr>`;
+        })), { nu: true })}`,
+    depois() {
+      document.querySelectorAll("[data-presenca]").forEach(sel => {
+        sel.addEventListener("change", () => {
+          const id = Number(sel.dataset.presenca);
+          const reg = DADOS.presencas.find(x => x.lesson_id === aula.id && x.student_id === id);
+          if (reg) reg.status = sel.value;
+          registrarAuditoria("registrou chamada", "aula", aula.title);
+          recalcular(); render();
+        });
+      });
+    },
+  };
+};
+
+/* -------------------------------------------------------------- avaliações */
+VISTAS.avaliacoes = () => ({
+  html: `
+    <div class="cabec">
+      <div><h1>Avaliações</h1><p>${M.avaliacoes.length} avaliação(ões) no seu escopo.</p></div>
+    </div>
+    ${avisoEscopo()}
+    ${painel("Avaliações", tabela(
+      [{ t: "Data" }, { t: "Avaliação" }, { t: "Turma / Disciplina" }, { t: "Tipo" }, { t: "Peso", num: 1 },
+       { t: "Questões", num: 1 }, { t: "Lançados", num: 1 }, { t: "Média", num: 1 }, { t: "" }],
+      [...M.porAvaliacao].reverse().map(a => {
+        const av = BASE.avaliacaoPorId.get(a.assessment_id);
+        return `<tr class="linha-clicavel" data-avaliacao="${av.id}">
+          <td class="mono nowrap">${dataBr(av.assessment_date)}</td>
+          <td><strong>${h(av.name)}</strong></td>
+          <td class="pequeno">${h(a.class_code)}<div class="mudo">${h(a.subject_name)}</div></td>
+          <td class="mudo">${h(TIPO_AVALIACAO[av.type])}</td>
+          <td class="num mono">${num(av.weight, 1)}</td>
+          <td class="num">${DADOS.questoes.filter(q => q.assessment_id === av.id).length}</td>
+          <td class="num">${a.alunos}</td>
+          <td class="num">${tag(faixa(a.media).classe, pct(a.media, 1))}</td>
+          <td class="num"><span class="btn btn--min">Resultados</span></td></tr>`;
+      })), { nu: true })}`,
+});
+
+VISTAS.avaliacao = () => {
+  const av = BASE.avaliacaoPorId.get(rota.id);
+  if (!av) return { html: '<div class="vazio">Avaliação não encontrada.</div>' };
+  const questoes = BASE.analiseDaAvaliacao(av.id, CFG);
+  const t = BASE.turmaDaOferta(av.class_subject_id), d = BASE.disciplinaDaOferta(av.class_subject_id);
+  const alunos = DADOS.alunos.filter(a => a.class_id === t.id);
+  const notas = DADOS.notas.filter(n => n.assessment_id === av.id);
+  const p = notas.map(n => n.percentage);
+  const respostasAv = DADOS.respostas.filter(r => questoes.some(q => q.id === r.question_id));
+  const assuntosAv = BASE.aproveitamentoPorAssunto(respostasAv, CFG);
+  const totais = BASE.totaisDeResposta(respostasAv);
+  const matriz = new Map(respostasAv.map(r => [r.student_id + ":" + r.question_id, r]));
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>${h(av.name)}</h1>
+          <p><button class="migalha" data-ir="avaliacoes">Avaliações</button> · ${h(TIPO_AVALIACAO[av.type])}
+            · ${dataBr(av.assessment_date)} · ${h(t.code)} — ${h(d.name)} · valor ${num(av.max_score, 0)}</p></div>
+      </div>
+      <div class="kpis">
+        ${kpi("Média", pct(p.length ? r2(p.reduce((a, b) => a + b, 0) / p.length) : null), `${notas.length} aluno(s)`,
+          faixa(p.length ? r2(p.reduce((a, b) => a + b, 0) / p.length) : null).classe)}
+        ${kpi("Menor / Maior", `${pct(p.length ? Math.min(...p) : null, 0)} / ${pct(p.length ? Math.max(...p) : null, 0)}`,
+          `desvio de ${num(desvioPadrao(p))} p.p.`)}
+        ${kpi("% de acertos", pct(totais.pct_acertos), `${totais.branco} em branco`, faixa(totais.pct_acertos).classe)}
+        ${kpi("Questões", questoes.length, `somando ${num(questoes.reduce((a, q) => a + q.points, 0), 2)} pontos`)}
+      </div>
+      <div class="colunas c-2">
+        ${painel("Índice de acerto por questão", grafico("av-q", 230))}
+        ${painel("Aproveitamento por assunto", grafico("av-as", 190))}
+      </div>
+
+      <div class="aviso"><b>Interativo</b><div>Clique em <b>C</b>, <b>E</b> ou <b>N</b> para lançar o resultado de
+        um aluno numa questão. Nota, percentual, mapa de conteúdos, ranking e alertas são recalculados na hora.</div></div>
+
+      ${painel("Resultados por questão", `<div class="grade-res">
+        <table>
+          <thead><tr><th>Aluno</th>
+            ${questoes.map(q => `<th class="num" title="${h(q.assunto ?? "sem assunto")} · ${h(DIFICULDADE[q.difficulty])} · ${num(q.points, 2)} pt">${q.number}</th>`).join("")}
+            <th class="num">Nota</th></tr></thead>
+          <tbody>${alunos.map(al => {
+            const nota = notas.find(n => n.student_id === al.id);
+            return `<tr><th>${h(al.full_name)}</th>
+              ${questoes.map(q => {
+                const r = matriz.get(al.id + ":" + q.id);
+                const marca = (v, rot) => `<button class="${v[0]}" data-marca="${al.id}|${q.id}|${v}"
+                  aria-pressed="${r?.result === v}" title="${rot}">${rot[0]}</button>`;
+                return `<td><div class="marcas">${marca("correta", "Certo")}${marca("incorreta", "Errado")}${marca("nao_respondida", "Não respondeu")}</div></td>`;
+              }).join("")}
+              <td class="num mono">${nota ? `<strong>${num(nota.score, 2)}</strong><br>${tag(faixa(nota.percentage).classe, pct(nota.percentage, 0))}` : "—"}</td>
+            </tr>`;
+          }).join("")}</tbody>
+        </table></div>`, { nu: true, direita: '<span class="tag tag--neutro">C = certo · E = errado · N = não respondeu</span>' })}
+
+      ${painel("Detalhe das questões", tabela(
+        [{ t: "#", num: 1 }, { t: "Assunto" }, { t: "Dificuldade" }, { t: "Pontos", num: 1 },
+         { t: "C / E / B", num: 1 }, { t: "Índice de acerto" }],
+        questoes.map(q => `<tr>
+          <td class="num mono">${q.number}</td><td>${h(q.assunto ?? "—")}</td>
+          <td>${tag({ facil: "bom", medio: "medio", dificil: "ruim" }[q.difficulty], DIFICULDADE[q.difficulty])}</td>
+          <td class="num mono">${num(q.points, 2)}</td>
+          <td class="num mono">${q.acertos}/${q.erros}/${q.branco}</td>
+          <td>${barra(q.indice_acerto)}</td></tr>`)), { nu: true })}`,
+    depois() {
+      grafBarrasV(el("av-q"), { labels: questoes.map(q => "Q" + q.number), altura: 230,
+        series: [{ nome: "Índice de acerto", dados: questoes.map(q => q.indice_acerto),
+          cores: questoes.map(q => faixa(q.indice_acerto).cor) }] });
+      grafBarrasH(el("av-as"), assuntosAv.map(a => ({ nome: a.topic_name, valor: a.aproveitamento, nota: `${a.respondidas} respostas` })));
+
+      document.querySelectorAll("[data-marca]").forEach(b => {
+        b.addEventListener("click", () => {
+          const [alunoId, questaoId, valor] = b.dataset.marca.split("|");
+          const q = BASE.questaoPorId.get(Number(questaoId));
+          let r = DADOS.respostas.find(x => x.student_id === +alunoId && x.question_id === +questaoId);
+          if (!r) { r = { question_id: +questaoId, student_id: +alunoId, result: valor, score_earned: 0 }; DADOS.respostas.push(r); }
+          r.result = valor;
+          r.score_earned = valor === "correta" ? q.points : 0;
+          recalcularNota(av.id, +alunoId);
+          registrarAuditoria("lançou resultados", "avaliacao", av.name);
+          recalcular(); render();
+        });
+      });
+    },
+  };
+};
+
+/* ---------------------------------------------------------------- questões */
+VISTAS.questoes = () => {
+  const disciplinasOk = new Set(M.disciplinas.map(d => d.id));
+  const linhas = DADOS.questoes.filter(q => {
+    const t = BASE.topicoPorId.get(q.topic_id);
+    return t && disciplinasOk.has(t.subject_id);
+  }).map(q => {
+    const resp = DADOS.respostas.filter(r => r.question_id === q.id);
+    const acertos = resp.filter(r => r.result === "correta").length;
+    const raiz = BASE.raiz(q.topic_id), filho = BASE.topicoPorId.get(q.topic_id);
+    return { q, raiz, filho, respondidas: resp.length,
+      indice: resp.length ? r2(acertos / resp.length * 100) : null,
+      avaliacao: BASE.avaliacaoPorId.get(q.assessment_id),
+      disciplina: BASE.disciplinaPorId.get(raiz.subject_id) };
+  });
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>Banco de questões</h1>
+          <p>${linhas.length} questões classificadas por assunto e dificuldade, com o índice de acerto real.</p></div>
+        <div class="cabec__acoes">
+          <select id="f-dif" class="busca" aria-label="Filtrar por dificuldade">
+            <option value="">Todas as dificuldades</option>
+            <option value="facil">Fácil</option><option value="medio">Médio</option><option value="dificil">Difícil</option>
+          </select>
+        </div>
+      </div>
+      ${avisoEscopo()}
+      ${painel("Questões", `<div id="tab-q"></div>`, { nu: true })}`,
+    depois() {
+      const desenhar = () => {
+        const dif = el("f-dif").value;
+        el("tab-q").innerHTML = tabela(
+          [{ t: "Avaliação" }, { t: "#", num: 1 }, { t: "Disciplina / assunto" }, { t: "Dificuldade" },
+           { t: "Pontos", num: 1 }, { t: "Gabarito" }, { t: "Índice de acerto" }],
+          linhas.filter(l => !dif || l.q.difficulty === dif).map(l => `<tr>
+            <td style="font-size:12.5px">${h(l.avaliacao.name)}<div class="mudo mono" style="font-size:11px">${dataBr(l.avaliacao.assessment_date)}</div></td>
+            <td class="num mono">${l.q.number}</td>
+            <td>${h(l.disciplina.name)}<div class="mudo" style="font-size:11.5px">${h(l.raiz.name)}${l.filho && l.filho.id !== l.raiz.id ? " › " + h(l.filho.name) : ""}</div></td>
+            <td>${tag({ facil: "bom", medio: "medio", dificil: "ruim" }[l.q.difficulty], DIFICULDADE[l.q.difficulty])}</td>
+            <td class="num mono">${num(l.q.points, 2)}</td>
+            <td class="mono">${h(l.q.answer_key ?? "—")}</td>
+            <td>${barra(l.indice)}<div class="mudo" style="font-size:11px">${l.respondidas} respostas</div></td></tr>`),
+          { vazio: "Nenhuma questão nesse filtro." });
+      };
+      el("f-dif").addEventListener("change", desenhar);
+      desenhar();
+    },
+  };
+};
+
+/* --------------------------------------------------------- acompanhamento */
+VISTAS.acompanhamento = () => {
+  const visiveis = DADOS.acompanhamentos.filter(i => {
+    if (PERFIL.papel === "admin") return true;
+    const ofertas = BASE.ofertasDoProfessor(PERFIL.userId);
+    if (i.class_subject_id) return ofertas.includes(i.class_subject_id);
+    const aluno = BASE.alunoPorId.get(i.student_id);
+    return aluno && ofertas.some(id => BASE.oferta(id).class_id === aluno.class_id);
+  });
+  const contagem = { aberta: 0, em_andamento: 0, concluida: 0, cancelada: 0, atrasadas: 0 };
+  const hoje = new Date().toISOString().slice(0, 10);
+  visiveis.forEach(i => {
+    contagem[i.status]++;
+    if (["aberta", "em_andamento"].includes(i.status) && i.due_date && i.due_date < hoje) contagem.atrasadas++;
+  });
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>Acompanhamento pedagógico</h1>
+          <p>O que foi <strong>feito</strong> com cada aluno sinalizado. A média e a frequência do momento da
+             abertura ficam guardadas — a coluna “efeito” mostra o que mudou desde então.</p></div>
+      </div>
+      ${avisoEscopo()}
+      <div class="kpis">
+        ${kpi("Abertos", contagem.aberta, "", "medio")}
+        ${kpi("Em andamento", contagem.em_andamento, "", "acento")}
+        ${kpi("Concluídos", contagem.concluida, "", "bom")}
+        ${kpi("Prazo vencido", contagem.atrasadas, "abertos e fora do prazo", "ruim")}
+      </div>
+      ${painel("Registros", visiveis.length === 0
+        ? '<div class="vazio">Nenhum acompanhamento no seu escopo. Abra um a partir de um alerta.</div>'
+        : tabela([{ t: "Aluno" }, { t: "Acompanhamento" }, { t: "Tipo" }, { t: "Prazo" },
+                  { t: "Situação" }, { t: "Efeito na média", num: 1 }],
+          visiveis.map(i => {
+            const aluno = BASE.alunoPorId.get(i.student_id);
+            const resumo = BASE.resumoDoAluno(i.student_id, CFG, {});
+            const efeito = (i.baseline_media !== null && resumo.media !== null)
+              ? r2(resumo.media - i.baseline_media) : null;
+            const atrasado = ["aberta", "em_andamento"].includes(i.status) && i.due_date && i.due_date < hoje;
+            const oferta = i.class_subject_id ? BASE.oferta(i.class_subject_id) : null;
+            const autor = i.author_user_id ? BASE.professorPorId.get(i.author_user_id) : null;
+            return `<tr>
+              <td><button class="migalha" data-aluno="${i.student_id}">${h(aluno.full_name)}</button>
+                ${oferta ? `<div class="mudo" style="font-size:11.5px">${h(BASE.turmaPorId.get(oferta.class_id).code)} · ${h(BASE.disciplinaPorId.get(oferta.subject_id).name)}</div>` : ""}</td>
+              <td><strong>${h(i.title)}</strong>
+                <div class="mudo" style="font-size:11.5px">${h(cortar(i.description ?? "", 80))}</div>
+                <div class="mudo" style="font-size:11px">por ${h(autor?.name ?? "—")} · ${dataBr(i.created_at)}</div></td>
+              <td class="pequeno">${h(TIPO_ACOMP[i.type])}</td>
+              <td class="pequeno nowrap">${i.due_date ? dataBr(i.due_date) : '<span class="mudo">—</span>'}
+                ${atrasado ? "<br>" + tag("ruim", "vencido") : ""}</td>
+              <td>${tag({ aberta: "medio", em_andamento: "info", concluida: "bom", cancelada: "neutro" }[i.status], STATUS_ACOMP[i.status])}</td>
+              <td class="num">${efeito === null
+                ? '<span class="mudo" style="font-size:11.5px">sem linha de base</span>'
+                : `${tag(efeito >= 0 ? "bom" : "ruim", (efeito >= 0 ? "+" : "") + num(efeito) + " p.p.")}
+                   <div class="mudo" style="font-size:11px">de ${pct(i.baseline_media, 0)} para ${pct(resumo.media, 0)}</div>`}</td>
+            </tr>`;
+          })), { nu: true })}`,
+  };
+};
+
+/** Registrar acompanhamento — o formulário grava na memória da aba. */
+VISTAS["acompanhamento-form"] = () => {
+  const alunoPre = rota.id?.aluno ?? M.ranking[0]?.id;
+  const tituloPre = rota.id?.titulo ?? "";
+  const alunos = M.ranking.length ? M.ranking.map(r => r.aluno) : M.alunos;
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>Novo acompanhamento</h1>
+          <p>A média e a frequência atuais do aluno serão guardadas como linha de base para medir o efeito.</p></div>
+        <div class="cabec__acoes"><button class="btn" data-ir="acompanhamento">Voltar</button></div>
+      </div>
+      ${painel("Registro", `
+        <div class="grade-campos">
+          <div class="campo"><label for="ac-aluno">Aluno</label>
+            <select id="ac-aluno" class="busca" style="width:100%">
+              ${alunos.map(a => `<option value="${a.id}" ${a.id === alunoPre ? "selected" : ""}>${h(a.full_name)}</option>`).join("")}
+            </select></div>
+          <div class="campo"><label for="ac-oferta">Turma / disciplina</label>
+            <select id="ac-oferta" class="busca" style="width:100%">
+              <option value="">— Geral —</option>
+              ${M.ofertas.map(o => `<option value="${o.id}">${h(o.turma.code)} — ${h(o.disciplina.name)}</option>`).join("")}
+            </select></div>
+          <div class="campo"><label for="ac-tipo">Tipo</label>
+            <select id="ac-tipo" class="busca" style="width:100%">
+              ${Object.entries(TIPO_ACOMP).map(([k, v]) => `<option value="${k}">${h(v)}</option>`).join("")}
+            </select></div>
+          <div class="campo"><label for="ac-status">Situação</label>
+            <select id="ac-status" class="busca" style="width:100%">
+              ${Object.entries(STATUS_ACOMP).map(([k, v]) => `<option value="${k}">${h(v)}</option>`).join("")}
+            </select></div>
+          <div class="campo"><label for="ac-prazo">Prazo</label>
+            <input type="date" id="ac-prazo" class="busca" style="width:100%"></div>
+        </div>
+        <div class="campo" style="margin-top:12px"><label for="ac-titulo">Título</label>
+          <input type="text" id="ac-titulo" class="busca" style="width:100%" value="${h(tituloPre)}"></div>
+        <div class="campo" style="margin-top:10px"><label for="ac-desc">Situação observada</label>
+          <textarea id="ac-desc" rows="2" style="width:100%;padding:6px 8px;border:1px solid var(--fio-forte);border-radius:var(--r-s);background:var(--elevado);color:var(--tinta);font:inherit;font-size:13px"></textarea></div>
+        <div class="campo" style="margin-top:10px"><label for="ac-acao">Ação combinada</label>
+          <textarea id="ac-acao" rows="2" style="width:100%;padding:6px 8px;border:1px solid var(--fio-forte);border-radius:var(--r-s);background:var(--elevado);color:var(--tinta);font:inherit;font-size:13px"></textarea></div>
+        <div style="margin-top:14px;display:flex;gap:8px">
+          <button class="btn btn--forte" id="ac-salvar">Registrar acompanhamento</button>
+          <button class="btn" data-ir="acompanhamento">Cancelar</button>
+        </div>`)}`,
+    depois() {
+      el("ac-salvar").addEventListener("click", () => {
+        const alunoId = Number(el("ac-aluno").value);
+        const resumo = BASE.resumoDoAluno(alunoId, CFG, {});
+        DADOS.acompanhamentos.push({
+          id: Math.max(0, ...DADOS.acompanhamentos.map(i => i.id)) + 1,
+          student_id: alunoId,
+          class_subject_id: el("ac-oferta").value ? Number(el("ac-oferta").value) : null,
+          author_user_id: PERFIL.userId ?? 1,
+          type: el("ac-tipo").value, status: el("ac-status").value,
+          title: el("ac-titulo").value || "Acompanhamento",
+          description: el("ac-desc").value, action_taken: el("ac-acao").value,
+          due_date: el("ac-prazo").value || null, result_note: null,
+          baseline_media: resumo.media, baseline_frequencia: resumo.frequencia,
+          created_at: new Date().toISOString().slice(0, 10),
+        });
+        registrarAuditoria("abriu", "acompanhamento", el("ac-titulo").value || "Acompanhamento");
+        ir("acompanhamento");
+      });
+    },
+  };
+};
+</script>

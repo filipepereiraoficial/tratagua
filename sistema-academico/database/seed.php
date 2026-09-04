@@ -152,83 +152,218 @@ if (!function_exists('painel_seed')) {
     }
 
     /**
-     * Gera uma turma de demonstração com perfis de aprendizagem distintos —
-     * um aluno em evolução, um estável, um em queda e um faltoso — para que os
-     * dashboards, o ranking e os alertas mostrem casos reais desde o início.
+     * Gera uma instituição de demonstração com dois cursos, duas disciplinas e
+     * dois professores com responsabilidades diferentes — é o que permite
+     * conferir o recorte por perfil:
+     *
+     *   Marina  → INF01 × Informática                      (5 alunos)
+     *   Ricardo → INF01 × Legislação  +  AGT01 × Legislação (8 alunos)
+     *   Admin   → tudo
      */
     function painel_seed_demo(int $classId, int $classSubjectId, int $subjectId, array $topicos): array
     {
-        // Um professor de verdade para a oferta: sem ele não dá para conferir o
-        // painel do professor nem o recorte por responsabilidade.
-        $professorId = painel_seed_find('users', 'email', 'professor@exemplo.com');
-        if ($professorId === null) {
-            $professorId = User::create([
-                'name'                 => 'Marina Alencar',
-                'email'                => 'professor@exemplo.com',
-                'password'             => 'Professor@2026',
-                'role'                 => 'professor',
-                'must_change_password' => 0,
-            ]);
-            Database::update('users', [
-                'qualification' => 'Licenciatura em Computação',
-                'phone'         => '(81) 99999-0000',
-            ], 'id = :id', ['id' => $professorId]);
-        }
-        Database::update('class_subjects', ['teacher_user_id' => $professorId],
+        // ------------------------------------------------------- professores
+        $marina = painel_seed_professor('Marina Alencar', 'professor@exemplo.com',
+            'Licenciatura em Computação', '(81) 99999-0000');
+        $ricardo = painel_seed_professor('Ricardo Menezes', 'ricardo@exemplo.com',
+            'Bacharel em Direito', '(81) 98888-1111');
+
+        Database::update('class_subjects', ['teacher_user_id' => $marina],
             'id = :id', ['id' => $classSubjectId]);
 
-        $perfis = [
-            ['nome' => 'Ana Beatriz Souza',    'base' => 58, 'passo' => 9,  'frequencia' => 0.95, 'forte' => 'Pacote Office',        'fraco' => 'Redes de Computadores'],
+        // ------------------------------------- segunda disciplina e conteúdos
+        $legislacaoId = painel_seed_find('subjects', 'name', 'Legislação Municipal');
+        if ($legislacaoId === null) {
+            $legislacaoId = Database::insert('subjects', [
+                'name'            => 'Legislação Municipal',
+                'description'     => 'Legislação aplicada à atuação da guarda municipal.',
+                'teacher_user_id' => $ricardo,
+                'workload_hours'  => 30,
+                'status'          => 'ativa',
+            ]);
+        }
+        $topicosLeg = painel_seed_conteudos($legislacaoId, [
+            'Constituição Federal'   => ['Direitos fundamentais', 'Segurança pública'],
+            'Estatuto da Guarda'     => ['Competências', 'Regime disciplinar'],
+            'Direito Administrativo' => ['Princípios', 'Atos administrativos'],
+            'Código de Trânsito'     => ['Infrações', 'Sinalização'],
+        ]);
+
+        // ------------------------------------- segundo curso e segunda turma
+        $curso2 = painel_seed_find('courses', 'name', 'Preparatório para Agente de Trânsito');
+        if ($curso2 === null) {
+            $curso2 = Database::insert('courses', [
+                'name'        => 'Preparatório para Agente de Trânsito',
+                'description' => 'Curso preparatório para o concurso de agente de trânsito.',
+                'status'      => 'ativo',
+            ]);
+        }
+        $turma2 = painel_seed_find('classes', 'code', 'AGT01');
+        if ($turma2 === null) {
+            $turma2 = Database::insert('classes', [
+                'code' => 'AGT01', 'name' => 'Turma Agentes 2026', 'course_id' => $curso2,
+                'year' => 2026, 'period' => 'Matutino',
+                'start_date' => '2026-03-02', 'end_date' => '2026-11-30', 'status' => 'em_andamento',
+            ]);
+        }
+
+        // --------------------------------------------------- ofertas restantes
+        $ofertaLegInf = painel_seed_oferta($classId, $legislacaoId, $ricardo);
+        $ofertaLegAgt = painel_seed_oferta($turma2, $legislacaoId, $ricardo);
+
+        // ------------------------------------------------------------- alunos
+        $perfisInf = [
+            ['nome' => 'Ana Beatriz Souza',    'base' => 58, 'passo' => 9,  'frequencia' => 0.95, 'forte' => 'Pacote Office',           'fraco' => 'Redes de Computadores'],
             ['nome' => 'Bruno Carvalho Lima',  'base' => 82, 'passo' => 1,  'frequencia' => 0.92, 'forte' => 'Segurança da Informação', 'fraco' => 'Hardware e Software'],
-            ['nome' => 'Carla Mendes Rocha',   'base' => 76, 'passo' => -8, 'frequencia' => 0.88, 'forte' => 'Internet e Navegadores', 'fraco' => 'Redes de Computadores'],
-            ['nome' => 'Diego Nunes Ferreira', 'base' => 47, 'passo' => 2,  'frequencia' => 0.58, 'forte' => 'Sistemas Operacionais', 'fraco' => 'Segurança da Informação'],
-            ['nome' => 'Eduarda Prado Alves',  'base' => 66, 'passo' => 5,  'frequencia' => 0.97, 'forte' => 'Hardware e Software',   'fraco' => 'Pacote Office'],
+            ['nome' => 'Carla Mendes Rocha',   'base' => 76, 'passo' => -8, 'frequencia' => 0.88, 'forte' => 'Internet e Navegadores',  'fraco' => 'Redes de Computadores'],
+            ['nome' => 'Diego Nunes Ferreira', 'base' => 47, 'passo' => 2,  'frequencia' => 0.58, 'forte' => 'Sistemas Operacionais',   'fraco' => 'Segurança da Informação'],
+            ['nome' => 'Eduarda Prado Alves',  'base' => 66, 'passo' => 5,  'frequencia' => 0.97, 'forte' => 'Hardware e Software',     'fraco' => 'Pacote Office'],
+        ];
+        $perfisAgt = [
+            ['nome' => 'Felipe Ramos Duarte',  'base' => 71, 'passo' => 6,  'frequencia' => 0.93, 'forte' => 'Código de Trânsito',      'fraco' => 'Direito Administrativo'],
+            ['nome' => 'Gabriela Nunes Pires', 'base' => 54, 'passo' => -5, 'frequencia' => 0.72, 'forte' => 'Estatuto da Guarda',      'fraco' => 'Constituição Federal'],
+            ['nome' => 'Henrique Alves Cruz',  'base' => 63, 'passo' => 4,  'frequencia' => 0.90, 'forte' => 'Constituição Federal',    'fraco' => 'Código de Trânsito'],
         ];
 
+        $alunosInf = painel_seed_alunos($perfisInf, $classId, '2026-02-02');
+        $alunosAgt = painel_seed_alunos($perfisAgt, $turma2, '2026-03-02');
+
+        // ------------------------------------------------- aulas e avaliações
+        $aulas = 0; $avaliacoes = 0;
+        $r1 = painel_seed_oferta_conteudo($classSubjectId, $subjectId, $topicos, $alunosInf, 'Informática', '2026-02-09', [
+            ['nome' => 'Avaliação diagnóstica', 'tipo' => 'diagnostica', 'data' => '2026-02-16'],
+            ['nome' => 'Simulado 1',            'tipo' => 'simulado',    'data' => '2026-03-16'],
+            ['nome' => 'Prova bimestral',       'tipo' => 'prova',       'data' => '2026-04-13'],
+            ['nome' => 'Simulado 2',            'tipo' => 'simulado',    'data' => '2026-05-11'],
+        ]);
+        $r2 = painel_seed_oferta_conteudo($ofertaLegInf, $legislacaoId, $topicosLeg, $alunosInf, 'Legislação (INF01)', '2026-02-11', [
+            ['nome' => 'Diagnóstica de Legislação', 'tipo' => 'diagnostica', 'data' => '2026-02-18'],
+            ['nome' => 'Prova de Legislação 1',     'tipo' => 'prova',       'data' => '2026-03-25'],
+            ['nome' => 'Simulado de Legislação',    'tipo' => 'simulado',    'data' => '2026-05-06'],
+        ]);
+        $r3 = painel_seed_oferta_conteudo($ofertaLegAgt, $legislacaoId, $topicosLeg, $alunosAgt, 'Legislação (AGT01)', '2026-03-09', [
+            ['nome' => 'Diagnóstica AGT',       'tipo' => 'diagnostica', 'data' => '2026-03-17'],
+            ['nome' => 'Prova de Trânsito 1',   'tipo' => 'prova',       'data' => '2026-04-21'],
+            ['nome' => 'Simulado AGT',          'tipo' => 'simulado',    'data' => '2026-05-19'],
+        ]);
+        foreach ([$r1, $r2, $r3] as $r) { $aulas += $r['aulas']; $avaliacoes += $r['avaliacoes']; }
+
+        // --------------------------------------- acompanhamentos pedagógicos
+        painel_seed_acompanhamentos($alunosInf, $alunosAgt, $classSubjectId, $ofertaLegAgt, $marina, $ricardo);
+
+        return [
+            'alunos' => count($alunosInf) + count($alunosAgt),
+            'aulas' => $aulas, 'avaliacoes' => $avaliacoes,
+            'professor' => 'professor@exemplo.com',
+        ];
+    }
+
+    function painel_seed_professor(string $nome, string $email, string $formacao, string $telefone): int
+    {
+        $id = painel_seed_find('users', 'email', $email);
+        if ($id === null) {
+            $id = User::create([
+                'name' => $nome, 'email' => $email, 'password' => 'Professor@2026',
+                'role' => 'professor', 'must_change_password' => 0,
+            ]);
+        }
+        Database::update('users', ['qualification' => $formacao, 'phone' => $telefone],
+            'id = :id', ['id' => $id]);
+        return $id;
+    }
+
+    /** Cria a árvore assunto → tópicos e devolve o mapa usado pelas questões. */
+    function painel_seed_conteudos(int $subjectId, array $arvore): array
+    {
+        $mapa = [];
+        $ordem = 0;
+        foreach ($arvore as $assunto => $filhos) {
+            $assuntoId = painel_seed_find_topic($subjectId, $assunto, null);
+            if ($assuntoId === null) {
+                $assuntoId = Database::insert('topics', [
+                    'subject_id' => $subjectId, 'parent_id' => null,
+                    'name' => $assunto, 'sort_order' => $ordem++,
+                ]);
+            }
+            $mapa[$assunto] = ['id' => $assuntoId, 'filhos' => []];
+            foreach ($filhos as $i => $filho) {
+                $filhoId = painel_seed_find_topic($subjectId, $filho, $assuntoId);
+                if ($filhoId === null) {
+                    $filhoId = Database::insert('topics', [
+                        'subject_id' => $subjectId, 'parent_id' => $assuntoId,
+                        'name' => $filho, 'sort_order' => $i,
+                    ]);
+                }
+                $mapa[$assunto]['filhos'][] = $filhoId;
+            }
+        }
+        return $mapa;
+    }
+
+    function painel_seed_oferta(int $classId, int $subjectId, ?int $teacherId): int
+    {
+        $id = Database::value('SELECT id FROM class_subjects WHERE class_id = ? AND subject_id = ?',
+            [$classId, $subjectId]);
+        if ($id !== null) {
+            Database::update('class_subjects', ['teacher_user_id' => $teacherId], 'id = :id', ['id' => (int) $id]);
+            return (int) $id;
+        }
+        return Database::insert('class_subjects', [
+            'class_id' => $classId, 'subject_id' => $subjectId, 'teacher_user_id' => $teacherId,
+        ]);
+    }
+
+    function painel_seed_alunos(array $perfis, int $classId, string $desde): array
+    {
         $alunos = [];
         foreach ($perfis as $perfil) {
             $studentId = painel_seed_find('students', 'full_name', $perfil['nome']);
             if ($studentId === null) {
+                $primeiro = mb_strtolower(explode(' ', $perfil['nome'])[0]);
                 $studentId = Database::insert('students', [
                     'full_name'   => $perfil['nome'],
-                    'email'       => strtolower(str_replace(' ', '.', explode(' ', $perfil['nome'])[0])) . '@exemplo.com',
-                    'enrolled_at' => '2026-02-02',
+                    'email'       => $primeiro . '@exemplo.com',
+                    'enrolled_at' => $desde,
                     'status'      => 'ativo',
                     'notes'       => 'Aluno de demonstração — pode ser excluído com segurança.',
                 ]);
                 Database::insert('enrollments', [
-                    'student_id' => $studentId,
-                    'class_id'   => $classId,
-                    'started_at' => '2026-02-02',
-                    'is_current' => 1,
-                    'status'     => 'ativo',
+                    'student_id' => $studentId, 'class_id' => $classId,
+                    'started_at' => $desde, 'is_current' => 1, 'status' => 'ativo',
                 ]);
             }
             $alunos[] = ['id' => $studentId] + $perfil;
         }
+        return $alunos;
+    }
 
-        // ------------------------------------------------------------- aulas
+    /**
+     * Preenche uma oferta: aulas com chamada, avaliações com questões
+     * classificadas por assunto e as respostas de cada aluno.
+     */
+    function painel_seed_oferta_conteudo(int $classSubjectId, int $subjectId, array $topicos,
+                                         array $alunos, string $rotulo, string $primeiraAula, array $avaliacoes): array
+    {
         $nomesAssuntos = array_keys($topicos);
         $aulasCriadas = 0;
-        $dataAula = new DateTimeImmutable('2026-02-09');
+        $data = new DateTimeImmutable($primeiraAula);
+
         foreach ($nomesAssuntos as $indice => $assunto) {
-            $titulo = 'Aula ' . ($indice + 1) . ' — ' . $assunto;
+            $titulo = $rotulo . ' — aula ' . ($indice + 1) . ': ' . $assunto;
             if (painel_seed_find('lessons', 'title', $titulo) !== null) {
-                $dataAula = $dataAula->modify('+7 days');
+                $data = $data->modify('+7 days');
                 continue;
             }
             $lessonId = Database::insert('lessons', [
                 'class_subject_id' => $classSubjectId,
                 'title'            => $titulo,
-                'lesson_date'      => $dataAula->format('Y-m-d'),
+                'lesson_date'      => $data->format('Y-m-d'),
                 'content'          => 'Conteúdo trabalhado: ' . $assunto . '.',
                 'duration_minutes' => 100,
             ]);
             Database::insert('lesson_topics', ['lesson_id' => $lessonId, 'topic_id' => $topicos[$assunto]['id']]);
 
             foreach ($alunos as $aluno) {
-                // Frequência determinística por perfil (mesma carga, mesmos números),
-                // espalhada o suficiente para gerar faltas de verdade.
                 $sorteio = (($indice * 37 + $aluno['id'] * 61) % 100) / 100;
                 $presente = $sorteio < $aluno['frequencia'];
                 Database::insert('attendances', [
@@ -239,18 +374,13 @@ if (!function_exists('painel_seed')) {
                 ]);
             }
             $aulasCriadas++;
-            $dataAula = $dataAula->modify('+7 days');
+            $data = $data->modify('+7 days');
         }
 
-        // -------------------------------------------------------- avaliações
-        $avaliacoes = [
-            ['nome' => 'Avaliação diagnóstica', 'tipo' => 'diagnostica', 'data' => '2026-02-16'],
-            ['nome' => 'Simulado 1',            'tipo' => 'simulado',    'data' => '2026-03-16'],
-            ['nome' => 'Prova bimestral',       'tipo' => 'prova',       'data' => '2026-04-13'],
-            ['nome' => 'Simulado 2',            'tipo' => 'simulado',    'data' => '2026-05-11'],
-        ];
+        $criadas = 0;
+        $porAssunto = 2;                       // 2 questões por assunto em cada prova
+        $totalQuestoes = count($nomesAssuntos) * $porAssunto;
 
-        $avaliacoesCriadas = 0;
         foreach ($avaliacoes as $rodada => $config) {
             if (painel_seed_find('assessments', 'name', $config['nome']) !== null) {
                 continue;
@@ -266,33 +396,31 @@ if (!function_exists('painel_seed')) {
                 'status'           => 'corrigida',
             ]);
 
-            // 12 questões: 2 por assunto, dificuldades alternadas.
             $questoes = [];
             $numero = 1;
             foreach ($topicos as $assunto => $dados) {
-                foreach ([0, 1] as $repeticao) {
+                for ($rep = 0; $rep < $porAssunto; $rep++) {
                     $questoes[] = [
                         'id' => Database::insert('questions', [
                             'assessment_id' => $assessmentId,
                             'subject_id'    => $subjectId,
-                            'topic_id'      => $dados['filhos'][$repeticao] ?? $dados['id'],
+                            'topic_id'      => $dados['filhos'][$rep] ?? $dados['id'],
                             'number'        => $numero,
                             'statement'     => 'Questão ' . $numero . ' sobre ' . $assunto . '.',
                             'type'          => 'objetiva',
                             'difficulty'    => ['facil', 'medio', 'dificil'][($numero + $rodada) % 3],
-                            'points'        => round(10 / 12, 2),
+                            'points'        => round(10 / $totalQuestoes, 2),
                             'answer_key'    => ['A', 'B', 'C', 'D'][$numero % 4],
                         ]),
                         'assunto' => $assunto,
                         'numero'  => $numero,
-                        'pontos'  => round(10 / 12, 2),
+                        'pontos'  => round(10 / $totalQuestoes, 2),
                     ];
                     $numero++;
                 }
             }
 
             foreach ($alunos as $aluno) {
-                // Probabilidade de acerto: base do aluno + evolução + ajuste por assunto.
                 $alvo = $aluno['base'] + $aluno['passo'] * $rodada;
                 foreach ($questoes as $questao) {
                     $chance = $alvo;
@@ -300,7 +428,6 @@ if (!function_exists('painel_seed')) {
                     if ($questao['assunto'] === $aluno['fraco'])  { $chance -= 28; }
                     $chance = max(5, min(97, $chance));
 
-                    // Sorteio determinístico (mesma carga gera sempre os mesmos números).
                     $semente = ($aluno['id'] * 7919 + $questao['numero'] * 104729 + $rodada * 1299709) % 100;
                     $resultado = $semente < $chance ? 'correta' : ($semente % 7 === 0 ? 'nao_respondida' : 'incorreta');
 
@@ -314,10 +441,50 @@ if (!function_exists('painel_seed')) {
                 }
                 \App\Models\Grade::recalculate($assessmentId, (int) $aluno['id']);
             }
-            $avaliacoesCriadas++;
+            $criadas++;
         }
 
-        return ['alunos' => count($alunos), 'aulas' => $aulasCriadas,
-                'avaliacoes' => $avaliacoesCriadas, 'professor' => 'professor@exemplo.com'];
+        return ['aulas' => $aulasCriadas, 'avaliacoes' => $criadas];
     }
+
+    /** Dois acompanhamentos abertos e um concluído, para a tela nascer com conteúdo. */
+    function painel_seed_acompanhamentos(array $alunosInf, array $alunosAgt,
+                                         int $ofertaInf, int $ofertaAgt, int $marina, int $ricardo): void
+    {
+        if ((int) Database::value('SELECT COUNT(*) FROM interventions', [], 0) > 0) {
+            return;
+        }
+        $porNome = static function (array $lista, string $nome) {
+            foreach ($lista as $aluno) { if ($aluno['nome'] === $nome) { return (int) $aluno['id']; } }
+            return null;
+        };
+        $registros = [
+            [$porNome($alunosInf, 'Diego Nunes Ferreira'), $ofertaInf, $marina, 'reforco', 'em_andamento',
+             'Reforço em Segurança da Informação',
+             'Média abaixo de 60% e frequência abaixo do mínimo.',
+             'Monitoria às quintas e lista dirigida de exercícios.', '2026-06-30', null],
+            [$porNome($alunosInf, 'Carla Mendes Rocha'), $ofertaInf, $marina, 'conversa', 'aberta',
+             'Conversa sobre queda de desempenho',
+             'Queda de 16,7 p.p. entre as primeiras e as últimas avaliações.',
+             'Conversa individual agendada para entender o que mudou.', '2026-06-20', null],
+            [$porNome($alunosAgt, 'Gabriela Nunes Pires'), $ofertaAgt, $ricardo, 'contato_responsavel', 'concluida',
+             'Contato sobre frequência',
+             'Frequência abaixo do mínimo configurado.',
+             'Contato telefônico com o responsável.', '2026-05-30',
+             'Responsável ciente; aluna retomou a presença nas duas aulas seguintes.'],
+        ];
+        foreach ($registros as [$aluno, $oferta, $autor, $tipo, $status, $titulo, $descricao, $acao, $prazo, $resultado]) {
+            if ($aluno === null) { continue; }
+            $resumo = \App\Services\AnalyticsService::studentSummary($aluno);
+            Database::insert('interventions', [
+                'student_id' => $aluno, 'class_subject_id' => $oferta, 'author_user_id' => $autor,
+                'type' => $tipo, 'status' => $status, 'title' => $titulo,
+                'description' => $descricao, 'action_taken' => $acao, 'due_date' => $prazo,
+                'result_note' => $resultado,
+                'baseline_media' => $resumo['media'], 'baseline_frequencia' => $resumo['frequencia'],
+                'closed_at' => $status === 'concluida' ? date('Y-m-d H:i:s') : null,
+            ]);
+        }
+    }
+
 }

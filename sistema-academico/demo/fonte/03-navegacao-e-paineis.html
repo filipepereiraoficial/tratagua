@@ -1,0 +1,414 @@
+<script>
+/* ===========================================================================
+   5. NAVEGAÇÃO — o menu muda conforme o perfil, como no sistema real
+   =========================================================================== */
+const IC = {
+  dashboard:'M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H2zM9 9h5v5H9z',
+  admin:    'M2 14h12M3.5 14V6.5M12.5 14V6.5M6.5 14V9.5h3V14M8 1.5 14 6H2z',
+  alvo:     'M8 1.5v3M8 11.5v3M1.5 8h3M11.5 8h3M11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0z',
+  bussola:  'M8 14.5A6.5 6.5 0 1 0 8 1.5a6.5 6.5 0 0 0 0 13zM10.5 5.5 9 9 5.5 10.5 7 7z',
+  maos:     'M2 8.5 5 5.5l2.5 2.5M14 8.5 11 5.5 8.5 8M4 11l3 3 2-2 3 3',
+  alunos:   'M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 14.5c0-2.5 2.7-4 6-4s6 1.5 6 4',
+  professor:'M8 6.5a2.2 2.2 0 1 0 0-4.4 2.2 2.2 0 0 0 0 4.4zM3 14.5c0-2.2 2.2-3.6 5-3.6s5 1.4 5 3.6M12.5 3.5h2.5M13.7 2.3v2.4',
+  turmas:   'M2 13V5l6-3 6 3v8M6 13V9h4v4',
+  disciplinas:'M3 2.5h4.2c.9 0 1.3.6 1.3 1.3v9.4M13 2.5H8.8c-.9 0-1.3.6-1.3 1.3v9.4M2 3.5v9.8h12V3.5',
+  aulas:    'M2.5 3.5h11v10h-11zM2.5 6.5h11M5.5 2v3M10.5 2v3M5 9.5h2M9 9.5h2',
+  avaliacoes:'M3.5 1.5h6l3 3v10h-9zM9.5 1.5v3.2h3M5.5 9l1.6 1.6L10.5 7.5',
+  questoes: 'M2.5 4h4M2.5 8h4M2.5 12h4M9.5 3.6c0-1 .8-1.6 1.7-1.6s1.8.6 1.8 1.7c0 1.6-1.8 1.5-1.8 3M11.2 10.6v.1',
+  relatorios:'M3.5 1.5h6l3 3v10h-9zM9.5 1.5v3.2h3M5.5 8.5h5M5.5 11h5',
+  graficos: 'M2 14h12M4.5 11.5v-4M7.5 11.5v-7M10.5 11.5v-2.5M13 11.5V6',
+  config:   'M2 4.5h5M10 4.5h4M2 11.5h3M8 11.5h6M8.5 4.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM7 11.5a1.5 1.5 0 1 0 3 0 1.5 1.5 0 0 0-3 0z',
+  lupa:     'M11.5 11.5 14 14M7 12.5a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11z',
+  evolucao: 'M2 12.5 6 8l3 2.5L14 4M10.5 4H14v3.5',
+};
+const icone = (k) => `<svg class="item__ic" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+  stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${IC[k] || IC.dashboard}"/></svg>`;
+
+/** Menu por perfil — espelha views/partials/sidebar.php. */
+function menuDoPerfil() {
+  if (PERFIL.papel === "aluno") {
+    return [["Minha área", [["minha-evolucao", "Minha evolução", "evolucao"]]]];
+  }
+  const admin = PERFIL.papel === "admin";
+  const grupos = [
+    ["Acompanhamento", [
+      ...(admin ? [["dashboard", "Dashboard geral", "dashboard"],
+                   ["painel-admin", "Painel do administrador", "admin"]] : []),
+      ["meu-painel", "Meu painel", "alvo"],
+      ["minhas-turmas", "Minhas turmas", "bussola"],
+      ["acompanhamento", "Acompanhamento", "maos"],
+    ]],
+    ["Cadastros e registros", [
+      ["alunos", "Alunos", "alunos"],
+      ...(admin ? [["professores", "Professores", "professor"]] : []),
+      ["turmas", "Turmas", "turmas"],
+      ["disciplinas", "Disciplinas", "disciplinas"],
+      ["aulas", "Aulas", "aulas"],
+      ["avaliacoes", "Avaliações", "avaliacoes"],
+      ["questoes", "Questões", "questoes"],
+    ]],
+    ["Análise", [
+      ["relatorios", "Relatórios", "relatorios"],
+      ["graficos", "Gráficos", "graficos"],
+    ]],
+  ];
+  if (admin) grupos.push(["Sistema", [["config", "Configurações", "config"], ["auditoria", "Auditoria", "lupa"]]]);
+  return grupos;
+}
+
+const RAIZ_DE = { aluno: "alunos", chamada: "aulas", avaliacao: "avaliacoes",
+  "aluno-professor": "meu-painel", turma: "turmas", disciplina: "disciplinas",
+  professor: "professores", "acompanhamento-form": "acompanhamento" };
+const raizDaRota = () => RAIZ_DE[rota.vista] || rota.vista;
+
+function montarMenu() {
+  document.getElementById("menu").innerHTML = menuDoPerfil().map(([titulo, itens]) => `
+    <div class="trilho__grupo">${h(titulo)}</div>
+    <nav>${itens.map(([chave, texto, ic]) =>
+      `<button class="item" data-ir="${chave}" ${raizDaRota() === chave ? 'aria-current="page"' : ""}>
+         ${icone(ic)}${h(texto)}</button>`).join("")}</nav>`).join("");
+}
+
+function montarPerfil() {
+  const sel = document.getElementById("seletor-perfil");
+  sel.innerHTML = PERFIS.map(p => `<option value="${p.id}" ${p.id === PERFIL.id ? "selected" : ""}>${h(p.nome)}</option>`).join("");
+  document.getElementById("perfil-avatar").textContent = iniciais(PERFIL.nome);
+  document.getElementById("perfil-nome").textContent = PERFIL.nome;
+  document.getElementById("perfil-papel").textContent =
+    { admin: "Administrador", professor: "Professor", aluno: "Aluno" }[PERFIL.papel];
+  document.getElementById("marca-sub").textContent =
+    { admin: "Administração", professor: "Professor", aluno: "Aluno" }[PERFIL.papel];
+
+  const ctx = document.getElementById("contexto");
+  if (PERFIL.papel === "admin") {
+    ctx.innerHTML = `<strong>${DADOS.cursos.length} cursos</strong> · ${DADOS.turmas.length} turmas ·
+      ${DADOS.disciplinas.length} disciplinas · ${DADOS.alunos.length} alunos`;
+  } else if (PERFIL.papel === "professor") {
+    const o = ofertasDoPerfil();
+    ctx.innerHTML = `<strong>${o.length} oferta(s)</strong> · ` +
+      o.map(x => `${h(x.turma.code)} — ${h(x.disciplina.name)}`).join(" · ");
+  } else {
+    const a = BASE.alunoPorId.get(PERFIL.studentId);
+    const t = a && a.class_id ? BASE.turmaPorId.get(a.class_id) : null;
+    ctx.innerHTML = `<strong>${h(a?.full_name ?? "")}</strong>${t ? " · turma " + h(t.code) : ""}`;
+  }
+}
+
+function ir(vista, id = null) {
+  rota = { vista, id };
+  render();
+  document.getElementById("vista").focus({ preventScroll: true });
+  window.scrollTo({ top: 0, behavior: "instant" });
+}
+const rotaInicial = () => PERFIL.papel === "admin" ? "painel-admin"
+  : PERFIL.papel === "professor" ? "meu-painel" : "minha-evolucao";
+
+/* ===========================================================================
+   6. PEÇAS REUTILIZÁVEIS
+   =========================================================================== */
+const painel = (titulo, corpo, { direita = "", nu = false } = {}) => `
+  <section class="painel">
+    <div class="painel__t"><h2>${titulo}</h2>${direita ? `<div class="direita">${direita}</div>` : ""}</div>
+    <div class="painel__c${nu ? " painel__c--nu" : ""}">${corpo}</div>
+  </section>`;
+
+const kpi = (rotulo, valor, nota = "", tom = "") =>
+  `<div class="kpi ${tom ? "kpi--" + tom : ""}"><div class="rotulo">${h(rotulo)}</div>
+   <div class="kpi__v">${valor}</div>${nota ? `<div class="kpi__n">${nota}</div>` : ""}</div>`;
+
+const grafico = (id, altura = 250) => `<div id="${id}" style="min-height:${altura}px"></div>`;
+
+function tabela(colunas, linhas, { vazio = "Sem registros." } = {}) {
+  if (!linhas.length) return `<div class="vazio">${h(vazio)}</div>`;
+  return `<div class="rolagem"><table>
+    <thead><tr>${colunas.map(c => `<th class="${c.num ? "num" : ""}">${h(c.t)}</th>`).join("")}</tr></thead>
+    <tbody>${linhas.join("")}</tbody></table></div>`;
+}
+
+const listaAlertas = (alertas, limite = 99, comAcao = false) => alertas.length === 0
+  ? '<div class="vazio">Nenhum alerta ativo com os critérios atuais.</div>'
+  : alertas.slice(0, limite).map(a => `
+      <div class="alerta alerta--${a.severity}">
+        <div class="alerta__f"></div>
+        <div style="flex:1;min-width:0">
+          <div class="alerta__t">${h(a.title)}</div>
+          <div class="alerta__m">${h(a.message)}</div>
+          ${a.student_id ? `<div style="margin-top:3px;display:flex;gap:10px">
+            <button class="migalha" data-aluno="${a.student_id}" style="font-size:11.5px">ver aluno</button>
+            ${comAcao ? `<button class="migalha" data-acompanhar="${a.student_id}" data-titulo="${h(a.title)}" style="font-size:11.5px">registrar acompanhamento</button>` : ""}
+          </div>` : ""}
+        </div>
+      </div>`).join("");
+
+/** Bloco que explica, em uma linha, o recorte em vigor. */
+function avisoEscopo() {
+  if (PERFIL.papel === "admin") {
+    return `<div class="escopo"><b>Administrador</b>
+      <div>Você enxerga os ${DADOS.cursos.length} cursos, ${DADOS.turmas.length} turmas e
+      ${DADOS.alunos.length} alunos. Troque de perfil no topo para ver como o sistema se recorta
+      para cada professor.</div></div>`;
+  }
+  if (PERFIL.papel === "professor") {
+    const o = ofertasDoPerfil();
+    return `<div class="escopo"><b>Recorte ativo</b>
+      <div>Como ${h(PERFIL.nome)}, tudo nesta tela considera apenas
+      ${o.map(x => `<strong>${h(x.turma.code)} — ${h(x.disciplina.name)}</strong>`).join(" e ")}
+      (${M.alunos.length} aluno(s)). As demais turmas do sistema não aparecem, nem por acesso direto.</div></div>`;
+  }
+  return `<div class="escopo"><b>Perfil do aluno</b>
+    <div>Você vê apenas a própria evolução: sem ranking nominal da turma e sem os alertas internos.</div></div>`;
+}
+
+function linhaRanking(r, { rotaAluno = "aluno" } = {}) {
+  const c = CLASSE_ALUNO[r.classificacao];
+  const turma = r.turma ? r.turma.code : "—";
+  return `<tr class="linha-clicavel" data-${rotaAluno === "aluno" ? "aluno" : "alunoprof"}="${r.id}">
+    <td class="num mono">${r.posicao ?? "—"}</td>
+    <td>${h(r.aluno.full_name)}<div class="mudo" style="font-size:11.5px">${h(turma)}</div></td>
+    <td class="num">${r.avaliacoes}</td>
+    <td class="num">${pct(r.media, 1)}</td>
+    <td class="num">${pct(r.frequencia, 0)}</td>
+    <td class="num">${r.evolucao_recente === null ? "—"
+      : `<span class="tag tag--${r.evolucao_recente >= 0 ? "bom" : "ruim"}">${r.evolucao_recente >= 0 ? "+" : ""}${num(r.evolucao_recente)}</span>`}</td>
+    <td class="num mono"><strong>${num(r.indice)}</strong></td>
+    <td>${tag(c.classe, c.texto)}</td>
+  </tr>`;
+}
+const COLS_RANKING = [{ t: "#", num: 1 }, { t: "Aluno" }, { t: "Aval.", num: 1 }, { t: "Média", num: 1 },
+  { t: "Freq.", num: 1 }, { t: "Evolução", num: 1 }, { t: "Índice", num: 1 }, { t: "Situação" }];
+
+/* ===========================================================================
+   7. PAINÉIS PRINCIPAIS
+   =========================================================================== */
+const VISTAS = {};
+
+/* --------------------------------------------------- painel do professor */
+VISTAS["meu-painel"] = () => {
+  const evoluindo = [...M.ranking].filter(r => r.evolucao_recente !== null)
+    .sort((a, b) => b.evolucao_recente - a.evolucao_recente).slice(0, 5);
+  const atencao = M.ranking.filter(r => r.classificacao === "atencao");
+  const perdaAluno = M.perdaAluno.slice(0, 6);
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>Meu painel</h1>
+          <p>${PERFIL.papel === "admin"
+            ? "Como administrador você vê todas as ofertas. Troque para um professor no topo para ver o recorte."
+            : "Tudo aqui considera apenas as suas turmas e disciplinas."}</p></div>
+        <div class="cabec__acoes"><button class="btn" data-ir="minhas-turmas">Minhas turmas</button></div>
+      </div>
+
+      ${avisoEscopo()}
+
+      <div class="kpis">
+        ${kpi("Média dos meus alunos", pct(M.mediaGeral), `${M.ranking.length} aluno(s)`, faixa(M.mediaGeral).classe)}
+        ${kpi("% de acertos", pct(M.totais.pct_acertos), `${M.totais.acertos} de ${M.totais.total} questões`, faixa(M.totais.pct_acertos).classe)}
+        ${kpi("Aulas / Avaliações", `${M.aulas.length} / ${M.avaliacoes.length}`, "nas minhas ofertas")}
+        ${kpi("Em evolução", M.classes.evolucao, "", "bom")}
+        ${kpi("Intermediários", M.classes.intermediario, "", "medio")}
+        ${kpi("Precisam de atenção", M.classes.atencao, `${M.classes.sem_dados} sem dados`, "ruim")}
+      </div>
+
+      <div class="colunas c-3">
+        ${painel("Quem mais evoluiu", evoluindo.length === 0
+          ? '<div class="vazio">Ainda não há avaliações suficientes.</div>'
+          : `<div class="rolagem"><table><tbody>${evoluindo.map(a => `
+              <tr class="linha-clicavel" data-alunoprof="${a.id}">
+                <td>${h(a.aluno.full_name)}<div class="mudo" style="font-size:11.5px">média ${pct(a.media, 0)} · índice ${num(a.indice)}</div></td>
+                <td class="num">${tag("bom", "+" + num(a.evolucao_recente))}</td></tr>`).join("")}</tbody></table></div>`,
+          { nu: true, direita: '<span class="tag tag--bom">p.p. recentes</span>' })}
+
+        ${painel("Quem precisa de atenção", atencao.length === 0
+          ? '<div class="vazio">Nenhum aluno na faixa de atenção.</div>'
+          : `<div class="rolagem"><table><tbody>${atencao.slice(0, 6).map(a => `
+              <tr><td><button class="migalha" data-alunoprof="${a.id}">${h(a.aluno.full_name)}</button>
+                <div class="mudo" style="font-size:11.5px">${h(a.motivos[0] ?? "")}</div></td>
+                <td class="num"><button class="btn btn--min" data-acompanhar="${a.id}" data-titulo="Acompanhamento de ${h(a.aluno.full_name)}">Acompanhar</button></td></tr>`).join("")}</tbody></table></div>`,
+          { nu: true, direita: `<span class="tag tag--ruim">${atencao.length}</span>` })}
+
+        ${painel("Quem mais deixou pontuação", perdaAluno.length === 0
+          ? '<div class="vazio">Sem resultados por questão.</div>'
+          : `<div class="rolagem"><table><tbody>${perdaAluno.map(a => `
+              <tr class="linha-clicavel" data-alunoprof="${a.student_id}">
+                <td>${h(a.full_name)}<div class="mudo" style="font-size:11.5px">pior em ${h(a.pior_avaliacao ?? "—")}</div></td>
+                <td class="num">${tag("medio", num(a.perdidos, 1) + " pt")}</td></tr>`).join("")}</tbody></table></div>`,
+          { nu: true, direita: '<span class="tag tag--medio">pontos perdidos</span>' })}
+      </div>
+
+      <div class="colunas c-2">
+        ${painel("Evolução dos meus alunos", grafico("mp-ev"))}
+        ${painel("Onde a turma mais perdeu pontos", grafico("mp-perda", 220),
+          { direita: '<span class="tag tag--neutro">por avaliação</span>' })}
+      </div>
+      <div class="colunas c-2">
+        ${painel("Assuntos da minha disciplina", grafico("mp-as", 200))}
+        ${painel("Distribuição de desempenho", grafico("mp-dist", 220))}
+      </div>
+
+      <div class="colunas c-21">
+        <div>${painel("Meus alunos", tabela(COLS_RANKING, M.ranking.map(r => linhaRanking(r, { rotaAluno: "prof" }))), { nu: true })}</div>
+        <div>${painel("Alertas dos meus alunos", listaAlertas(M.alertas, 8, true), { nu: true,
+          direita: `<span class="tag tag--ruim">${M.alertas.filter(a => a.severity === "alta").length} alta</span>` })}</div>
+      </div>`,
+    depois() {
+      grafLinha(el("mp-ev"), { labels: M.porAvaliacao.map(a => a.nome),
+        series: [{ nome: "Média (%)", dados: M.porAvaliacao.map(a => a.media) }] });
+      grafBarrasH(el("mp-perda"), M.perdaAvaliacao.map(p => ({ nome: p.assessment_name, valor: p.pontos_perdidos,
+        cor: "var(--serie-b)", nota: `${p.alunos} aluno(s)` })),
+        { max: Math.max(1, ...M.perdaAvaliacao.map(p => p.pontos_perdidos)), unidade: " pt" });
+      grafBarrasH(el("mp-as"), M.assuntos.map(a => ({ nome: a.topic_name, valor: a.aproveitamento, nota: `${a.respondidas} respostas` })));
+      grafBarrasV(el("mp-dist"), { labels: Object.keys(M.distribuicao), altura: 220,
+        max: Math.max(1, M.ranking.length), passo: 1, unidade: " aluno(s)", casas: 0,
+        series: [{ nome: "Alunos", dados: Object.values(M.distribuicao),
+          cores: ["var(--ruim)", "var(--medio)", "var(--serie-a)", "var(--bom)"] }] });
+    },
+  };
+};
+
+/* ----------------------------------------------------------- minhas turmas */
+VISTAS["minhas-turmas"] = () => ({
+  html: `
+    <div class="cabec">
+      <div><h1>Minhas turmas e disciplinas</h1>
+        <p>Cada cartão é uma oferta: uma disciplina dentro de uma turma.</p></div>
+    </div>
+    ${avisoEscopo()}
+    <div class="colunas c-2">
+      ${M.ofertas.map(o => {
+        const f = { ...escopo(), ofertas: [o.id] };
+        const media = BASE.mediaGeral(f);
+        const acertos = BASE.totaisDeResposta(BASE.respostas(f)).pct_acertos;
+        return painel(`${h(o.turma.code)} — ${h(o.disciplina.name)}`, `
+          <p class="mudo" style="font-size:12.5px;margin-bottom:10px">${h(o.curso.name)} · ${o.turma.year}
+            ${o.professor ? " · Prof. " + h(o.professor.name) : ""}</p>
+          <div class="kpis" style="margin-bottom:10px">
+            ${kpi("Alunos", o.alunos)}${kpi("Aulas", o.aulas)}
+            ${kpi("Avaliações", o.avaliacoes)}${kpi("% acertos", pct(acertos, 0))}
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn btn--min" data-oferta-painel="${o.id}">Painel desta oferta</button>
+            <button class="btn btn--min" data-oferta-aulas="${o.id}">Aulas</button>
+            <button class="btn btn--min" data-oferta-avaliacoes="${o.id}">Avaliações</button>
+          </div>`,
+          { direita: `<span class="tag tag--${faixa(media).classe}">média ${pct(media, 0)}</span>` });
+      }).join("")}
+    </div>`,
+});
+
+/* ------------------------------------------------ painel do administrador */
+VISTAS["painel-admin"] = () => {
+  const porProfessor = DADOS.professores.filter(p => p.is_active).map(p => {
+    const ofertas = BASE.ofertasDoProfessor(p.id);
+    if (!ofertas.length) return null;
+    const f = { ofertas };
+    const rk = BASE.ranking(CFG, f);
+    return { professor: p, ofertas: ofertas.length, alunos: rk.length,
+      aulas: DADOS.aulas.filter(l => ofertas.includes(l.class_subject_id)).length,
+      avaliacoes: DADOS.avaliacoes.filter(a => ofertas.includes(a.class_subject_id)).length,
+      media: BASE.mediaGeral(f),
+      atencao: rk.filter(r => r.classificacao === "atencao").length };
+  }).filter(Boolean).sort((a, b) => (b.media ?? -1) - (a.media ?? -1));
+
+  const pendencias = [];
+  DADOS.ofertas.forEach(o => {
+    const disc = BASE.disciplinaPorId.get(o.subject_id);
+    if (!o.teacher_user_id && !disc.teacher_user_id) {
+      pendencias.push({ tipo: "Sem professor",
+        texto: `${BASE.turmaPorId.get(o.class_id).code} — ${disc.name} não tem professor responsável.` });
+    }
+  });
+  const semTurma = DADOS.alunos.filter(a => a.class_id === null && a.status === "ativo").length;
+  if (semTurma) pendencias.push({ tipo: "Aluno sem turma", texto: `${semTurma} aluno(s) ativo(s) sem vínculo com turma.` });
+  DADOS.disciplinas.forEach(d => {
+    if (!DADOS.topicos.some(t => t.subject_id === d.id)) {
+      pendencias.push({ tipo: "Disciplina sem conteúdo", texto: `${d.name} não tem assuntos cadastrados.` });
+    }
+  });
+  DADOS.avaliacoes.forEach(a => {
+    if (a.status !== "planejada" && !DADOS.notas.some(n => n.assessment_id === a.id)) {
+      pendencias.push({ tipo: "Avaliação sem resultado", texto: `${a.name} foi aplicada mas não tem notas lançadas.` });
+    }
+  });
+  const semChamada = DADOS.aulas.filter(l => !DADOS.presencas.some(p => p.lesson_id === l.id)).length;
+  if (semChamada) pendencias.push({ tipo: "Aula sem chamada", texto: `${semChamada} aula(s) sem registro de frequência.` });
+
+  const acomp = { aberta: 0, em_andamento: 0, concluida: 0, cancelada: 0 };
+  DADOS.acompanhamentos.forEach(i => acomp[i.status]++);
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>Painel do administrador</h1>
+          <p>O dashboard geral mostra como está indo; esta tela mostra <em>onde está o problema</em>.</p></div>
+        <div class="cabec__acoes">
+          <button class="btn" data-ir="professores">Professores</button>
+          <button class="btn" data-ir="dashboard">Dashboard geral</button>
+        </div>
+      </div>
+
+      ${avisoEscopo()}
+
+      <div class="kpis">
+        ${kpi("Cursos", DADOS.cursos.length, `${DADOS.turmas.length} turma(s)`)}
+        ${kpi("Alunos", DADOS.alunos.length, `${DADOS.disciplinas.length} disciplina(s)`)}
+        ${kpi("Professores", porProfessor.length, "com turma atribuída")}
+        ${kpi("Média geral", pct(M.mediaGeral), "", faixa(M.mediaGeral).classe)}
+        ${kpi("Em evolução", M.classes.evolucao, "", "bom")}
+        ${kpi("Precisam de atenção", M.classes.atencao, "", "ruim")}
+        ${kpi("Acompanhamentos abertos", acomp.aberta + acomp.em_andamento, `${acomp.concluida} concluído(s)`, "acento")}
+        ${kpi("Pendências operacionais", pendencias.length, "itens travando a análise", "medio")}
+      </div>
+
+      ${pendencias.length ? painel("O que está travando a análise",
+        pendencias.map(p => `
+          <div class="alerta alerta--media">
+            <div class="alerta__f"></div>
+            <div><div class="alerta__t">${h(p.tipo)}</div><div class="alerta__m">${h(p.texto)}</div></div>
+          </div>`).join(""),
+        { nu: true, direita: `<span class="tag tag--medio">${pendencias.length}</span>` }) : ""}
+
+      <div class="colunas c-2">
+        ${painel("Comparação entre cursos", grafico("pa-cursos", 220))}
+        ${painel("Comparação entre turmas", grafico("pa-turmas", 220))}
+      </div>
+      <div class="colunas c-2">
+        ${painel("Média por disciplina", grafico("pa-disc", 220))}
+        ${painel("Assuntos mais críticos", grafico("pa-as", 240))}
+      </div>
+
+      <div class="colunas c-2">
+        ${painel("Cursos", tabela(
+          [{ t: "Curso" }, { t: "Turmas", num: 1 }, { t: "Alunos", num: 1 }, { t: "Média", num: 1 }],
+          M.porCurso.map(c => `<tr><td><strong>${h(c.nome)}</strong></td>
+            <td class="num">${c.turmas}</td><td class="num">${c.alunos}</td>
+            <td class="num">${tag(faixa(c.media).classe, pct(c.media, 0))}</td></tr>`)), { nu: true })}
+
+        ${painel("Professores", tabela(
+          [{ t: "Professor" }, { t: "Ofertas", num: 1 }, { t: "Alunos", num: 1 }, { t: "Aulas", num: 1 },
+           { t: "Aval.", num: 1 }, { t: "Média", num: 1 }, { t: "Atenção", num: 1 }],
+          porProfessor.map(p => `<tr class="linha-clicavel" data-professor="${p.professor.id}">
+            <td>${h(p.professor.name)}</td><td class="num">${p.ofertas}</td><td class="num">${p.alunos}</td>
+            <td class="num">${p.aulas}</td><td class="num">${p.avaliacoes}</td>
+            <td class="num">${tag(faixa(p.media).classe, pct(p.media, 0))}</td>
+            <td class="num">${p.atencao}</td></tr>`)),
+          { nu: true, direita: '<span class="mudo" style="font-size:11.5px">média = contexto da turma</span>' })}
+      </div>
+
+      ${painel("Alertas da instituição", listaAlertas(M.alertas, 10), { nu: true,
+        direita: `<span class="tag tag--ruim">${M.alertas.filter(a => a.severity === "alta").length} alta</span>` })}`,
+    depois() {
+      grafBarrasV(el("pa-cursos"), { labels: M.porCurso.map(c => c.nome), altura: 220,
+        series: [{ nome: "Média (%)", dados: M.porCurso.map(c => c.media),
+          cores: M.porCurso.map(c => faixa(c.media).cor) }] });
+      grafBarrasV(el("pa-turmas"), { labels: M.porTurma.map(t => t.nome), altura: 220,
+        series: [{ nome: "Média (%)", dados: M.porTurma.map(t => t.media), cor: "var(--serie-a)" }] });
+      grafBarrasV(el("pa-disc"), { labels: M.porDisciplina.map(d => d.nome), altura: 220,
+        series: [{ nome: "Média (%)", dados: M.porDisciplina.map(d => d.media),
+          cores: M.porDisciplina.map(d => faixa(d.media).cor) }] });
+      grafBarrasH(el("pa-as"), M.assuntos.slice(0, 8).map(a => ({ nome: a.topic_name, valor: a.aproveitamento,
+        nota: a.subject_name })));
+    },
+  };
+};
+</script>

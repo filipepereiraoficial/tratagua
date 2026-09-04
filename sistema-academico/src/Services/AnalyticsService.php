@@ -208,6 +208,12 @@ class AnalyticsService
         if (!empty($filters['turma']))      { $where[] = 'cs.class_id = :turma';        $params['turma'] = (int) $filters['turma']; }
         if (!empty($filters['inicio']))     { $where[] = 'l.lesson_date >= :inicio';    $params['inicio'] = $filters['inicio']; }
         if (!empty($filters['fim']))        { $where[] = 'l.lesson_date <= :fim';       $params['fim'] = $filters['fim']; }
+        // Sem isto, o professor veria a frequência do aluno nas aulas de
+        // disciplinas que não são dele.
+        if (isset($filters['ofertas'])) {
+            $ids = array_filter(array_map('intval', (array) $filters['ofertas']));
+            $where[] = $ids === [] ? '1 = 0' : 'cs.id IN (' . implode(',', $ids) . ')';
+        }
 
         $row = Database::first(
             "SELECT COUNT(*) AS total,
@@ -610,6 +616,10 @@ class AnalyticsService
         if (!empty($filters['curso']))  { $where[] = 'cl.course_id = :curso'; $params['curso'] = (int) $filters['curso']; }
         if (!empty($filters['inicio'])) { $where[] = 'l.lesson_date >= :inicio'; $params['inicio'] = $filters['inicio']; }
         if (!empty($filters['fim']))    { $where[] = 'l.lesson_date <= :fim'; $params['fim'] = $filters['fim']; }
+        if (isset($filters['ofertas'])) {
+            $ids = array_filter(array_map('intval', (array) $filters['ofertas']));
+            $where[] = $ids === [] ? '1 = 0' : 'cs.id IN (' . implode(',', $ids) . ')';
+        }
 
         return Database::all(
             "SELECT cl.id AS class_id, cl.code AS class_code,

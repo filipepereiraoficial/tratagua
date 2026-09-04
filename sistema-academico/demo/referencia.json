@@ -1,316 +1,1479 @@
 {
-    "media_geral": 67.92,
-    "acertos": {
-        "total": 240,
-        "acertos": 163,
-        "erros": 66,
-        "branco": 11,
-        "pct_acertos": 67.92,
-        "pct_erros": 27.5,
-        "pct_branco": 4.58
+    "admin": {
+        "media_geral": 65.53,
+        "acertos": {
+            "total": 432,
+            "acertos": 285,
+            "erros": 126,
+            "branco": 21,
+            "pct_acertos": 65.97,
+            "pct_erros": 29.17,
+            "pct_branco": 4.86
+        },
+        "distribuicao": {
+            "0 a 39%": 0,
+            "40 a 59%": 3,
+            "60 a 79%": 5,
+            "80 a 100%": 0
+        },
+        "por_avaliacao": [
+            {
+                "nome": "Avaliação diagnóstica",
+                "media": 65
+            },
+            {
+                "nome": "Diagnóstica de Legislação",
+                "media": 65
+            },
+            {
+                "nome": "Simulado 1",
+                "media": 68.33
+            },
+            {
+                "nome": "Diagnóstica AGT",
+                "media": 50
+            },
+            {
+                "nome": "Prova de Legislação 1",
+                "media": 70
+            },
+            {
+                "nome": "Prova bimestral",
+                "media": 66.67
+            },
+            {
+                "nome": "Prova de Trânsito 1",
+                "media": 58.33
+            },
+            {
+                "nome": "Simulado de Legislação",
+                "media": 70
+            },
+            {
+                "nome": "Simulado 2",
+                "media": 71.67
+            },
+            {
+                "nome": "Simulado AGT",
+                "media": 58.33
+            }
+        ],
+        "por_disciplina": [
+            {
+                "nome": "Informática",
+                "media": 67.92
+            },
+            {
+                "nome": "Legislação Municipal",
+                "media": 63.54
+            }
+        ],
+        "por_turma": [
+            {
+                "nome": "INF01",
+                "media": 68.09
+            },
+            {
+                "nome": "AGT01",
+                "media": 55.56
+            }
+        ],
+        "por_dificuldade": [
+            {
+                "dificuldade": "facil",
+                "respondidas": 144,
+                "acertos": 90,
+                "aproveitamento": 62.21
+            },
+            {
+                "dificuldade": "medio",
+                "respondidas": 144,
+                "acertos": 100,
+                "aproveitamento": 69.03
+            },
+            {
+                "dificuldade": "dificil",
+                "respondidas": 144,
+                "acertos": 95,
+                "aproveitamento": 65.33
+            }
+        ],
+        "assuntos": [
+            {
+                "nome": "Internet e Navegadores",
+                "aprov": 77.5,
+                "resp": 40,
+                "acertos": 31,
+                "classe": "intermediario"
+            },
+            {
+                "nome": "Sistemas Operacionais",
+                "aprov": 75,
+                "resp": 40,
+                "acertos": 30,
+                "classe": "intermediario"
+            },
+            {
+                "nome": "Estatuto da Guarda",
+                "aprov": 72.92,
+                "resp": 48,
+                "acertos": 35,
+                "classe": "intermediario"
+            },
+            {
+                "nome": "Hardware e Software",
+                "aprov": 70,
+                "resp": 40,
+                "acertos": 28,
+                "classe": "intermediario"
+            },
+            {
+                "nome": "Segurança da Informação",
+                "aprov": 70,
+                "resp": 40,
+                "acertos": 28,
+                "classe": "intermediario"
+            },
+            {
+                "nome": "Constituição Federal",
+                "aprov": 62.5,
+                "resp": 48,
+                "acertos": 30,
+                "classe": "intermediario"
+            },
+            {
+                "nome": "Código de Trânsito",
+                "aprov": 62.5,
+                "resp": 48,
+                "acertos": 30,
+                "classe": "intermediario"
+            },
+            {
+                "nome": "Pacote Office",
+                "aprov": 60,
+                "resp": 40,
+                "acertos": 24,
+                "classe": "intermediario"
+            },
+            {
+                "nome": "Direito Administrativo",
+                "aprov": 56.25,
+                "resp": 48,
+                "acertos": 27,
+                "classe": "dificuldade"
+            },
+            {
+                "nome": "Redes de Computadores",
+                "aprov": 55,
+                "resp": 40,
+                "acertos": 22,
+                "classe": "dificuldade"
+            }
+        ],
+        "perda_avaliacao": [
+            {
+                "nome": "Diagnóstica de Legislação",
+                "perdidos": 17.5,
+                "aprov": 65
+            },
+            {
+                "nome": "Avaliação diagnóstica",
+                "perdidos": 17.43,
+                "aprov": 65
+            },
+            {
+                "nome": "Prova bimestral",
+                "perdidos": 16.6,
+                "aprov": 66.67
+            },
+            {
+                "nome": "Simulado 1",
+                "perdidos": 15.77,
+                "aprov": 68.33
+            },
+            {
+                "nome": "Prova de Legislação 1",
+                "perdidos": 15,
+                "aprov": 70
+            },
+            {
+                "nome": "Simulado de Legislação",
+                "perdidos": 15,
+                "aprov": 70
+            },
+            {
+                "nome": "Diagnóstica AGT",
+                "perdidos": 15,
+                "aprov": 50
+            },
+            {
+                "nome": "Simulado 2",
+                "perdidos": 14.11,
+                "aprov": 71.67
+            },
+            {
+                "nome": "Prova de Trânsito 1",
+                "perdidos": 12.5,
+                "aprov": 58.33
+            },
+            {
+                "nome": "Simulado AGT",
+                "perdidos": 12.5,
+                "aprov": 58.33
+            }
+        ],
+        "perda_aluno": [
+            {
+                "nome": "Diego Nunes Ferreira",
+                "perdidos": 33.67,
+                "pior": "Prova bimestral"
+            },
+            {
+                "nome": "Carla Mendes Rocha",
+                "perdidos": 26.19,
+                "pior": "Prova de Legislação 1"
+            },
+            {
+                "nome": "Eduarda Prado Alves",
+                "perdidos": 19.12,
+                "pior": "Avaliação diagnóstica"
+            },
+            {
+                "nome": "Ana Beatriz Souza",
+                "perdidos": 17.88,
+                "pior": "Diagnóstica de Legislação"
+            },
+            {
+                "nome": "Gabriela Nunes Pires",
+                "perdidos": 15,
+                "pior": "Simulado AGT"
+            },
+            {
+                "nome": "Henrique Alves Cruz",
+                "perdidos": 15,
+                "pior": "Diagnóstica AGT"
+            },
+            {
+                "nome": "Bruno Carvalho Lima",
+                "perdidos": 14.55,
+                "pior": "Avaliação diagnóstica"
+            },
+            {
+                "nome": "Felipe Ramos Duarte",
+                "perdidos": 10,
+                "pior": "Diagnóstica AGT"
+            }
+        ],
+        "ranking": [
+            {
+                "nome": "Felipe Ramos Duarte",
+                "posicao": 1,
+                "avaliacoes": 3,
+                "media": 67.86,
+                "freq": 100,
+                "evolucao": 12.5,
+                "slope": 6.25,
+                "desvio": 5.89,
+                "score_ev": 81.25,
+                "score_cons": 88.22,
+                "indice": 80.1,
+                "classe": "evolucao",
+                "dominados": 2,
+                "intermediarios": 0,
+                "dificuldades": 2,
+                "pct_acertos": 66.67,
+                "pct_erros": 29.17
+            },
+            {
+                "nome": "Eduarda Prado Alves",
+                "posicao": 2,
+                "avaliacoes": 7,
+                "media": 73.28,
+                "freq": 100,
+                "evolucao": 16.32,
+                "slope": 4.167,
+                "desvio": 9.92,
+                "score_ev": 70.84,
+                "score_cons": 80.16,
+                "indice": 78.05,
+                "classe": "evolucao",
+                "dominados": 5,
+                "intermediarios": 3,
+                "dificuldades": 2,
+                "pct_acertos": 72.22,
+                "pct_erros": 20.83
+            },
+            {
+                "nome": "Bruno Carvalho Lima",
+                "posicao": 3,
+                "avaliacoes": 7,
+                "media": 79.41,
+                "freq": 80,
+                "evolucao": 2.43,
+                "slope": 1.785,
+                "desvio": 6.68,
+                "score_ev": 58.93,
+                "score_cons": 86.64,
+                "indice": 75.82,
+                "classe": "evolucao",
+                "dominados": 5,
+                "intermediarios": 4,
+                "dificuldades": 1,
+                "pct_acertos": 79.17,
+                "pct_erros": 20.83
+            },
+            {
+                "nome": "Ana Beatriz Souza",
+                "posicao": 4,
+                "avaliacoes": 7,
+                "media": 75.49,
+                "freq": 80,
+                "evolucao": 10.76,
+                "slope": 3.571,
+                "desvio": 8.46,
+                "score_ev": 67.86,
+                "score_cons": 83.08,
+                "indice": 75.78,
+                "classe": "evolucao",
+                "dominados": 5,
+                "intermediarios": 2,
+                "dificuldades": 3,
+                "pct_acertos": 75,
+                "pct_erros": 20.83
+            },
+            {
+                "nome": "Henrique Alves Cruz",
+                "posicao": 5,
+                "avaliacoes": 3,
+                "media": 51.79,
+                "freq": 75,
+                "evolucao": 18.75,
+                "slope": 12.5,
+                "desvio": 10.21,
+                "score_ev": 100,
+                "score_cons": 79.58,
+                "indice": 72.88,
+                "classe": "intermediario",
+                "dominados": 1,
+                "intermediarios": 0,
+                "dificuldades": 3,
+                "pct_acertos": 50,
+                "pct_erros": 41.67
+            },
+            {
+                "nome": "Diego Nunes Ferreira",
+                "posicao": 6,
+                "avaliacoes": 7,
+                "media": 51.96,
+                "freq": 70,
+                "evolucao": -7.98,
+                "slope": -0.595,
+                "desvio": 6.24,
+                "score_ev": 47.03,
+                "score_cons": 87.52,
+                "indice": 60.54,
+                "classe": "atencao",
+                "dominados": 1,
+                "intermediarios": 2,
+                "dificuldades": 7,
+                "pct_acertos": 51.39,
+                "pct_erros": 43.06
+            },
+            {
+                "nome": "Carla Mendes Rocha",
+                "posicao": 7,
+                "avaliacoes": 7,
+                "media": 62.01,
+                "freq": 80,
+                "evolucao": -9.72,
+                "slope": -3.869,
+                "desvio": 11.57,
+                "score_ev": 30.65,
+                "score_cons": 76.86,
+                "indice": 59.84,
+                "classe": "intermediario",
+                "dominados": 2,
+                "intermediarios": 4,
+                "dificuldades": 4,
+                "pct_acertos": 62.5,
+                "pct_erros": 30.56
+            },
+            {
+                "nome": "Gabriela Nunes Pires",
+                "posicao": 8,
+                "avaliacoes": 3,
+                "media": 48.21,
+                "freq": 100,
+                "evolucao": -18.75,
+                "slope": -6.25,
+                "desvio": 10.21,
+                "score_ev": 18.75,
+                "score_cons": 79.58,
+                "indice": 54.89,
+                "classe": "atencao",
+                "dominados": 1,
+                "intermediarios": 0,
+                "dificuldades": 3,
+                "pct_acertos": 50,
+                "pct_erros": 45.83
+            }
+        ],
+        "alertas": [
+            {
+                "sev": "alta",
+                "titulo": "Baixo aproveitamento",
+                "msg": "Henrique Alves Cruz está com média de 51,8% em 3 avaliação(ões), abaixo do mínimo de 60%."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Frequência baixa",
+                "msg": "Diego Nunes Ferreira está com 70,0% de frequência (mínimo configurado: 75%), com 3 falta(s) em 10 aula(s)."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Baixo aproveitamento",
+                "msg": "Diego Nunes Ferreira está com média de 52,0% em 7 avaliação(ões), abaixo do mínimo de 60%."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Queda de desempenho",
+                "msg": "Gabriela Nunes Pires teve queda de 18,8 pontos percentuais nas avaliações mais recentes (de 56,3% para 37,5%)."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Baixo aproveitamento",
+                "msg": "Gabriela Nunes Pires está com média de 48,2% em 3 avaliação(ões), abaixo do mínimo de 60%."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Ana Beatriz Souza apresentou aproveitamento inferior a 60% em Hardware e Software nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Ana Beatriz Souza apresentou aproveitamento inferior a 60% em Redes de Computadores nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Ana Beatriz Souza apresentou aproveitamento inferior a 60% em Segurança da Informação nas últimas 4 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Ana Beatriz Souza apresentou aproveitamento inferior a 60% em Constituição Federal nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Ana Beatriz Souza apresentou aproveitamento inferior a 60% em Direito Administrativo nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Bruno Carvalho Lima apresentou aproveitamento inferior a 60% em Hardware e Software nas últimas 4 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Carla Mendes Rocha apresentou aproveitamento inferior a 60% em Sistemas Operacionais nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Carla Mendes Rocha apresentou aproveitamento inferior a 60% em Internet e Navegadores nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Carla Mendes Rocha apresentou aproveitamento inferior a 60% em Redes de Computadores nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Carla Mendes Rocha apresentou aproveitamento inferior a 60% em Segurança da Informação nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Carla Mendes Rocha apresentou aproveitamento inferior a 60% em Código de Trânsito nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Sistemas Operacionais nas últimas 4 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Pacote Office nas últimas 4 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Internet e Navegadores nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Redes de Computadores nas últimas 4 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Segurança da Informação nas últimas 4 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Estatuto da Guarda nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Direito Administrativo nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Código de Trânsito nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Eduarda Prado Alves apresentou aproveitamento inferior a 60% em Pacote Office nas últimas 4 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Eduarda Prado Alves apresentou aproveitamento inferior a 60% em Redes de Computadores nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Eduarda Prado Alves apresentou aproveitamento inferior a 60% em Direito Administrativo nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Felipe Ramos Duarte apresentou aproveitamento inferior a 60% em Constituição Federal nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Felipe Ramos Duarte apresentou aproveitamento inferior a 60% em Direito Administrativo nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Gabriela Nunes Pires apresentou aproveitamento inferior a 60% em Constituição Federal nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Gabriela Nunes Pires apresentou aproveitamento inferior a 60% em Direito Administrativo nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Gabriela Nunes Pires apresentou aproveitamento inferior a 60% em Código de Trânsito nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Henrique Alves Cruz apresentou aproveitamento inferior a 60% em Constituição Federal nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Henrique Alves Cruz apresentou aproveitamento inferior a 60% em Estatuto da Guarda nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Henrique Alves Cruz apresentou aproveitamento inferior a 60% em Código de Trânsito nas últimas 3 avaliações."
+            },
+            {
+                "sev": "media",
+                "titulo": "Conteúdo crítico da turma",
+                "msg": "A turma INF01 obteve apenas 55,0% de aproveitamento em Redes de Computadores (40 respostas de 5 aluno(s)). Conteúdo candidato a revisão."
+            },
+            {
+                "sev": "media",
+                "titulo": "Conteúdo crítico da turma",
+                "msg": "A turma AGT01 obteve apenas 44,4% de aproveitamento em Constituição Federal (18 respostas de 3 aluno(s)). Conteúdo candidato a revisão."
+            },
+            {
+                "sev": "media",
+                "titulo": "Conteúdo crítico da turma",
+                "msg": "A turma AGT01 obteve apenas 50,0% de aproveitamento em Direito Administrativo (18 respostas de 3 aluno(s)). Conteúdo candidato a revisão."
+            },
+            {
+                "sev": "media",
+                "titulo": "Conteúdo crítico da turma",
+                "msg": "A turma AGT01 obteve apenas 50,0% de aproveitamento em Código de Trânsito (18 respostas de 3 aluno(s)). Conteúdo candidato a revisão."
+            },
+            {
+                "sev": "positiva",
+                "titulo": "Evolução significativa",
+                "msg": "Felipe Ramos Duarte evoluiu 12,5 pontos percentuais nas avaliações mais recentes. Vale registrar o reconhecimento."
+            },
+            {
+                "sev": "positiva",
+                "titulo": "Evolução significativa",
+                "msg": "Eduarda Prado Alves evoluiu 16,3 pontos percentuais nas avaliações mais recentes. Vale registrar o reconhecimento."
+            },
+            {
+                "sev": "positiva",
+                "titulo": "Evolução significativa",
+                "msg": "Ana Beatriz Souza evoluiu 10,8 pontos percentuais nas avaliações mais recentes. Vale registrar o reconhecimento."
+            },
+            {
+                "sev": "positiva",
+                "titulo": "Evolução significativa",
+                "msg": "Henrique Alves Cruz evoluiu 18,8 pontos percentuais nas avaliações mais recentes. Vale registrar o reconhecimento."
+            }
+        ]
     },
-    "distribuicao": {
-        "0 a 39%": 0,
-        "40 a 59%": 1,
-        "60 a 79%": 4,
-        "80 a 100%": 0
+    "professor_2": {
+        "media_geral": 67.92,
+        "acertos": {
+            "total": 240,
+            "acertos": 163,
+            "erros": 66,
+            "branco": 11,
+            "pct_acertos": 67.92,
+            "pct_erros": 27.5,
+            "pct_branco": 4.58
+        },
+        "distribuicao": {
+            "0 a 39%": 0,
+            "40 a 59%": 1,
+            "60 a 79%": 4,
+            "80 a 100%": 0
+        },
+        "por_avaliacao": [
+            {
+                "nome": "Avaliação diagnóstica",
+                "media": 65
+            },
+            {
+                "nome": "Simulado 1",
+                "media": 68.33
+            },
+            {
+                "nome": "Prova bimestral",
+                "media": 66.67
+            },
+            {
+                "nome": "Simulado 2",
+                "media": 71.67
+            }
+        ],
+        "por_disciplina": [
+            {
+                "nome": "Informática",
+                "media": 67.92
+            }
+        ],
+        "por_turma": [
+            {
+                "nome": "INF01",
+                "media": 67.92
+            }
+        ],
+        "por_dificuldade": [
+            {
+                "dificuldade": "facil",
+                "respondidas": 80,
+                "acertos": 51,
+                "aproveitamento": 63.75
+            },
+            {
+                "dificuldade": "medio",
+                "respondidas": 80,
+                "acertos": 57,
+                "aproveitamento": 71.25
+            },
+            {
+                "dificuldade": "dificil",
+                "respondidas": 80,
+                "acertos": 55,
+                "aproveitamento": 68.75
+            }
+        ],
+        "assuntos": [
+            {
+                "nome": "Internet e Navegadores",
+                "aprov": 77.5,
+                "resp": 40,
+                "acertos": 31,
+                "classe": "intermediario"
+            },
+            {
+                "nome": "Sistemas Operacionais",
+                "aprov": 75,
+                "resp": 40,
+                "acertos": 30,
+                "classe": "intermediario"
+            },
+            {
+                "nome": "Hardware e Software",
+                "aprov": 70,
+                "resp": 40,
+                "acertos": 28,
+                "classe": "intermediario"
+            },
+            {
+                "nome": "Segurança da Informação",
+                "aprov": 70,
+                "resp": 40,
+                "acertos": 28,
+                "classe": "intermediario"
+            },
+            {
+                "nome": "Pacote Office",
+                "aprov": 60,
+                "resp": 40,
+                "acertos": 24,
+                "classe": "intermediario"
+            },
+            {
+                "nome": "Redes de Computadores",
+                "aprov": 55,
+                "resp": 40,
+                "acertos": 22,
+                "classe": "dificuldade"
+            }
+        ],
+        "perda_avaliacao": [
+            {
+                "nome": "Avaliação diagnóstica",
+                "perdidos": 17.43,
+                "aprov": 65
+            },
+            {
+                "nome": "Prova bimestral",
+                "perdidos": 16.6,
+                "aprov": 66.67
+            },
+            {
+                "nome": "Simulado 1",
+                "perdidos": 15.77,
+                "aprov": 68.33
+            },
+            {
+                "nome": "Simulado 2",
+                "perdidos": 14.11,
+                "aprov": 71.67
+            }
+        ],
+        "perda_aluno": [
+            {
+                "nome": "Diego Nunes Ferreira",
+                "perdidos": 19.92,
+                "pior": "Prova bimestral"
+            },
+            {
+                "nome": "Carla Mendes Rocha",
+                "perdidos": 14.94,
+                "pior": "Prova bimestral"
+            },
+            {
+                "nome": "Eduarda Prado Alves",
+                "perdidos": 11.62,
+                "pior": "Avaliação diagnóstica"
+            },
+            {
+                "nome": "Ana Beatriz Souza",
+                "perdidos": 9.13,
+                "pior": "Avaliação diagnóstica"
+            },
+            {
+                "nome": "Bruno Carvalho Lima",
+                "perdidos": 8.3,
+                "pior": "Avaliação diagnóstica"
+            }
+        ],
+        "ranking": [
+            {
+                "nome": "Ana Beatriz Souza",
+                "posicao": 1,
+                "avaliacoes": 4,
+                "media": 78.34,
+                "freq": 83.33,
+                "evolucao": 12.5,
+                "slope": 7.5,
+                "desvio": 9.08,
+                "score_ev": 87.5,
+                "score_cons": 81.84,
+                "indice": 82.08,
+                "classe": "evolucao",
+                "dominados": 3,
+                "intermediarios": 2,
+                "dificuldades": 1,
+                "pct_acertos": 77.08,
+                "pct_erros": 18.75
+            },
+            {
+                "nome": "Eduarda Prado Alves",
+                "posicao": 2,
+                "avaliacoes": 4,
+                "media": 70.83,
+                "freq": 100,
+                "evolucao": 16.66,
+                "slope": 6.667,
+                "desvio": 9.32,
+                "score_ev": 83.34,
+                "score_cons": 81.36,
+                "indice": 80.44,
+                "classe": "evolucao",
+                "dominados": 3,
+                "intermediarios": 2,
+                "dificuldades": 1,
+                "pct_acertos": 70.83,
+                "pct_erros": 22.92
+            },
+            {
+                "nome": "Bruno Carvalho Lima",
+                "posicao": 3,
+                "avaliacoes": 4,
+                "media": 80,
+                "freq": 83.33,
+                "evolucao": 8.33,
+                "slope": 4.998,
+                "desvio": 7.21,
+                "score_ev": 74.99,
+                "score_cons": 85.58,
+                "indice": 80.36,
+                "classe": "evolucao",
+                "dominados": 3,
+                "intermediarios": 2,
+                "dificuldades": 1,
+                "pct_acertos": 79.17,
+                "pct_erros": 20.83
+            },
+            {
+                "nome": "Diego Nunes Ferreira",
+                "posicao": 4,
+                "avaliacoes": 4,
+                "media": 50.83,
+                "freq": 66.67,
+                "evolucao": -8.33,
+                "slope": -1.666,
+                "desvio": 5.89,
+                "score_ev": 41.67,
+                "score_cons": 88.22,
+                "indice": 58.39,
+                "classe": "atencao",
+                "dominados": 0,
+                "intermediarios": 2,
+                "dificuldades": 4,
+                "pct_acertos": 50,
+                "pct_erros": 43.75
+            },
+            {
+                "nome": "Carla Mendes Rocha",
+                "posicao": 5,
+                "avaliacoes": 4,
+                "media": 61.66,
+                "freq": 83.33,
+                "evolucao": -16.67,
+                "slope": -8.333,
+                "desvio": 12.5,
+                "score_ev": 8.34,
+                "score_cons": 75,
+                "indice": 54.25,
+                "classe": "atencao",
+                "dominados": 1,
+                "intermediarios": 3,
+                "dificuldades": 2,
+                "pct_acertos": 62.5,
+                "pct_erros": 31.25
+            }
+        ],
+        "alertas": [
+            {
+                "sev": "alta",
+                "titulo": "Frequência baixa",
+                "msg": "Diego Nunes Ferreira está com 66,7% de frequência (mínimo configurado: 75%), com 2 falta(s) em 6 aula(s)."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Baixo aproveitamento",
+                "msg": "Diego Nunes Ferreira está com média de 50,8% em 4 avaliação(ões), abaixo do mínimo de 60%."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Queda de desempenho",
+                "msg": "Carla Mendes Rocha teve queda de 16,7 pontos percentuais nas avaliações mais recentes (de 70,8% para 54,2%)."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Ana Beatriz Souza apresentou aproveitamento inferior a 60% em Hardware e Software nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Ana Beatriz Souza apresentou aproveitamento inferior a 60% em Redes de Computadores nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Ana Beatriz Souza apresentou aproveitamento inferior a 60% em Segurança da Informação nas últimas 4 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Bruno Carvalho Lima apresentou aproveitamento inferior a 60% em Hardware e Software nas últimas 4 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Carla Mendes Rocha apresentou aproveitamento inferior a 60% em Sistemas Operacionais nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Carla Mendes Rocha apresentou aproveitamento inferior a 60% em Internet e Navegadores nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Carla Mendes Rocha apresentou aproveitamento inferior a 60% em Redes de Computadores nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Carla Mendes Rocha apresentou aproveitamento inferior a 60% em Segurança da Informação nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Sistemas Operacionais nas últimas 4 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Pacote Office nas últimas 4 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Internet e Navegadores nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Redes de Computadores nas últimas 4 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Segurança da Informação nas últimas 4 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Eduarda Prado Alves apresentou aproveitamento inferior a 60% em Pacote Office nas últimas 4 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Eduarda Prado Alves apresentou aproveitamento inferior a 60% em Redes de Computadores nas últimas 3 avaliações."
+            },
+            {
+                "sev": "media",
+                "titulo": "Conteúdo crítico da turma",
+                "msg": "A turma INF01 obteve apenas 55,0% de aproveitamento em Redes de Computadores (40 respostas de 5 aluno(s)). Conteúdo candidato a revisão."
+            },
+            {
+                "sev": "positiva",
+                "titulo": "Evolução significativa",
+                "msg": "Ana Beatriz Souza evoluiu 12,5 pontos percentuais nas avaliações mais recentes. Vale registrar o reconhecimento."
+            },
+            {
+                "sev": "positiva",
+                "titulo": "Evolução significativa",
+                "msg": "Eduarda Prado Alves evoluiu 16,7 pontos percentuais nas avaliações mais recentes. Vale registrar o reconhecimento."
+            }
+        ]
     },
-    "por_avaliacao": [
-        {
-            "nome": "Avaliação diagnóstica",
-            "media": 65
+    "professor_3": {
+        "media_geral": 63.54,
+        "acertos": {
+            "total": 192,
+            "acertos": 122,
+            "erros": 60,
+            "branco": 10,
+            "pct_acertos": 63.54,
+            "pct_erros": 31.25,
+            "pct_branco": 5.21
         },
-        {
-            "nome": "Simulado 1",
-            "media": 68.33
+        "distribuicao": {
+            "0 a 39%": 0,
+            "40 a 59%": 3,
+            "60 a 79%": 5,
+            "80 a 100%": 0
         },
-        {
-            "nome": "Prova bimestral",
-            "media": 66.67
-        },
-        {
-            "nome": "Simulado 2",
-            "media": 71.67
-        }
-    ],
-    "por_dificuldade": [
-        {
-            "dificuldade": "facil",
-            "respondidas": 80,
-            "acertos": 51,
-            "aproveitamento": 63.75
-        },
-        {
-            "dificuldade": "medio",
-            "respondidas": 80,
-            "acertos": 57,
-            "aproveitamento": 71.25
-        },
-        {
-            "dificuldade": "dificil",
-            "respondidas": 80,
-            "acertos": 55,
-            "aproveitamento": 68.75
-        }
-    ],
-    "assuntos": [
-        {
-            "nome": "Internet e Navegadores",
-            "aprov": 77.5,
-            "resp": 40,
-            "acertos": 31,
-            "erros": 7,
-            "alunos": 5,
-            "classe": "intermediario"
-        },
-        {
-            "nome": "Sistemas Operacionais",
-            "aprov": 75,
-            "resp": 40,
-            "acertos": 30,
-            "erros": 8,
-            "alunos": 5,
-            "classe": "intermediario"
-        },
-        {
-            "nome": "Hardware e Software",
-            "aprov": 70,
-            "resp": 40,
-            "acertos": 28,
-            "erros": 11,
-            "alunos": 5,
-            "classe": "intermediario"
-        },
-        {
-            "nome": "Segurança da Informação",
-            "aprov": 70,
-            "resp": 40,
-            "acertos": 28,
-            "erros": 11,
-            "alunos": 5,
-            "classe": "intermediario"
-        },
-        {
-            "nome": "Pacote Office",
-            "aprov": 60,
-            "resp": 40,
-            "acertos": 24,
-            "erros": 14,
-            "alunos": 5,
-            "classe": "intermediario"
-        },
-        {
-            "nome": "Redes de Computadores",
-            "aprov": 55,
-            "resp": 40,
-            "acertos": 22,
-            "erros": 15,
-            "alunos": 5,
-            "classe": "dificuldade"
-        }
-    ],
-    "ranking": [
-        {
-            "nome": "Ana Beatriz Souza",
-            "posicao": 1,
-            "avaliacoes": 4,
-            "media": 78.34,
-            "freq": 83.33,
-            "evolucao": 12.5,
-            "slope": 7.5,
-            "desvio": 9.08,
-            "score_ev": 87.5,
-            "score_cons": 81.84,
-            "indice": 82.08,
-            "classe": "evolucao",
-            "dominados": 3,
-            "intermediarios": 2,
-            "dificuldades": 1,
-            "pct_acertos": 77.08,
-            "pct_erros": 18.75
-        },
-        {
-            "nome": "Eduarda Prado Alves",
-            "posicao": 2,
-            "avaliacoes": 4,
-            "media": 70.83,
-            "freq": 100,
-            "evolucao": 16.66,
-            "slope": 6.667,
-            "desvio": 9.32,
-            "score_ev": 83.34,
-            "score_cons": 81.36,
-            "indice": 80.44,
-            "classe": "evolucao",
-            "dominados": 3,
-            "intermediarios": 2,
-            "dificuldades": 1,
-            "pct_acertos": 70.83,
-            "pct_erros": 22.92
-        },
-        {
-            "nome": "Bruno Carvalho Lima",
-            "posicao": 3,
-            "avaliacoes": 4,
-            "media": 80,
-            "freq": 83.33,
-            "evolucao": 8.33,
-            "slope": 4.998,
-            "desvio": 7.21,
-            "score_ev": 74.99,
-            "score_cons": 85.58,
-            "indice": 80.36,
-            "classe": "evolucao",
-            "dominados": 3,
-            "intermediarios": 2,
-            "dificuldades": 1,
-            "pct_acertos": 79.17,
-            "pct_erros": 20.83
-        },
-        {
-            "nome": "Diego Nunes Ferreira",
-            "posicao": 4,
-            "avaliacoes": 4,
-            "media": 50.83,
-            "freq": 66.67,
-            "evolucao": -8.33,
-            "slope": -1.666,
-            "desvio": 5.89,
-            "score_ev": 41.67,
-            "score_cons": 88.22,
-            "indice": 58.39,
-            "classe": "atencao",
-            "dominados": 0,
-            "intermediarios": 2,
-            "dificuldades": 4,
-            "pct_acertos": 50,
-            "pct_erros": 43.75
-        },
-        {
-            "nome": "Carla Mendes Rocha",
-            "posicao": 5,
-            "avaliacoes": 4,
-            "media": 61.66,
-            "freq": 83.33,
-            "evolucao": -16.67,
-            "slope": -8.333,
-            "desvio": 12.5,
-            "score_ev": 8.34,
-            "score_cons": 75,
-            "indice": 54.25,
-            "classe": "atencao",
-            "dominados": 1,
-            "intermediarios": 3,
-            "dificuldades": 2,
-            "pct_acertos": 62.5,
-            "pct_erros": 31.25
-        }
-    ],
-    "alertas": [
-        {
-            "sev": "alta",
-            "titulo": "Frequência baixa",
-            "msg": "Diego Nunes Ferreira está com 66,7% de frequência (mínimo configurado: 75%), com 2 falta(s) em 6 aula(s)."
-        },
-        {
-            "sev": "alta",
-            "titulo": "Baixo aproveitamento",
-            "msg": "Diego Nunes Ferreira está com média de 50,8% em 4 avaliação(ões), abaixo do mínimo de 60%."
-        },
-        {
-            "sev": "alta",
-            "titulo": "Queda de desempenho",
-            "msg": "Carla Mendes Rocha teve queda de 16,7 pontos percentuais nas avaliações mais recentes (de 70,8% para 54,2%)."
-        },
-        {
-            "sev": "alta",
-            "titulo": "Dificuldade persistente",
-            "msg": "Atenção: Ana Beatriz Souza apresentou aproveitamento inferior a 60% em Hardware e Software nas últimas 3 avaliações."
-        },
-        {
-            "sev": "alta",
-            "titulo": "Dificuldade persistente",
-            "msg": "Atenção: Ana Beatriz Souza apresentou aproveitamento inferior a 60% em Redes de Computadores nas últimas 3 avaliações."
-        },
-        {
-            "sev": "alta",
-            "titulo": "Dificuldade persistente",
-            "msg": "Atenção: Ana Beatriz Souza apresentou aproveitamento inferior a 60% em Segurança da Informação nas últimas 4 avaliações."
-        },
-        {
-            "sev": "alta",
-            "titulo": "Dificuldade persistente",
-            "msg": "Atenção: Bruno Carvalho Lima apresentou aproveitamento inferior a 60% em Hardware e Software nas últimas 4 avaliações."
-        },
-        {
-            "sev": "alta",
-            "titulo": "Dificuldade persistente",
-            "msg": "Atenção: Carla Mendes Rocha apresentou aproveitamento inferior a 60% em Sistemas Operacionais nas últimas 3 avaliações."
-        },
-        {
-            "sev": "alta",
-            "titulo": "Dificuldade persistente",
-            "msg": "Atenção: Carla Mendes Rocha apresentou aproveitamento inferior a 60% em Internet e Navegadores nas últimas 3 avaliações."
-        },
-        {
-            "sev": "alta",
-            "titulo": "Dificuldade persistente",
-            "msg": "Atenção: Carla Mendes Rocha apresentou aproveitamento inferior a 60% em Redes de Computadores nas últimas 3 avaliações."
-        },
-        {
-            "sev": "alta",
-            "titulo": "Dificuldade persistente",
-            "msg": "Atenção: Carla Mendes Rocha apresentou aproveitamento inferior a 60% em Segurança da Informação nas últimas 3 avaliações."
-        },
-        {
-            "sev": "alta",
-            "titulo": "Dificuldade persistente",
-            "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Sistemas Operacionais nas últimas 4 avaliações."
-        },
-        {
-            "sev": "alta",
-            "titulo": "Dificuldade persistente",
-            "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Pacote Office nas últimas 4 avaliações."
-        },
-        {
-            "sev": "alta",
-            "titulo": "Dificuldade persistente",
-            "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Internet e Navegadores nas últimas 3 avaliações."
-        },
-        {
-            "sev": "alta",
-            "titulo": "Dificuldade persistente",
-            "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Redes de Computadores nas últimas 4 avaliações."
-        },
-        {
-            "sev": "alta",
-            "titulo": "Dificuldade persistente",
-            "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Segurança da Informação nas últimas 4 avaliações."
-        },
-        {
-            "sev": "alta",
-            "titulo": "Dificuldade persistente",
-            "msg": "Atenção: Eduarda Prado Alves apresentou aproveitamento inferior a 60% em Pacote Office nas últimas 4 avaliações."
-        },
-        {
-            "sev": "alta",
-            "titulo": "Dificuldade persistente",
-            "msg": "Atenção: Eduarda Prado Alves apresentou aproveitamento inferior a 60% em Redes de Computadores nas últimas 3 avaliações."
-        },
-        {
-            "sev": "media",
-            "titulo": "Conteúdo crítico da turma",
-            "msg": "A turma INF01 obteve apenas 55,0% de aproveitamento em Redes de Computadores (40 respostas de 5 aluno(s)). Conteúdo candidato a revisão."
-        },
-        {
-            "sev": "positiva",
-            "titulo": "Evolução significativa",
-            "msg": "Ana Beatriz Souza evoluiu 12,5 pontos percentuais nas avaliações mais recentes. Vale registrar o reconhecimento."
-        },
-        {
-            "sev": "positiva",
-            "titulo": "Evolução significativa",
-            "msg": "Eduarda Prado Alves evoluiu 16,7 pontos percentuais nas avaliações mais recentes. Vale registrar o reconhecimento."
-        }
-    ]
+        "por_avaliacao": [
+            {
+                "nome": "Diagnóstica de Legislação",
+                "media": 65
+            },
+            {
+                "nome": "Diagnóstica AGT",
+                "media": 50
+            },
+            {
+                "nome": "Prova de Legislação 1",
+                "media": 70
+            },
+            {
+                "nome": "Prova de Trânsito 1",
+                "media": 58.33
+            },
+            {
+                "nome": "Simulado de Legislação",
+                "media": 70
+            },
+            {
+                "nome": "Simulado AGT",
+                "media": 58.33
+            }
+        ],
+        "por_disciplina": [
+            {
+                "nome": "Legislação Municipal",
+                "media": 63.54
+            }
+        ],
+        "por_turma": [
+            {
+                "nome": "INF01",
+                "media": 68.33
+            },
+            {
+                "nome": "AGT01",
+                "media": 55.56
+            }
+        ],
+        "por_dificuldade": [
+            {
+                "dificuldade": "facil",
+                "respondidas": 64,
+                "acertos": 39,
+                "aproveitamento": 60.94
+            },
+            {
+                "dificuldade": "medio",
+                "respondidas": 64,
+                "acertos": 43,
+                "aproveitamento": 67.19
+            },
+            {
+                "dificuldade": "dificil",
+                "respondidas": 64,
+                "acertos": 40,
+                "aproveitamento": 62.5
+            }
+        ],
+        "assuntos": [
+            {
+                "nome": "Estatuto da Guarda",
+                "aprov": 72.92,
+                "resp": 48,
+                "acertos": 35,
+                "classe": "intermediario"
+            },
+            {
+                "nome": "Constituição Federal",
+                "aprov": 62.5,
+                "resp": 48,
+                "acertos": 30,
+                "classe": "intermediario"
+            },
+            {
+                "nome": "Código de Trânsito",
+                "aprov": 62.5,
+                "resp": 48,
+                "acertos": 30,
+                "classe": "intermediario"
+            },
+            {
+                "nome": "Direito Administrativo",
+                "aprov": 56.25,
+                "resp": 48,
+                "acertos": 27,
+                "classe": "dificuldade"
+            }
+        ],
+        "perda_avaliacao": [
+            {
+                "nome": "Diagnóstica de Legislação",
+                "perdidos": 17.5,
+                "aprov": 65
+            },
+            {
+                "nome": "Prova de Legislação 1",
+                "perdidos": 15,
+                "aprov": 70
+            },
+            {
+                "nome": "Simulado de Legislação",
+                "perdidos": 15,
+                "aprov": 70
+            },
+            {
+                "nome": "Diagnóstica AGT",
+                "perdidos": 15,
+                "aprov": 50
+            },
+            {
+                "nome": "Prova de Trânsito 1",
+                "perdidos": 12.5,
+                "aprov": 58.33
+            },
+            {
+                "nome": "Simulado AGT",
+                "perdidos": 12.5,
+                "aprov": 58.33
+            }
+        ],
+        "perda_aluno": [
+            {
+                "nome": "Gabriela Nunes Pires",
+                "perdidos": 15,
+                "pior": "Simulado AGT"
+            },
+            {
+                "nome": "Henrique Alves Cruz",
+                "perdidos": 15,
+                "pior": "Diagnóstica AGT"
+            },
+            {
+                "nome": "Diego Nunes Ferreira",
+                "perdidos": 13.75,
+                "pior": "Diagnóstica de Legislação"
+            },
+            {
+                "nome": "Carla Mendes Rocha",
+                "perdidos": 11.25,
+                "pior": "Prova de Legislação 1"
+            },
+            {
+                "nome": "Felipe Ramos Duarte",
+                "perdidos": 10,
+                "pior": "Diagnóstica AGT"
+            },
+            {
+                "nome": "Ana Beatriz Souza",
+                "perdidos": 8.75,
+                "pior": "Diagnóstica de Legislação"
+            },
+            {
+                "nome": "Eduarda Prado Alves",
+                "perdidos": 7.5,
+                "pior": "Diagnóstica de Legislação"
+            },
+            {
+                "nome": "Bruno Carvalho Lima",
+                "perdidos": 6.25,
+                "pior": "Diagnóstica de Legislação"
+            }
+        ],
+        "ranking": [
+            {
+                "nome": "Eduarda Prado Alves",
+                "posicao": 1,
+                "avaliacoes": 3,
+                "media": 76.79,
+                "freq": 100,
+                "evolucao": 18.75,
+                "slope": 12.5,
+                "desvio": 10.21,
+                "score_ev": 100,
+                "score_cons": 79.58,
+                "indice": 86.63,
+                "classe": "evolucao",
+                "dominados": 2,
+                "intermediarios": 1,
+                "dificuldades": 1,
+                "pct_acertos": 75,
+                "pct_erros": 16.67
+            },
+            {
+                "nome": "Felipe Ramos Duarte",
+                "posicao": 2,
+                "avaliacoes": 3,
+                "media": 67.86,
+                "freq": 100,
+                "evolucao": 12.5,
+                "slope": 6.25,
+                "desvio": 5.89,
+                "score_ev": 81.25,
+                "score_cons": 88.22,
+                "indice": 80.1,
+                "classe": "evolucao",
+                "dominados": 2,
+                "intermediarios": 0,
+                "dificuldades": 2,
+                "pct_acertos": 66.67,
+                "pct_erros": 29.17
+            },
+            {
+                "nome": "Ana Beatriz Souza",
+                "posicao": 3,
+                "avaliacoes": 3,
+                "media": 71.43,
+                "freq": 75,
+                "evolucao": 6.25,
+                "slope": 6.25,
+                "desvio": 5.89,
+                "score_ev": 81.25,
+                "score_cons": 88.22,
+                "indice": 77.78,
+                "classe": "evolucao",
+                "dominados": 2,
+                "intermediarios": 0,
+                "dificuldades": 2,
+                "pct_acertos": 70.83,
+                "pct_erros": 25
+            },
+            {
+                "nome": "Henrique Alves Cruz",
+                "posicao": 4,
+                "avaliacoes": 3,
+                "media": 51.79,
+                "freq": 75,
+                "evolucao": 18.75,
+                "slope": 12.5,
+                "desvio": 10.21,
+                "score_ev": 100,
+                "score_cons": 79.58,
+                "indice": 72.88,
+                "classe": "intermediario",
+                "dominados": 1,
+                "intermediarios": 0,
+                "dificuldades": 3,
+                "pct_acertos": 50,
+                "pct_erros": 41.67
+            },
+            {
+                "nome": "Bruno Carvalho Lima",
+                "posicao": 5,
+                "avaliacoes": 3,
+                "media": 78.57,
+                "freq": 75,
+                "evolucao": -6.25,
+                "slope": 0,
+                "desvio": 5.89,
+                "score_ev": 50,
+                "score_cons": 88.22,
+                "indice": 72.82,
+                "classe": "intermediario",
+                "dominados": 2,
+                "intermediarios": 2,
+                "dificuldades": 0,
+                "pct_acertos": 79.17,
+                "pct_erros": 20.83
+            },
+            {
+                "nome": "Diego Nunes Ferreira",
+                "posicao": 6,
+                "avaliacoes": 3,
+                "media": 53.57,
+                "freq": 75,
+                "evolucao": -6.25,
+                "slope": 0,
+                "desvio": 5.89,
+                "score_ev": 50,
+                "score_cons": 88.22,
+                "indice": 62.82,
+                "classe": "intermediario",
+                "dominados": 1,
+                "intermediarios": 0,
+                "dificuldades": 3,
+                "pct_acertos": 54.17,
+                "pct_erros": 41.67
+            },
+            {
+                "nome": "Carla Mendes Rocha",
+                "posicao": 7,
+                "avaliacoes": 3,
+                "media": 62.5,
+                "freq": 75,
+                "evolucao": 0,
+                "slope": -6.25,
+                "desvio": 10.21,
+                "score_ev": 18.75,
+                "score_cons": 79.58,
+                "indice": 56.85,
+                "classe": "intermediario",
+                "dominados": 1,
+                "intermediarios": 1,
+                "dificuldades": 2,
+                "pct_acertos": 62.5,
+                "pct_erros": 29.17
+            },
+            {
+                "nome": "Gabriela Nunes Pires",
+                "posicao": 8,
+                "avaliacoes": 3,
+                "media": 48.21,
+                "freq": 100,
+                "evolucao": -18.75,
+                "slope": -6.25,
+                "desvio": 10.21,
+                "score_ev": 18.75,
+                "score_cons": 79.58,
+                "indice": 54.89,
+                "classe": "atencao",
+                "dominados": 1,
+                "intermediarios": 0,
+                "dificuldades": 3,
+                "pct_acertos": 50,
+                "pct_erros": 45.83
+            }
+        ],
+        "alertas": [
+            {
+                "sev": "alta",
+                "titulo": "Baixo aproveitamento",
+                "msg": "Henrique Alves Cruz está com média de 51,8% em 3 avaliação(ões), abaixo do mínimo de 60%."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Baixo aproveitamento",
+                "msg": "Diego Nunes Ferreira está com média de 53,6% em 3 avaliação(ões), abaixo do mínimo de 60%."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Queda de desempenho",
+                "msg": "Gabriela Nunes Pires teve queda de 18,8 pontos percentuais nas avaliações mais recentes (de 56,3% para 37,5%)."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Baixo aproveitamento",
+                "msg": "Gabriela Nunes Pires está com média de 48,2% em 3 avaliação(ões), abaixo do mínimo de 60%."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Ana Beatriz Souza apresentou aproveitamento inferior a 60% em Constituição Federal nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Ana Beatriz Souza apresentou aproveitamento inferior a 60% em Direito Administrativo nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Carla Mendes Rocha apresentou aproveitamento inferior a 60% em Código de Trânsito nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Estatuto da Guarda nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Direito Administrativo nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Diego Nunes Ferreira apresentou aproveitamento inferior a 60% em Código de Trânsito nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Eduarda Prado Alves apresentou aproveitamento inferior a 60% em Direito Administrativo nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Felipe Ramos Duarte apresentou aproveitamento inferior a 60% em Constituição Federal nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Felipe Ramos Duarte apresentou aproveitamento inferior a 60% em Direito Administrativo nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Gabriela Nunes Pires apresentou aproveitamento inferior a 60% em Constituição Federal nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Gabriela Nunes Pires apresentou aproveitamento inferior a 60% em Direito Administrativo nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Gabriela Nunes Pires apresentou aproveitamento inferior a 60% em Código de Trânsito nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Henrique Alves Cruz apresentou aproveitamento inferior a 60% em Constituição Federal nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Henrique Alves Cruz apresentou aproveitamento inferior a 60% em Estatuto da Guarda nas últimas 3 avaliações."
+            },
+            {
+                "sev": "alta",
+                "titulo": "Dificuldade persistente",
+                "msg": "Atenção: Henrique Alves Cruz apresentou aproveitamento inferior a 60% em Código de Trânsito nas últimas 3 avaliações."
+            },
+            {
+                "sev": "media",
+                "titulo": "Conteúdo crítico da turma",
+                "msg": "A turma AGT01 obteve apenas 44,4% de aproveitamento em Constituição Federal (18 respostas de 3 aluno(s)). Conteúdo candidato a revisão."
+            },
+            {
+                "sev": "media",
+                "titulo": "Conteúdo crítico da turma",
+                "msg": "A turma AGT01 obteve apenas 50,0% de aproveitamento em Direito Administrativo (18 respostas de 3 aluno(s)). Conteúdo candidato a revisão."
+            },
+            {
+                "sev": "media",
+                "titulo": "Conteúdo crítico da turma",
+                "msg": "A turma AGT01 obteve apenas 50,0% de aproveitamento em Código de Trânsito (18 respostas de 3 aluno(s)). Conteúdo candidato a revisão."
+            },
+            {
+                "sev": "positiva",
+                "titulo": "Evolução significativa",
+                "msg": "Eduarda Prado Alves evoluiu 18,8 pontos percentuais nas avaliações mais recentes. Vale registrar o reconhecimento."
+            },
+            {
+                "sev": "positiva",
+                "titulo": "Evolução significativa",
+                "msg": "Felipe Ramos Duarte evoluiu 12,5 pontos percentuais nas avaliações mais recentes. Vale registrar o reconhecimento."
+            },
+            {
+                "sev": "positiva",
+                "titulo": "Evolução significativa",
+                "msg": "Henrique Alves Cruz evoluiu 18,8 pontos percentuais nas avaliações mais recentes. Vale registrar o reconhecimento."
+            }
+        ]
+    },
+    "_ofertas_por_professor": {
+        "1": [],
+        "2": [
+            1
+        ],
+        "3": [
+            2,
+            3
+        ]
+    }
 }

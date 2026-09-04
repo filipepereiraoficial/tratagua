@@ -180,7 +180,7 @@ button { font: inherit; color: inherit; }
 }
 .selo-demo::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--acento); flex: none; }
 
-.vista { padding: 20px; max-width: 1420px; }
+.vista { padding: 20px; max-width: 1420px; min-width: 0; }
 .cabec { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin-bottom: 16px; }
 .cabec p { margin: 3px 0 0; color: var(--tinta-2); font-size: 13px; max-width: 68ch; }
 .cabec__acoes { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
@@ -225,9 +225,9 @@ button { font: inherit; color: inherit; }
 .painel__c--nu { padding: 0; }
 
 .colunas { display: grid; gap: 16px; }
-.c-2 { grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
+.c-2 { grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr)); }
 .c-21 { grid-template-columns: minmax(0, 1.9fr) minmax(280px, 1fr); }
-@media (max-width: 1080px) { .c-21 { grid-template-columns: 1fr; } }
+@media (max-width: 1080px) { .c-21 { grid-template-columns: minmax(0, 1fr); } }
 
 /* ========================================================== tabelas ===== */
 .rolagem { overflow-x: auto; }
@@ -311,6 +311,41 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .marcas .e[aria-pressed="true"] { background: var(--ruim); }
 .marcas .n[aria-pressed="true"] { background: var(--tinta-3); }
 
+/* ================================================ troca de perfil ======= */
+/* O seletor que dá sentido à demonstração: trocar de perfil recorta a
+   aplicação inteira, como no sistema real. */
+.perfil {
+  margin-left: auto; display: flex; align-items: center; gap: 8px;
+}
+.perfil__rotulo { font-size: 11px; color: var(--tinta-3); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.perfil select {
+  padding: 5px 26px 5px 9px; border-radius: var(--r-s);
+  border: 1px solid var(--fio-forte); background: var(--elevado); color: var(--tinta);
+  font: inherit; font-size: 12.5px; font-weight: 500;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%237C8A92' d='M6 8.5 2 4h8z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center; background-size: 10px;
+}
+.perfil__quem {
+  display: flex; align-items: center; gap: 7px;
+  padding-left: 10px; border-left: 1px solid var(--fio);
+}
+.perfil__avatar {
+  width: 28px; height: 28px; border-radius: 50%; flex: none;
+  background: var(--acento-sup); color: var(--acento);
+  display: grid; place-items: center; font-weight: 600; font-size: 11px;
+}
+.perfil__nome { font-size: 12.5px; font-weight: 600; line-height: 1.15; }
+.perfil__papel { font-size: 10.5px; color: var(--tinta-3); }
+
+.escopo {
+  display: flex; gap: 8px; align-items: flex-start;
+  padding: 9px 12px; border-radius: var(--r);
+  background: var(--acento-sup); border: 1px solid color-mix(in srgb, var(--acento) 28%, transparent);
+  font-size: 12.5px; line-height: 1.5; margin-bottom: 16px;
+}
+.escopo b { color: var(--acento); }
+
 /* ===================================================== configurações ==== */
 .campo { display: flex; flex-direction: column; gap: 4px; }
 .campo label { font-size: 12px; font-weight: 600; color: var(--tinta-2); }
@@ -319,7 +354,7 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   border-radius: var(--r-s); background: var(--elevado); color: var(--tinta);
   font-family: var(--mono); font-size: 13px;
 }
-.grade-campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap: 12px; }
+.grade-campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(148px, 100%), 1fr)); gap: 12px; }
 
 /* Régua de faixas — o controle que dá nome à tela */
 .regua { padding: 6px 2px 2px; }
@@ -333,7 +368,7 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .regua__f--bom   { background: var(--bom-sup); color: var(--bom); }
 .regua__marcas { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; color: var(--tinta-3); margin-top: 3px; }
 .regua__assuntos { display: flex; flex-direction: column; gap: 5px; margin-top: 14px; }
-.regua__linha { display: grid; grid-template-columns: 168px 1fr 96px; gap: 10px; align-items: center; font-size: 12.5px; }
+.regua__linha { display: grid; grid-template-columns: minmax(0, 168px) minmax(0, 1fr) 96px; gap: 10px; align-items: center; font-size: 12.5px; }
 .regua__pista { height: 16px; border-radius: 4px; background: var(--grade); position: relative; overflow: hidden; }
 .regua__valor { height: 100%; border-radius: 4px; }
 input[type="range"] { width: 100%; accent-color: var(--acento); }
@@ -357,12 +392,25 @@ input[type="range"] { width: 100%; accent-color: var(--acento); }
 .migalha:hover { text-decoration: underline; }
 
 @media (max-width: 900px) {
-  .app { grid-template-columns: 1fr; }
+  /* minmax(0, …): sem o mínimo zero a coluna cresce até o conteúdo mais largo
+     e a página inteira passa a rolar na horizontal em vez da tabela. */
+  .app { grid-template-columns: minmax(0, 1fr); }
   .trilho { position: static; height: auto; }
   .trilho nav { flex-direction: row; flex-wrap: wrap; }
   .item { width: auto; }
   .trilho__pe { display: none; }
   .vista { padding: 14px; }
-  .c-21 { grid-template-columns: 1fr; }
+  .c-21 { grid-template-columns: minmax(0, 1fr); }
+  /* a barra superior deixa de ser uma linha rígida: o contexto desce para
+     baixo e o seletor de perfil continua alcançável sem rolagem lateral. */
+  .topo { height: auto; min-height: var(--topo); flex-wrap: wrap; gap: 8px 12px; padding: 9px 14px; }
+  .topo__ctx { order: 3; flex-basis: 100%; }
+  .perfil { margin-left: auto; }
+  .perfil__rotulo { display: none; }
+}
+
+@media (max-width: 560px) {
+  .perfil__quem { padding-left: 8px; }
+  .perfil__nome, .perfil__papel { display: none; }
 }
 </style>

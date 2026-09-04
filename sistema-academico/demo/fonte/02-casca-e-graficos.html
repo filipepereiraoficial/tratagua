@@ -5,17 +5,10 @@
       <span class="marca__selo">P</span>
       <span>
         <span class="marca__nome">Painel Pedagógico</span>
-        <span class="marca__sub">Acompanhamento de alunos</span>
+        <span class="marca__sub" id="marca-sub">Acompanhamento de alunos</span>
       </span>
     </div>
-
-    <div class="trilho__grupo">Cadastros e registros</div>
-    <nav id="nav-1" aria-label="Cadastros e registros"></nav>
-    <div class="trilho__grupo">Análise</div>
-    <nav id="nav-2" aria-label="Análise"></nav>
-    <div class="trilho__grupo">Sistema</div>
-    <nav id="nav-3" aria-label="Sistema"></nav>
-
+    <div id="menu"></div>
     <div class="trilho__pe">
       Demonstração navegável do sistema entregue.<br>
       Os cálculos rodam aqui, no seu navegador, com as mesmas fórmulas do servidor.
@@ -24,10 +17,18 @@
 
   <div>
     <header class="topo">
-      <div class="topo__ctx">
-        <strong>Preparatório para Guarda Municipal</strong> · Turma <span class="mono">INF01</span> · 2026
+      <div class="topo__ctx" id="contexto"></div>
+      <div class="perfil">
+        <span class="perfil__rotulo">Entrar como</span>
+        <select id="seletor-perfil" aria-label="Trocar de perfil"></select>
+        <span class="perfil__quem">
+          <span class="perfil__avatar" id="perfil-avatar"></span>
+          <span>
+            <span class="perfil__nome" id="perfil-nome"></span>
+            <span class="perfil__papel" id="perfil-papel"></span>
+          </span>
+        </span>
       </div>
-      <span class="selo-demo">Demonstração · dados de exemplo</span>
     </header>
     <main class="vista" id="vista" tabindex="-1"></main>
   </div>
@@ -40,33 +41,84 @@ const DADOS = JSON.parse(document.getElementById("dados").textContent);
 
 /* ===========================================================================
    1. MOTOR ANALÍTICO
-   Porte fiel de src/Services/{Analytics,Ranking,Alert}Service.php.
-   Verificado no Node contra os valores calculados pelo PHP: ranking, médias,
-   frequência, aproveitamento por assunto e as 21 mensagens de alerta batem.
+   Porte fiel de src/Services/{Analytics,Ranking,Alert}Service.php e de
+   Core\Scope. Conferido no Node contra os valores do PHP para os três perfis.
    =========================================================================== */
 __ANALYTICS__
 
 /* ===========================================================================
-   2. ESTADO
+   2. PERFIS E ESTADO
+   Trocar de perfil recorta a aplicação inteira — é o mesmo Scope do servidor.
    =========================================================================== */
+const PERFIS = [
+  { id: "admin", papel: "admin", nome: "Filipe Pereira",
+    descricao: "Administrador — enxerga a instituição inteira" },
+  { id: "prof2", papel: "professor", userId: 2, nome: "Marina Alencar",
+    descricao: "Professora — responsável por INF01 × Informática" },
+  { id: "prof3", papel: "professor", userId: 3, nome: "Ricardo Menezes",
+    descricao: "Professor — responsável por Legislação em INF01 e AGT01" },
+  { id: "aluno", papel: "aluno", studentId: null, nome: "Ana Beatriz Souza",
+    descricao: "Aluna — vê apenas a própria evolução" },
+];
+
 let CFG = { ...PADROES };
 let BASE = new Base(DADOS);
-let M = null;                       // modelo derivado da rodada atual
-let rota = { vista: "dashboard", id: null };
+let PERFIL = PERFIS[0];
+let M = null;
+let rota = { vista: null, id: null };
 
-function recalcular() {
-  BASE = new Base(DADOS);
-  const ranking = BASE.ranking(CFG);
+PERFIS[3].studentId = (DADOS.alunos.find(a => a.full_name === "Ana Beatriz Souza") || DADOS.alunos[0]).id;
+
+/** Recorte do perfil atual — equivalente a Core\Scope::apply(). */
+function escopo() {
+  if (PERFIL.papel === "admin") return {};
+  if (PERFIL.papel === "professor") return { ofertas: BASE.ofertasDoProfessor(PERFIL.userId) };
+  return { aluno: PERFIL.studentId };
+}
+
+function ofertasDoPerfil() {
+  const ids = PERFIL.papel === "professor" ? BASE.ofertasDoProfessor(PERFIL.userId) : DADOS.ofertas.map(o => o.id);
+  return ids.map(id => {
+    const o = BASE.oferta(id);
+    const turma = BASE.turmaPorId.get(o.class_id);
+    const disc = BASE.disciplinaPorId.get(o.subject_id);
+    const curso = BASE.cursoPorId.get(turma.course_id);
+    return {
+      id, turma, disciplina: disc, curso,
+      professor: o.teacher_user_id ? BASE.professorPorId.get(o.teacher_user_id) : null,
+      alunos: DADOS.alunos.filter(a => a.class_id === turma.id).length,
+      aulas: DADOS.aulas.filter(l => l.class_subject_id === id).length,
+      avaliacoes: DADOS.avaliacoes.filter(a => a.class_subject_id === id).length,
+    };
+  });
+}
+
+/** Recalcula tudo o que as telas consomem, já dentro do recorte do perfil. */
+function recalcular(filtrosExtra = {}) {
+  BASE.reindexar();
+  const f = { ...escopo(), ...filtrosExtra };
+  const ranking = PERFIL.papel === "aluno" ? [] : BASE.ranking(CFG, f);
   M = {
-    ranking,
+    f, ranking,
     porAluno: new Map(ranking.map(r => [r.id, r])),
-    alertas: gerarAlertas(BASE, ranking, CFG),
-    assuntos: BASE.aproveitamentoPorAssunto(DADOS.respostas, CFG),
-    dificuldade: BASE.aproveitamentoPorDificuldade(DADOS.respostas),
-    porAvaliacao: BASE.mediaPorAvaliacao(),
-    distribuicao: BASE.distribuicao(),
-    mediaGeral: BASE.mediaGeral(),
-    totais: BASE.totaisDeResposta(DADOS.respostas),
+    alertas: PERFIL.papel === "aluno" ? [] : gerarAlertas(BASE, ranking, CFG, f),
+    assuntos: BASE.aproveitamentoPorAssunto(BASE.respostas(f), CFG),
+    dificuldade: BASE.aproveitamentoPorDificuldade(BASE.respostas(f)),
+    porAvaliacao: BASE.mediaPorAvaliacao(f),
+    porDisciplina: BASE.mediaPorDisciplina(f),
+    porTurma: BASE.mediaPorTurma(f),
+    porCurso: BASE.mediaPorCurso(f),
+    perdaAvaliacao: BASE.perdaPorAvaliacao(f, 10),
+    perdaAluno: BASE.perdaPorAluno(f),
+    distribuicao: BASE.distribuicao(f),
+    mediaGeral: BASE.mediaGeral(f),
+    totais: BASE.totaisDeResposta(BASE.respostas(f)),
+    turmas: BASE.turmas(f),
+    disciplinas: BASE.disciplinas(f),
+    alunos: BASE.alunos(f),
+    aulas: BASE.aulas(f),
+    avaliacoes: BASE.avaliacoes(f),
+    ofertas: ofertasDoPerfil(),
   };
   M.classes = { evolucao: 0, intermediario: 0, atencao: 0, sem_dados: 0 };
   ranking.forEach(r => M.classes[r.classificacao]++);
@@ -78,7 +130,6 @@ function recalcularNota(assessmentId, studentId) {
   const qs = DADOS.questoes.filter(q => q.assessment_id === assessmentId);
   const ids = new Set(qs.map(q => q.id));
   const resp = DADOS.respostas.filter(r => r.student_id === studentId && ids.has(r.question_id));
-
   const idx = DADOS.notas.findIndex(n => n.assessment_id === assessmentId && n.student_id === studentId);
   if (!resp.length) { if (idx >= 0) DADOS.notas.splice(idx, 1); return; }
 
@@ -89,48 +140,46 @@ function recalcularNota(assessmentId, studentId) {
     if (r.result === "correta") c++; else if (r.result === "incorreta") e++; else b++;
   }
   const percentage = possiveis > 0 ? r2(obtidos / possiveis * 100) : 0;
-  const nota = {
-    assessment_id: assessmentId, student_id: studentId,
+  const nota = { assessment_id: assessmentId, student_id: studentId,
     score: r2(percentage / 100 * av.max_score), percentage,
-    correct_count: c, wrong_count: e, blank_count: b,
-  };
+    correct_count: c, wrong_count: e, blank_count: b };
   if (idx >= 0) DADOS.notas[idx] = nota; else DADOS.notas.push(nota);
 }
 
 /* ===========================================================================
-   3. UTILITÁRIOS DE APRESENTAÇÃO
+   3. APRESENTAÇÃO
    =========================================================================== */
 const h = (v) => String(v ?? "").replace(/[&<>"']/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const pct = (v, casas = 1) => v === null || v === undefined ? "—" : fmt(v, casas) + "%";
 const num = (v, casas = 1) => v === null || v === undefined ? "—" : fmt(v, casas);
-const dataBr = (iso) => iso ? iso.split("-").reverse().join("/") : "—";
+const dataBr = (iso) => iso ? String(iso).slice(0, 10).split("-").reverse().join("/") : "—";
 const iniciais = (nome) => {
-  const p = nome.trim().split(/\s+/);
+  const p = String(nome).trim().split(/\s+/);
   return ((p[0]?.[0] ?? "") + (p.length > 1 ? p[p.length - 1][0] : "")).toUpperCase();
 };
 
-/** Faixa visual de um aproveitamento — sempre exibida junto do número. */
 function faixa(v) {
   if (v === null || v === undefined) return { classe: "neutro", cor: "var(--tinta-3)", texto: "Sem dados" };
   if (v >= CFG.faixa_dominio) return { classe: "bom", cor: "var(--bom)", texto: "Domínio" };
   if (v >= CFG.faixa_intermediario) return { classe: "medio", cor: "var(--medio)", texto: "Intermediário" };
   return { classe: "ruim", cor: "var(--ruim)", texto: "Dificuldade" };
 }
-const ROTULO_CLASSE = {
+const CLASSE_ALUNO = {
   evolucao: { texto: "Em evolução", classe: "bom" },
   intermediario: { texto: "Intermediário", classe: "medio" },
   atencao: { texto: "Precisa de atenção", classe: "ruim" },
   sem_dados: { texto: "Sem dados suficientes", classe: "neutro" },
 };
-const ROTULO_DIFICULDADE = { facil: "Fácil", medio: "Médio", dificil: "Difícil" };
-const ROTULO_TIPO = {
-  prova: "Prova", simulado: "Simulado", atividade: "Atividade",
-  exercicio: "Exercício", diagnostica: "Avaliação diagnóstica", revisao: "Avaliação de revisão",
-};
-const ROTULO_PRESENCA = { presente: "Presente", falta: "Falta", falta_justificada: "Justificada", atraso: "Atraso" };
+const DIFICULDADE = { facil: "Fácil", medio: "Médio", dificil: "Difícil" };
+const TIPO_AVALIACAO = { prova: "Prova", simulado: "Simulado", atividade: "Atividade",
+  exercicio: "Exercício", diagnostica: "Avaliação diagnóstica", revisao: "Avaliação de revisão" };
+const PRESENCA = { presente: "Presente", falta: "Falta", falta_justificada: "Justificada", atraso: "Atraso" };
+const TIPO_ACOMP = { conversa: "Conversa individual", reforco: "Reforço / monitoria",
+  material: "Material de apoio", contato_responsavel: "Contato com responsável",
+  encaminhamento: "Encaminhamento", outro: "Outro" };
+const STATUS_ACOMP = { aberta: "Aberta", em_andamento: "Em andamento", concluida: "Concluída", cancelada: "Cancelada" };
 
-/** Barra de aproveitamento usada nas tabelas — cor + número, nunca só cor. */
 function barra(v) {
   const f = faixa(v);
   return `<div class="barra">
@@ -143,20 +192,14 @@ const tag = (classe, texto) => `<span class="tag tag--${classe}">${h(texto)}</sp
 /* ===========================================================================
    4. GRÁFICOS — SVG próprio, com camada de hover
    =========================================================================== */
-/** Largura de desenho = largura real do container, para o SVG sair em escala
- *  1:1 e o texto continuar legível dentro de colunas estreitas. */
-const cortar = (texto, max) => texto.length > max ? texto.slice(0, Math.max(3, max - 1)) + "…" : texto;
+const cortar = (texto, max) => String(texto).length > max ? String(texto).slice(0, Math.max(3, max - 1)) + "…" : String(texto);
 
-function larguraDe(alvo) {
-  return Math.max(340, Math.round(alvo.clientWidth || 720));
-}
+/** Largura de desenho = largura real do container (escala 1:1, texto legível). */
+function larguraDe(alvo) { return Math.max(340, Math.round(alvo.clientWidth || 720)); }
 
-const G = {
-  L: 44, R: 18, T: 14, B: 30,        // margens do painel de plotagem
-  cor: { a: "var(--serie-a)", b: "var(--serie-b)", c: "var(--serie-c)" },
-};
+const G = { L: 44, R: 18, T: 14, B: 30,
+  cor: { a: "var(--serie-a)", b: "var(--serie-b)", c: "var(--serie-c)" } };
 
-/** Eixo Y de 0 a 100 com grade recessiva. */
 function eixoY(w, h, max = 100, passo = 25, margemDireita = G.R) {
   let s = "";
   for (let v = 0; v <= max; v += passo) {
@@ -167,23 +210,19 @@ function eixoY(w, h, max = 100, passo = 25, margemDireita = G.R) {
   return s;
 }
 
-/**
- * Linha com 1..3 séries, marcadores, rótulo direto no fim de cada série
- * e cruz + balão no hover.
- */
 function grafLinha(alvo, { labels, series, altura = 250 }) {
+  if (!alvo) return;
   if (!labels.length) { alvo.innerHTML = '<div class="vazio">Sem dados para este gráfico.</div>'; return; }
   const w = larguraDe(alvo), hh = altura;
-  const margemDireita = series.length > 1 ? 74 : 22;   // espaço p/ o rótulo direto
+  const margemDireita = series.length > 1 ? 74 : 22;
   const pw = w - G.L - margemDireita, ph = hh - G.T - G.B;
   const x = (i) => labels.length === 1 ? G.L + pw / 2 : G.L + pw * i / (labels.length - 1);
   const y = (v) => G.T + ph * (1 - Math.max(0, Math.min(100, v)) / 100);
 
   let corpo = eixoY(w, hh, 100, 25, margemDireita);
   labels.forEach((l, i) => {
-    corpo += `<text x="${x(i)}" y="${hh - G.B + 16}" text-anchor="middle" font-size="11">${h(l.length > 16 ? l.slice(0, 15) + "…" : l)}</text>`;
+    corpo += `<text x="${x(i)}" y="${hh - G.B + 16}" text-anchor="middle" font-size="11">${h(cortar(l, 16))}</text>`;
   });
-
   series.forEach((s, si) => {
     const cor = s.cor || [G.cor.a, G.cor.b, G.cor.c][si % 3];
     const pontos = s.dados.map((v, i) => v === null ? null : [x(i), y(v)]).filter(Boolean);
@@ -195,7 +234,6 @@ function grafLinha(alvo, { labels, series, altura = 250 }) {
       if (v === null) return;
       corpo += `<circle cx="${x(i)}" cy="${y(v)}" r="4" fill="${cor}" stroke="var(--superficie)" stroke-width="2"/>`;
     });
-    // Rótulo direto no último ponto — identidade sem depender só da cor.
     const ult = s.dados.map((v, i) => [v, i]).filter(([v]) => v !== null).pop();
     if (ult && series.length > 1) {
       corpo += `<text x="${x(ult[1]) + 8}" y="${y(ult[0]) + 4}" font-size="11.5" font-weight="600" fill="${cor}">${h(s.nome)}</text>`;
@@ -204,29 +242,26 @@ function grafLinha(alvo, { labels, series, altura = 250 }) {
 
   const legenda = series.length > 1
     ? `<div class="legenda">${series.map((s, i) =>
-        `<span><i style="background:${s.cor || [G.cor.a, G.cor.b, G.cor.c][i % 3]}"></i>${h(s.nome)}</span>`).join("")}</div>`
-    : "";
+        `<span><i style="background:${s.cor || [G.cor.a, G.cor.b, G.cor.c][i % 3]}"></i>${h(s.nome)}</span>`).join("")}</div>` : "";
 
   alvo.innerHTML = `${legenda}<div class="graf">
     <svg viewBox="0 0 ${w} ${hh}" role="img" aria-label="${h(series.map(s => s.nome).join(", "))}">
       ${corpo}
-      <line id="cruz" x1="0" y1="${G.T}" x2="0" y2="${hh - G.B}" stroke="var(--fio-forte)" stroke-width="1" opacity="0"/>
+      <line class="cruz" x1="0" y1="${G.T}" x2="0" y2="${hh - G.B}" stroke="var(--fio-forte)" stroke-width="1" opacity="0"/>
     </svg>
     <div class="dica"></div>
   </div>`;
-
   ligarHover(alvo.querySelector(".graf"), labels, series, w, hh, x, y);
 }
 
 function ligarHover(graf, labels, series, w, hh, x, y) {
-  const svg = graf.querySelector("svg"), dica = graf.querySelector(".dica"), cruz = graf.querySelector("#cruz");
+  const svg = graf.querySelector("svg"), dica = graf.querySelector(".dica"), cruz = graf.querySelector(".cruz");
   graf.addEventListener("pointermove", (ev) => {
     const r = svg.getBoundingClientRect();
     const vx = (ev.clientX - r.left) / r.width * w;
     let melhor = 0, dist = Infinity;
     labels.forEach((_, i) => { const d = Math.abs(x(i) - vx); if (d < dist) { dist = d; melhor = i; } });
-    cruz.setAttribute("x1", x(melhor)); cruz.setAttribute("x2", x(melhor));
-    cruz.setAttribute("opacity", "1");
+    cruz.setAttribute("x1", x(melhor)); cruz.setAttribute("x2", x(melhor)); cruz.setAttribute("opacity", "1");
     dica.innerHTML = `${h(labels[melhor])}<br>` + series.map((s, si) => {
       const v = s.dados[melhor];
       const cor = s.cor || [G.cor.a, G.cor.b, G.cor.c][si % 3];
@@ -241,14 +276,13 @@ function ligarHover(graf, labels, series, w, hh, x, y) {
   graf.addEventListener("pointerleave", () => { dica.style.opacity = "0"; cruz.setAttribute("opacity", "0"); });
 }
 
-/** Barras horizontais — nome à esquerda, valor rotulado no fim da barra. */
 function grafBarrasH(alvo, itens, { rotuloLargura = 190, max = 100, unidade = "%" } = {}) {
+  if (!alvo) return;
   if (!itens.length) { alvo.innerHTML = '<div class="vazio">Sem dados para este gráfico.</div>'; return; }
   const w = larguraDe(alvo), alturaLinha = 27, hh = itens.length * alturaLinha + 22;
   const x0 = Math.min(rotuloLargura, Math.round(w * 0.42));
   const pw = w - x0 - 62;
   let corpo = "";
-
   itens.forEach((it, i) => {
     const yTopo = i * alturaLinha + 8;
     const v = Math.max(0, Math.min(max, it.valor ?? 0));
@@ -256,18 +290,17 @@ function grafBarrasH(alvo, itens, { rotuloLargura = 190, max = 100, unidade = "%
     const cor = it.cor || faixa(it.valor).cor;
     corpo += `<text x="${x0 - 10}" y="${yTopo + 13}" text-anchor="end" font-size="12" fill="var(--tinta-2)">${h(cortar(it.nome, Math.floor(x0 / 6.6)))}</text>`;
     corpo += `<rect x="${x0}" y="${yTopo + 3}" width="${pw}" height="13" rx="3" fill="var(--grade)"/>`;
-    if (it.valor !== null) {
+    if (it.valor !== null && it.valor !== undefined) {
       corpo += `<rect x="${x0}" y="${yTopo + 3}" width="${Math.max(3, larg)}" height="13" rx="3" fill="${cor}"><title>${h(it.nome)}: ${fmt(it.valor, 1)}${unidade}</title></rect>`;
     }
-    corpo += `<text x="${x0 + Math.max(3, larg) + 8}" y="${yTopo + 14}" font-size="11.5" font-family="var(--mono)" fill="var(--tinta-2)">${it.valor === null ? "—" : fmt(it.valor, 1) + unidade}</text>`;
+    corpo += `<text x="${x0 + Math.max(3, larg) + 8}" y="${yTopo + 14}" font-size="11.5" font-family="var(--mono)" fill="var(--tinta-2)">${it.valor === null || it.valor === undefined ? "—" : fmt(it.valor, 1) + unidade}</text>`;
     if (it.nota) corpo += `<text x="${x0 - 10}" y="${yTopo + 24}" text-anchor="end" font-size="10" fill="var(--tinta-3)">${h(it.nota)}</text>`;
   });
-
-  alvo.innerHTML = `<div class="graf"><svg viewBox="0 0 ${w} ${hh}" role="img" aria-label="Barras de aproveitamento">${corpo}</svg></div>`;
+  alvo.innerHTML = `<div class="graf"><svg viewBox="0 0 ${w} ${hh}" role="img" aria-label="Barras">${corpo}</svg></div>`;
 }
 
-/** Barras verticais agrupadas, com 2px de respiro entre barras vizinhas. */
 function grafBarrasV(alvo, { labels, series, altura = 250, max = 100, passo = 25, unidade = "%", casas = 1 }) {
+  if (!alvo) return;
   if (!labels.length) { alvo.innerHTML = '<div class="vazio">Sem dados para este gráfico.</div>'; return; }
   const w = larguraDe(alvo), hh = altura, pw = w - G.L - G.R, ph = hh - G.T - G.B;
   const largGrupo = Math.min(64, (pw / labels.length) * 0.66);
@@ -286,20 +319,17 @@ function grafBarrasV(alvo, { labels, series, altura = 250, max = 100, passo = 25
       corpo += `<rect x="${bx}" y="${G.T + ph - alt}" width="${largBarra}" height="${Math.max(2, alt)}" rx="4"
         fill="${cor}"><title>${h(l)} · ${h(s.nome)}: ${fmt(v, casas)}${unidade}</title></rect>`;
     });
-    corpo += `<text x="${cx}" y="${hh - G.B + 16}" text-anchor="middle" font-size="11">${h(l.length > 14 ? l.slice(0, 13) + "…" : l)}</text>`;
+    corpo += `<text x="${cx}" y="${hh - G.B + 16}" text-anchor="middle" font-size="11">${h(cortar(l, 14))}</text>`;
   });
 
   const legenda = series.length > 1
-    ? `<div class="legenda">${series.map((s, i) => `<span><i style="background:${s.cor || [G.cor.a, G.cor.b, G.cor.c][i % 3]}"></i>${h(s.nome)}</span>`).join("")}</div>`
-    : "";
-  alvo.innerHTML = `${legenda}<div class="graf"><svg viewBox="0 0 ${w} ${hh}" role="img" aria-label="${h(series.map(s => s.nome).join(", "))}">${corpo}</svg></div>`;
+    ? `<div class="legenda">${series.map((s, i) => `<span><i style="background:${s.cor || [G.cor.a, G.cor.b, G.cor.c][i % 3]}"></i>${h(s.nome)}</span>`).join("")}</div>` : "";
+  alvo.innerHTML = `${legenda}<div class="graf"><svg viewBox="0 0 ${w} ${hh}" role="img">${corpo}</svg></div>`;
 }
 
-/**
- * Contribuição de cada componente para o Índice de Desenvolvimento.
- * Uma barra empilhada que soma exatamente o índice — o gráfico é a fórmula.
- */
+/** Contribuição de cada componente para o Índice — o gráfico é a fórmula. */
 function grafContribuicao(alvo, resumo) {
+  if (!alvo) return;
   if (resumo.indice === null) { alvo.innerHTML = '<div class="vazio">Índice indisponível: avaliações insuficientes.</div>'; return; }
   const w = larguraDe(alvo), hh = 96, x0 = 8, pw = w - 74;
   const cores = [G.cor.a, G.cor.b, G.cor.c, "var(--bom)"];
@@ -311,13 +341,11 @@ function grafContribuicao(alvo, resumo) {
     corpo += `<rect x="${x}" y="18" width="${Math.max(0, larg - 2)}" height="30" rx="3" fill="${cores[i]}">
       <title>${h(c.nome)}: ${fmt(c.valor, 1)} × ${fmt(c.peso * 100, 0)}% = ${fmt(contrib, 1)} pontos do índice</title></rect>`;
     if (larg > 46) {
-      corpo += `<text x="${x + larg / 2 - 1}" y="${38}" text-anchor="middle" font-size="12" font-weight="600" fill="#fff" font-family="var(--mono)">${fmt(contrib, 1)}</text>`;
+      corpo += `<text x="${x + larg / 2 - 1}" y="38" text-anchor="middle" font-size="12" font-weight="600" fill="#fff" font-family="var(--mono)">${fmt(contrib, 1)}</text>`;
     }
     legenda += `<span><i style="background:${cores[i]}"></i>${h(c.nome)} ${fmt(c.valor, 1)} × ${fmt(c.peso * 100, 0)}%</span>`;
     x += larg;
   });
-
-  // Marcas dos cortes de classificação, para situar o índice na escala.
   [[CFG.id_atencao, "atenção"], [CFG.id_evolucao, "evolução"]].forEach(([v, rot]) => {
     const px = x0 + pw * v / 100;
     corpo += `<line x1="${px}" y1="12" x2="${px}" y2="54" stroke="var(--tinta-3)" stroke-width="1" stroke-dasharray="3 3"/>`;
@@ -325,7 +353,7 @@ function grafContribuicao(alvo, resumo) {
   });
   corpo += `<text x="${x0}" y="12" font-size="11" fill="var(--tinta-3)">0</text>`;
   corpo += `<text x="${x0 + pw}" y="12" text-anchor="end" font-size="11" fill="var(--tinta-3)">100</text>`;
-  corpo += `<text x="${Math.min(x + 8, w - 60)}" y="${38}" font-size="13" font-weight="700" font-family="var(--mono)" fill="var(--tinta)">= ${fmt(resumo.indice, 1)}</text>`;
+  corpo += `<text x="${Math.min(x + 8, w - 60)}" y="38" font-size="13" font-weight="700" font-family="var(--mono)" fill="var(--tinta)">= ${fmt(resumo.indice, 1)}</text>`;
 
   alvo.innerHTML = `<div class="legenda">${legenda}</div>
     <div class="graf"><svg viewBox="0 0 ${w} ${hh}" role="img" aria-label="Composição do Índice de Desenvolvimento">${corpo}</svg></div>`;

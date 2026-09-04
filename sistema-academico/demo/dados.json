@@ -1,24 +1,105 @@
 {
-    "curso": {
-        "id": 1,
-        "name": "Preparatório para Guarda Municipal"
-    },
-    "turma": {
-        "id": 1,
-        "code": "INF01",
-        "name": "Turma Informática 2026",
-        "year": 2026,
-        "period": "Noturno",
-        "start_date": "2026-02-02",
-        "end_date": "2026-11-30",
-        "status": "em_andamento"
-    },
-    "disciplina": {
-        "id": 1,
-        "name": "Informática",
-        "description": "Noções de informática para concursos públicos.",
-        "workload_hours": 40
-    },
+    "cursos": [
+        {
+            "id": 1,
+            "name": "Preparatório para Guarda Municipal",
+            "description": "Curso preparatório para o concurso da Guarda Municipal."
+        },
+        {
+            "id": 2,
+            "name": "Preparatório para Agente de Trânsito",
+            "description": "Curso preparatório para o concurso de agente de trânsito."
+        }
+    ],
+    "turmas": [
+        {
+            "id": 1,
+            "code": "INF01",
+            "name": "Turma Informática 2026",
+            "course_id": 1,
+            "year": 2026,
+            "period": "Noturno",
+            "start_date": "2026-02-02",
+            "end_date": "2026-11-30",
+            "status": "em_andamento"
+        },
+        {
+            "id": 2,
+            "code": "AGT01",
+            "name": "Turma Agentes 2026",
+            "course_id": 2,
+            "year": 2026,
+            "period": "Matutino",
+            "start_date": "2026-03-02",
+            "end_date": "2026-11-30",
+            "status": "em_andamento"
+        }
+    ],
+    "disciplinas": [
+        {
+            "id": 1,
+            "name": "Informática",
+            "description": "Noções de informática para concursos públicos.",
+            "workload_hours": 40,
+            "teacher_user_id": 1
+        },
+        {
+            "id": 2,
+            "name": "Legislação Municipal",
+            "description": "Legislação aplicada à atuação da guarda municipal.",
+            "workload_hours": 30,
+            "teacher_user_id": 3
+        }
+    ],
+    "ofertas": [
+        {
+            "id": 1,
+            "class_id": 1,
+            "subject_id": 1,
+            "teacher_user_id": 2
+        },
+        {
+            "id": 2,
+            "class_id": 1,
+            "subject_id": 2,
+            "teacher_user_id": 3
+        },
+        {
+            "id": 3,
+            "class_id": 2,
+            "subject_id": 2,
+            "teacher_user_id": 3
+        }
+    ],
+    "professores": [
+        {
+            "id": 1,
+            "name": "Filipe Pereira",
+            "email": "manowfilipe@gmail.com",
+            "role": "admin",
+            "qualification": null,
+            "phone": null,
+            "is_active": 1
+        },
+        {
+            "id": 2,
+            "name": "Marina Alencar",
+            "email": "professor@exemplo.com",
+            "role": "professor",
+            "qualification": "Licenciatura em Computação",
+            "phone": "(81) 99999-0000",
+            "is_active": 1
+        },
+        {
+            "id": 3,
+            "name": "Ricardo Menezes",
+            "email": "ricardo@exemplo.com",
+            "role": "professor",
+            "qualification": "Bacharel em Direito",
+            "phone": "(81) 98888-1111",
+            "is_active": 1
+        }
+    ],
     "topicos": [
         {
             "id": 1,
@@ -163,6 +244,78 @@
             "parent_id": 21,
             "subject_id": 1,
             "name": "Criptografia"
+        },
+        {
+            "id": 25,
+            "parent_id": null,
+            "subject_id": 2,
+            "name": "Constituição Federal"
+        },
+        {
+            "id": 26,
+            "parent_id": 25,
+            "subject_id": 2,
+            "name": "Direitos fundamentais"
+        },
+        {
+            "id": 27,
+            "parent_id": 25,
+            "subject_id": 2,
+            "name": "Segurança pública"
+        },
+        {
+            "id": 28,
+            "parent_id": null,
+            "subject_id": 2,
+            "name": "Estatuto da Guarda"
+        },
+        {
+            "id": 29,
+            "parent_id": 28,
+            "subject_id": 2,
+            "name": "Competências"
+        },
+        {
+            "id": 30,
+            "parent_id": 28,
+            "subject_id": 2,
+            "name": "Regime disciplinar"
+        },
+        {
+            "id": 31,
+            "parent_id": null,
+            "subject_id": 2,
+            "name": "Direito Administrativo"
+        },
+        {
+            "id": 32,
+            "parent_id": 31,
+            "subject_id": 2,
+            "name": "Princípios"
+        },
+        {
+            "id": 33,
+            "parent_id": 31,
+            "subject_id": 2,
+            "name": "Atos administrativos"
+        },
+        {
+            "id": 34,
+            "parent_id": null,
+            "subject_id": 2,
+            "name": "Código de Trânsito"
+        },
+        {
+            "id": 35,
+            "parent_id": 34,
+            "subject_id": 2,
+            "name": "Infrações"
+        },
+        {
+            "id": 36,
+            "parent_id": 34,
+            "subject_id": 2,
+            "name": "Sinalização"
         }
     ],
     "alunos": [
@@ -174,7 +327,8 @@
             "birth_date": null,
             "enrolled_at": "2026-02-02",
             "status": "ativo",
-            "notes": "Aluno de demonstração — pode ser excluído com segurança."
+            "notes": "Aluno de demonstração — pode ser excluído com segurança.",
+            "class_id": 1
         },
         {
             "id": 2,
@@ -184,7 +338,8 @@
             "birth_date": null,
             "enrolled_at": "2026-02-02",
             "status": "ativo",
-            "notes": "Aluno de demonstração — pode ser excluído com segurança."
+            "notes": "Aluno de demonstração — pode ser excluído com segurança.",
+            "class_id": 1
         },
         {
             "id": 3,
@@ -194,7 +349,8 @@
             "birth_date": null,
             "enrolled_at": "2026-02-02",
             "status": "ativo",
-            "notes": "Aluno de demonstração — pode ser excluído com segurança."
+            "notes": "Aluno de demonstração — pode ser excluído com segurança.",
+            "class_id": 1
         },
         {
             "id": 4,
@@ -204,7 +360,8 @@
             "birth_date": null,
             "enrolled_at": "2026-02-02",
             "status": "ativo",
-            "notes": "Aluno de demonstração — pode ser excluído com segurança."
+            "notes": "Aluno de demonstração — pode ser excluído com segurança.",
+            "class_id": 1
         },
         {
             "id": 5,
@@ -214,50 +371,154 @@
             "birth_date": null,
             "enrolled_at": "2026-02-02",
             "status": "ativo",
-            "notes": "Aluno de demonstração — pode ser excluído com segurança."
+            "notes": "Aluno de demonstração — pode ser excluído com segurança.",
+            "class_id": 1
+        },
+        {
+            "id": 6,
+            "full_name": "Felipe Ramos Duarte",
+            "email": "felipe@exemplo.com",
+            "phone": null,
+            "birth_date": null,
+            "enrolled_at": "2026-03-02",
+            "status": "ativo",
+            "notes": "Aluno de demonstração — pode ser excluído com segurança.",
+            "class_id": 2
+        },
+        {
+            "id": 7,
+            "full_name": "Gabriela Nunes Pires",
+            "email": "gabriela@exemplo.com",
+            "phone": null,
+            "birth_date": null,
+            "enrolled_at": "2026-03-02",
+            "status": "ativo",
+            "notes": "Aluno de demonstração — pode ser excluído com segurança.",
+            "class_id": 2
+        },
+        {
+            "id": 8,
+            "full_name": "Henrique Alves Cruz",
+            "email": "henrique@exemplo.com",
+            "phone": null,
+            "birth_date": null,
+            "enrolled_at": "2026-03-02",
+            "status": "ativo",
+            "notes": "Aluno de demonstração — pode ser excluído com segurança.",
+            "class_id": 2
         }
     ],
     "aulas": [
         {
             "id": 1,
-            "title": "Aula 1 — Hardware e Software",
+            "class_subject_id": 1,
+            "title": "Informática — aula 1: Hardware e Software",
             "lesson_date": "2026-02-09",
             "content": "Conteúdo trabalhado: Hardware e Software.",
             "duration_minutes": 100
         },
         {
+            "id": 7,
+            "class_subject_id": 2,
+            "title": "Legislação (INF01) — aula 1: Constituição Federal",
+            "lesson_date": "2026-02-11",
+            "content": "Conteúdo trabalhado: Constituição Federal.",
+            "duration_minutes": 100
+        },
+        {
             "id": 2,
-            "title": "Aula 2 — Sistemas Operacionais",
+            "class_subject_id": 1,
+            "title": "Informática — aula 2: Sistemas Operacionais",
             "lesson_date": "2026-02-16",
             "content": "Conteúdo trabalhado: Sistemas Operacionais.",
             "duration_minutes": 100
         },
         {
+            "id": 8,
+            "class_subject_id": 2,
+            "title": "Legislação (INF01) — aula 2: Estatuto da Guarda",
+            "lesson_date": "2026-02-18",
+            "content": "Conteúdo trabalhado: Estatuto da Guarda.",
+            "duration_minutes": 100
+        },
+        {
             "id": 3,
-            "title": "Aula 3 — Pacote Office",
+            "class_subject_id": 1,
+            "title": "Informática — aula 3: Pacote Office",
             "lesson_date": "2026-02-23",
             "content": "Conteúdo trabalhado: Pacote Office.",
             "duration_minutes": 100
         },
         {
+            "id": 9,
+            "class_subject_id": 2,
+            "title": "Legislação (INF01) — aula 3: Direito Administrativo",
+            "lesson_date": "2026-02-25",
+            "content": "Conteúdo trabalhado: Direito Administrativo.",
+            "duration_minutes": 100
+        },
+        {
             "id": 4,
-            "title": "Aula 4 — Internet e Navegadores",
+            "class_subject_id": 1,
+            "title": "Informática — aula 4: Internet e Navegadores",
             "lesson_date": "2026-03-02",
             "content": "Conteúdo trabalhado: Internet e Navegadores.",
             "duration_minutes": 100
         },
         {
+            "id": 10,
+            "class_subject_id": 2,
+            "title": "Legislação (INF01) — aula 4: Código de Trânsito",
+            "lesson_date": "2026-03-04",
+            "content": "Conteúdo trabalhado: Código de Trânsito.",
+            "duration_minutes": 100
+        },
+        {
             "id": 5,
-            "title": "Aula 5 — Redes de Computadores",
+            "class_subject_id": 1,
+            "title": "Informática — aula 5: Redes de Computadores",
             "lesson_date": "2026-03-09",
             "content": "Conteúdo trabalhado: Redes de Computadores.",
             "duration_minutes": 100
         },
         {
+            "id": 11,
+            "class_subject_id": 3,
+            "title": "Legislação (AGT01) — aula 1: Constituição Federal",
+            "lesson_date": "2026-03-09",
+            "content": "Conteúdo trabalhado: Constituição Federal.",
+            "duration_minutes": 100
+        },
+        {
             "id": 6,
-            "title": "Aula 6 — Segurança da Informação",
+            "class_subject_id": 1,
+            "title": "Informática — aula 6: Segurança da Informação",
             "lesson_date": "2026-03-16",
             "content": "Conteúdo trabalhado: Segurança da Informação.",
+            "duration_minutes": 100
+        },
+        {
+            "id": 12,
+            "class_subject_id": 3,
+            "title": "Legislação (AGT01) — aula 2: Estatuto da Guarda",
+            "lesson_date": "2026-03-16",
+            "content": "Conteúdo trabalhado: Estatuto da Guarda.",
+            "duration_minutes": 100
+        },
+        {
+            "id": 13,
+            "class_subject_id": 3,
+            "title": "Legislação (AGT01) — aula 3: Direito Administrativo",
+            "lesson_date": "2026-03-23",
+            "content": "Conteúdo trabalhado: Direito Administrativo.",
+            "duration_minutes": 100
+        },
+        {
+            "id": 14,
+            "class_subject_id": 3,
+            "title": "Legislação (AGT01) — aula 4: Código de Trânsito",
+            "lesson_date": "2026-03-30",
+            "content": "Conteúdo trabalhado: Código de Trânsito.",
             "duration_minutes": 100
         }
     ],
@@ -285,6 +546,38 @@
         {
             "lesson_id": 6,
             "topic_id": 21
+        },
+        {
+            "lesson_id": 7,
+            "topic_id": 25
+        },
+        {
+            "lesson_id": 8,
+            "topic_id": 28
+        },
+        {
+            "lesson_id": 9,
+            "topic_id": 31
+        },
+        {
+            "lesson_id": 10,
+            "topic_id": 34
+        },
+        {
+            "lesson_id": 11,
+            "topic_id": 25
+        },
+        {
+            "lesson_id": 12,
+            "topic_id": 28
+        },
+        {
+            "lesson_id": 13,
+            "topic_id": 31
+        },
+        {
+            "lesson_id": 14,
+            "topic_id": 34
         }
     ],
     "presencas": [
@@ -467,11 +760,204 @@
             "student_id": 5,
             "status": "presente",
             "participation": 3
+        },
+        {
+            "lesson_id": 7,
+            "student_id": 1,
+            "status": "presente",
+            "participation": 3
+        },
+        {
+            "lesson_id": 7,
+            "student_id": 2,
+            "status": "presente",
+            "participation": 4
+        },
+        {
+            "lesson_id": 7,
+            "student_id": 3,
+            "status": "presente",
+            "participation": 4
+        },
+        {
+            "lesson_id": 7,
+            "student_id": 4,
+            "status": "presente",
+            "participation": 2
+        },
+        {
+            "lesson_id": 7,
+            "student_id": 5,
+            "status": "presente",
+            "participation": 3
+        },
+        {
+            "lesson_id": 8,
+            "student_id": 1,
+            "status": "falta",
+            "participation": null
+        },
+        {
+            "lesson_id": 8,
+            "student_id": 2,
+            "status": "presente",
+            "participation": 4
+        },
+        {
+            "lesson_id": 8,
+            "student_id": 3,
+            "status": "presente",
+            "participation": 4
+        },
+        {
+            "lesson_id": 8,
+            "student_id": 4,
+            "status": "falta",
+            "participation": null
+        },
+        {
+            "lesson_id": 8,
+            "student_id": 5,
+            "status": "presente",
+            "participation": 3
+        },
+        {
+            "lesson_id": 9,
+            "student_id": 1,
+            "status": "presente",
+            "participation": 3
+        },
+        {
+            "lesson_id": 9,
+            "student_id": 2,
+            "status": "falta",
+            "participation": null
+        },
+        {
+            "lesson_id": 9,
+            "student_id": 3,
+            "status": "presente",
+            "participation": 4
+        },
+        {
+            "lesson_id": 9,
+            "student_id": 4,
+            "status": "presente",
+            "participation": 2
+        },
+        {
+            "lesson_id": 9,
+            "student_id": 5,
+            "status": "presente",
+            "participation": 3
+        },
+        {
+            "lesson_id": 10,
+            "student_id": 1,
+            "status": "presente",
+            "participation": 3
+        },
+        {
+            "lesson_id": 10,
+            "student_id": 2,
+            "status": "presente",
+            "participation": 4
+        },
+        {
+            "lesson_id": 10,
+            "student_id": 3,
+            "status": "falta",
+            "participation": null
+        },
+        {
+            "lesson_id": 10,
+            "student_id": 4,
+            "status": "presente",
+            "participation": 2
+        },
+        {
+            "lesson_id": 10,
+            "student_id": 5,
+            "status": "presente",
+            "participation": 3
+        },
+        {
+            "lesson_id": 11,
+            "student_id": 6,
+            "status": "presente",
+            "participation": 4
+        },
+        {
+            "lesson_id": 11,
+            "student_id": 7,
+            "status": "presente",
+            "participation": 3
+        },
+        {
+            "lesson_id": 11,
+            "student_id": 8,
+            "status": "presente",
+            "participation": 3
+        },
+        {
+            "lesson_id": 12,
+            "student_id": 6,
+            "status": "presente",
+            "participation": 4
+        },
+        {
+            "lesson_id": 12,
+            "student_id": 7,
+            "status": "presente",
+            "participation": 3
+        },
+        {
+            "lesson_id": 12,
+            "student_id": 8,
+            "status": "presente",
+            "participation": 3
+        },
+        {
+            "lesson_id": 13,
+            "student_id": 6,
+            "status": "presente",
+            "participation": 4
+        },
+        {
+            "lesson_id": 13,
+            "student_id": 7,
+            "status": "presente",
+            "participation": 3
+        },
+        {
+            "lesson_id": 13,
+            "student_id": 8,
+            "status": "presente",
+            "participation": 3
+        },
+        {
+            "lesson_id": 14,
+            "student_id": 6,
+            "status": "presente",
+            "participation": 4
+        },
+        {
+            "lesson_id": 14,
+            "student_id": 7,
+            "status": "presente",
+            "participation": 3
+        },
+        {
+            "lesson_id": 14,
+            "student_id": 8,
+            "status": "falta",
+            "participation": null
         }
     ],
     "avaliacoes": [
         {
             "id": 1,
+            "class_subject_id": 1,
             "name": "Avaliação diagnóstica",
             "type": "diagnostica",
             "assessment_date": "2026-02-16",
@@ -481,7 +967,19 @@
             "status": "corrigida"
         },
         {
+            "id": 5,
+            "class_subject_id": 2,
+            "name": "Diagnóstica de Legislação",
+            "type": "diagnostica",
+            "assessment_date": "2026-02-18",
+            "max_score": 10,
+            "weight": 1,
+            "description": "Avaliação de demonstração cobrindo os assuntos da disciplina.",
+            "status": "corrigida"
+        },
+        {
             "id": 2,
+            "class_subject_id": 1,
             "name": "Simulado 1",
             "type": "simulado",
             "assessment_date": "2026-03-16",
@@ -491,7 +989,30 @@
             "status": "corrigida"
         },
         {
+            "id": 8,
+            "class_subject_id": 3,
+            "name": "Diagnóstica AGT",
+            "type": "diagnostica",
+            "assessment_date": "2026-03-17",
+            "max_score": 10,
+            "weight": 1,
+            "description": "Avaliação de demonstração cobrindo os assuntos da disciplina.",
+            "status": "corrigida"
+        },
+        {
+            "id": 6,
+            "class_subject_id": 2,
+            "name": "Prova de Legislação 1",
+            "type": "prova",
+            "assessment_date": "2026-03-25",
+            "max_score": 10,
+            "weight": 1,
+            "description": "Avaliação de demonstração cobrindo os assuntos da disciplina.",
+            "status": "corrigida"
+        },
+        {
             "id": 3,
+            "class_subject_id": 1,
             "name": "Prova bimestral",
             "type": "prova",
             "assessment_date": "2026-04-13",
@@ -501,10 +1022,44 @@
             "status": "corrigida"
         },
         {
+            "id": 9,
+            "class_subject_id": 3,
+            "name": "Prova de Trânsito 1",
+            "type": "prova",
+            "assessment_date": "2026-04-21",
+            "max_score": 10,
+            "weight": 1,
+            "description": "Avaliação de demonstração cobrindo os assuntos da disciplina.",
+            "status": "corrigida"
+        },
+        {
+            "id": 7,
+            "class_subject_id": 2,
+            "name": "Simulado de Legislação",
+            "type": "simulado",
+            "assessment_date": "2026-05-06",
+            "max_score": 10,
+            "weight": 1.5,
+            "description": "Avaliação de demonstração cobrindo os assuntos da disciplina.",
+            "status": "corrigida"
+        },
+        {
             "id": 4,
+            "class_subject_id": 1,
             "name": "Simulado 2",
             "type": "simulado",
             "assessment_date": "2026-05-11",
+            "max_score": 10,
+            "weight": 1.5,
+            "description": "Avaliação de demonstração cobrindo os assuntos da disciplina.",
+            "status": "corrigida"
+        },
+        {
+            "id": 10,
+            "class_subject_id": 3,
+            "name": "Simulado AGT",
+            "type": "simulado",
+            "assessment_date": "2026-05-19",
             "max_score": 10,
             "weight": 1.5,
             "description": "Avaliação de demonstração cobrindo os assuntos da disciplina.",
@@ -942,6 +1497,438 @@
             "topic_id": 23,
             "difficulty": "facil",
             "points": 0.83,
+            "answer_key": "A"
+        },
+        {
+            "id": 49,
+            "assessment_id": 5,
+            "number": 1,
+            "topic_id": 26,
+            "difficulty": "medio",
+            "points": 1.25,
+            "answer_key": "B"
+        },
+        {
+            "id": 50,
+            "assessment_id": 5,
+            "number": 2,
+            "topic_id": 27,
+            "difficulty": "dificil",
+            "points": 1.25,
+            "answer_key": "C"
+        },
+        {
+            "id": 51,
+            "assessment_id": 5,
+            "number": 3,
+            "topic_id": 29,
+            "difficulty": "facil",
+            "points": 1.25,
+            "answer_key": "D"
+        },
+        {
+            "id": 52,
+            "assessment_id": 5,
+            "number": 4,
+            "topic_id": 30,
+            "difficulty": "medio",
+            "points": 1.25,
+            "answer_key": "A"
+        },
+        {
+            "id": 53,
+            "assessment_id": 5,
+            "number": 5,
+            "topic_id": 32,
+            "difficulty": "dificil",
+            "points": 1.25,
+            "answer_key": "B"
+        },
+        {
+            "id": 54,
+            "assessment_id": 5,
+            "number": 6,
+            "topic_id": 33,
+            "difficulty": "facil",
+            "points": 1.25,
+            "answer_key": "C"
+        },
+        {
+            "id": 55,
+            "assessment_id": 5,
+            "number": 7,
+            "topic_id": 35,
+            "difficulty": "medio",
+            "points": 1.25,
+            "answer_key": "D"
+        },
+        {
+            "id": 56,
+            "assessment_id": 5,
+            "number": 8,
+            "topic_id": 36,
+            "difficulty": "dificil",
+            "points": 1.25,
+            "answer_key": "A"
+        },
+        {
+            "id": 57,
+            "assessment_id": 6,
+            "number": 1,
+            "topic_id": 26,
+            "difficulty": "dificil",
+            "points": 1.25,
+            "answer_key": "B"
+        },
+        {
+            "id": 58,
+            "assessment_id": 6,
+            "number": 2,
+            "topic_id": 27,
+            "difficulty": "facil",
+            "points": 1.25,
+            "answer_key": "C"
+        },
+        {
+            "id": 59,
+            "assessment_id": 6,
+            "number": 3,
+            "topic_id": 29,
+            "difficulty": "medio",
+            "points": 1.25,
+            "answer_key": "D"
+        },
+        {
+            "id": 60,
+            "assessment_id": 6,
+            "number": 4,
+            "topic_id": 30,
+            "difficulty": "dificil",
+            "points": 1.25,
+            "answer_key": "A"
+        },
+        {
+            "id": 61,
+            "assessment_id": 6,
+            "number": 5,
+            "topic_id": 32,
+            "difficulty": "facil",
+            "points": 1.25,
+            "answer_key": "B"
+        },
+        {
+            "id": 62,
+            "assessment_id": 6,
+            "number": 6,
+            "topic_id": 33,
+            "difficulty": "medio",
+            "points": 1.25,
+            "answer_key": "C"
+        },
+        {
+            "id": 63,
+            "assessment_id": 6,
+            "number": 7,
+            "topic_id": 35,
+            "difficulty": "dificil",
+            "points": 1.25,
+            "answer_key": "D"
+        },
+        {
+            "id": 64,
+            "assessment_id": 6,
+            "number": 8,
+            "topic_id": 36,
+            "difficulty": "facil",
+            "points": 1.25,
+            "answer_key": "A"
+        },
+        {
+            "id": 65,
+            "assessment_id": 7,
+            "number": 1,
+            "topic_id": 26,
+            "difficulty": "facil",
+            "points": 1.25,
+            "answer_key": "B"
+        },
+        {
+            "id": 66,
+            "assessment_id": 7,
+            "number": 2,
+            "topic_id": 27,
+            "difficulty": "medio",
+            "points": 1.25,
+            "answer_key": "C"
+        },
+        {
+            "id": 67,
+            "assessment_id": 7,
+            "number": 3,
+            "topic_id": 29,
+            "difficulty": "dificil",
+            "points": 1.25,
+            "answer_key": "D"
+        },
+        {
+            "id": 68,
+            "assessment_id": 7,
+            "number": 4,
+            "topic_id": 30,
+            "difficulty": "facil",
+            "points": 1.25,
+            "answer_key": "A"
+        },
+        {
+            "id": 69,
+            "assessment_id": 7,
+            "number": 5,
+            "topic_id": 32,
+            "difficulty": "medio",
+            "points": 1.25,
+            "answer_key": "B"
+        },
+        {
+            "id": 70,
+            "assessment_id": 7,
+            "number": 6,
+            "topic_id": 33,
+            "difficulty": "dificil",
+            "points": 1.25,
+            "answer_key": "C"
+        },
+        {
+            "id": 71,
+            "assessment_id": 7,
+            "number": 7,
+            "topic_id": 35,
+            "difficulty": "facil",
+            "points": 1.25,
+            "answer_key": "D"
+        },
+        {
+            "id": 72,
+            "assessment_id": 7,
+            "number": 8,
+            "topic_id": 36,
+            "difficulty": "medio",
+            "points": 1.25,
+            "answer_key": "A"
+        },
+        {
+            "id": 73,
+            "assessment_id": 8,
+            "number": 1,
+            "topic_id": 26,
+            "difficulty": "medio",
+            "points": 1.25,
+            "answer_key": "B"
+        },
+        {
+            "id": 74,
+            "assessment_id": 8,
+            "number": 2,
+            "topic_id": 27,
+            "difficulty": "dificil",
+            "points": 1.25,
+            "answer_key": "C"
+        },
+        {
+            "id": 75,
+            "assessment_id": 8,
+            "number": 3,
+            "topic_id": 29,
+            "difficulty": "facil",
+            "points": 1.25,
+            "answer_key": "D"
+        },
+        {
+            "id": 76,
+            "assessment_id": 8,
+            "number": 4,
+            "topic_id": 30,
+            "difficulty": "medio",
+            "points": 1.25,
+            "answer_key": "A"
+        },
+        {
+            "id": 77,
+            "assessment_id": 8,
+            "number": 5,
+            "topic_id": 32,
+            "difficulty": "dificil",
+            "points": 1.25,
+            "answer_key": "B"
+        },
+        {
+            "id": 78,
+            "assessment_id": 8,
+            "number": 6,
+            "topic_id": 33,
+            "difficulty": "facil",
+            "points": 1.25,
+            "answer_key": "C"
+        },
+        {
+            "id": 79,
+            "assessment_id": 8,
+            "number": 7,
+            "topic_id": 35,
+            "difficulty": "medio",
+            "points": 1.25,
+            "answer_key": "D"
+        },
+        {
+            "id": 80,
+            "assessment_id": 8,
+            "number": 8,
+            "topic_id": 36,
+            "difficulty": "dificil",
+            "points": 1.25,
+            "answer_key": "A"
+        },
+        {
+            "id": 81,
+            "assessment_id": 9,
+            "number": 1,
+            "topic_id": 26,
+            "difficulty": "dificil",
+            "points": 1.25,
+            "answer_key": "B"
+        },
+        {
+            "id": 82,
+            "assessment_id": 9,
+            "number": 2,
+            "topic_id": 27,
+            "difficulty": "facil",
+            "points": 1.25,
+            "answer_key": "C"
+        },
+        {
+            "id": 83,
+            "assessment_id": 9,
+            "number": 3,
+            "topic_id": 29,
+            "difficulty": "medio",
+            "points": 1.25,
+            "answer_key": "D"
+        },
+        {
+            "id": 84,
+            "assessment_id": 9,
+            "number": 4,
+            "topic_id": 30,
+            "difficulty": "dificil",
+            "points": 1.25,
+            "answer_key": "A"
+        },
+        {
+            "id": 85,
+            "assessment_id": 9,
+            "number": 5,
+            "topic_id": 32,
+            "difficulty": "facil",
+            "points": 1.25,
+            "answer_key": "B"
+        },
+        {
+            "id": 86,
+            "assessment_id": 9,
+            "number": 6,
+            "topic_id": 33,
+            "difficulty": "medio",
+            "points": 1.25,
+            "answer_key": "C"
+        },
+        {
+            "id": 87,
+            "assessment_id": 9,
+            "number": 7,
+            "topic_id": 35,
+            "difficulty": "dificil",
+            "points": 1.25,
+            "answer_key": "D"
+        },
+        {
+            "id": 88,
+            "assessment_id": 9,
+            "number": 8,
+            "topic_id": 36,
+            "difficulty": "facil",
+            "points": 1.25,
+            "answer_key": "A"
+        },
+        {
+            "id": 89,
+            "assessment_id": 10,
+            "number": 1,
+            "topic_id": 26,
+            "difficulty": "facil",
+            "points": 1.25,
+            "answer_key": "B"
+        },
+        {
+            "id": 90,
+            "assessment_id": 10,
+            "number": 2,
+            "topic_id": 27,
+            "difficulty": "medio",
+            "points": 1.25,
+            "answer_key": "C"
+        },
+        {
+            "id": 91,
+            "assessment_id": 10,
+            "number": 3,
+            "topic_id": 29,
+            "difficulty": "dificil",
+            "points": 1.25,
+            "answer_key": "D"
+        },
+        {
+            "id": 92,
+            "assessment_id": 10,
+            "number": 4,
+            "topic_id": 30,
+            "difficulty": "facil",
+            "points": 1.25,
+            "answer_key": "A"
+        },
+        {
+            "id": 93,
+            "assessment_id": 10,
+            "number": 5,
+            "topic_id": 32,
+            "difficulty": "medio",
+            "points": 1.25,
+            "answer_key": "B"
+        },
+        {
+            "id": 94,
+            "assessment_id": 10,
+            "number": 6,
+            "topic_id": 33,
+            "difficulty": "dificil",
+            "points": 1.25,
+            "answer_key": "C"
+        },
+        {
+            "id": 95,
+            "assessment_id": 10,
+            "number": 7,
+            "topic_id": 35,
+            "difficulty": "facil",
+            "points": 1.25,
+            "answer_key": "D"
+        },
+        {
+            "id": 96,
+            "assessment_id": 10,
+            "number": 8,
+            "topic_id": 36,
+            "difficulty": "medio",
+            "points": 1.25,
             "answer_key": "A"
         }
     ],
@@ -2385,6 +3372,1158 @@
             "student_id": 5,
             "result": "correta",
             "score_earned": 0.83
+        },
+        {
+            "question_id": 49,
+            "student_id": 1,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 50,
+            "student_id": 1,
+            "result": "nao_respondida",
+            "score_earned": 0
+        },
+        {
+            "question_id": 51,
+            "student_id": 1,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 52,
+            "student_id": 1,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 53,
+            "student_id": 1,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 54,
+            "student_id": 1,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 55,
+            "student_id": 1,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 56,
+            "student_id": 1,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 49,
+            "student_id": 2,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 50,
+            "student_id": 2,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 51,
+            "student_id": 2,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 52,
+            "student_id": 2,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 53,
+            "student_id": 2,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 54,
+            "student_id": 2,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 55,
+            "student_id": 2,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 56,
+            "student_id": 2,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 49,
+            "student_id": 3,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 50,
+            "student_id": 3,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 51,
+            "student_id": 3,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 52,
+            "student_id": 3,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 53,
+            "student_id": 3,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 54,
+            "student_id": 3,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 55,
+            "student_id": 3,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 56,
+            "student_id": 3,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 49,
+            "student_id": 4,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 50,
+            "student_id": 4,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 51,
+            "student_id": 4,
+            "result": "nao_respondida",
+            "score_earned": 0
+        },
+        {
+            "question_id": 52,
+            "student_id": 4,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 53,
+            "student_id": 4,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 54,
+            "student_id": 4,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 55,
+            "student_id": 4,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 56,
+            "student_id": 4,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 49,
+            "student_id": 5,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 50,
+            "student_id": 5,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 51,
+            "student_id": 5,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 52,
+            "student_id": 5,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 53,
+            "student_id": 5,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 54,
+            "student_id": 5,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 55,
+            "student_id": 5,
+            "result": "nao_respondida",
+            "score_earned": 0
+        },
+        {
+            "question_id": 56,
+            "student_id": 5,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 57,
+            "student_id": 1,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 58,
+            "student_id": 1,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 59,
+            "student_id": 1,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 60,
+            "student_id": 1,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 61,
+            "student_id": 1,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 62,
+            "student_id": 1,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 63,
+            "student_id": 1,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 64,
+            "student_id": 1,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 57,
+            "student_id": 2,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 58,
+            "student_id": 2,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 59,
+            "student_id": 2,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 60,
+            "student_id": 2,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 61,
+            "student_id": 2,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 62,
+            "student_id": 2,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 63,
+            "student_id": 2,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 64,
+            "student_id": 2,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 57,
+            "student_id": 3,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 58,
+            "student_id": 3,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 59,
+            "student_id": 3,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 60,
+            "student_id": 3,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 61,
+            "student_id": 3,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 62,
+            "student_id": 3,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 63,
+            "student_id": 3,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 64,
+            "student_id": 3,
+            "result": "nao_respondida",
+            "score_earned": 0
+        },
+        {
+            "question_id": 57,
+            "student_id": 4,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 58,
+            "student_id": 4,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 59,
+            "student_id": 4,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 60,
+            "student_id": 4,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 61,
+            "student_id": 4,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 62,
+            "student_id": 4,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 63,
+            "student_id": 4,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 64,
+            "student_id": 4,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 57,
+            "student_id": 5,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 58,
+            "student_id": 5,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 59,
+            "student_id": 5,
+            "result": "nao_respondida",
+            "score_earned": 0
+        },
+        {
+            "question_id": 60,
+            "student_id": 5,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 61,
+            "student_id": 5,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 62,
+            "student_id": 5,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 63,
+            "student_id": 5,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 64,
+            "student_id": 5,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 65,
+            "student_id": 1,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 66,
+            "student_id": 1,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 67,
+            "student_id": 1,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 68,
+            "student_id": 1,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 69,
+            "student_id": 1,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 70,
+            "student_id": 1,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 71,
+            "student_id": 1,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 72,
+            "student_id": 1,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 65,
+            "student_id": 2,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 66,
+            "student_id": 2,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 67,
+            "student_id": 2,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 68,
+            "student_id": 2,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 69,
+            "student_id": 2,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 70,
+            "student_id": 2,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 71,
+            "student_id": 2,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 72,
+            "student_id": 2,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 65,
+            "student_id": 3,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 66,
+            "student_id": 3,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 67,
+            "student_id": 3,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 68,
+            "student_id": 3,
+            "result": "nao_respondida",
+            "score_earned": 0
+        },
+        {
+            "question_id": 69,
+            "student_id": 3,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 70,
+            "student_id": 3,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 71,
+            "student_id": 3,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 72,
+            "student_id": 3,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 65,
+            "student_id": 4,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 66,
+            "student_id": 4,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 67,
+            "student_id": 4,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 68,
+            "student_id": 4,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 69,
+            "student_id": 4,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 70,
+            "student_id": 4,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 71,
+            "student_id": 4,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 72,
+            "student_id": 4,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 65,
+            "student_id": 5,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 66,
+            "student_id": 5,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 67,
+            "student_id": 5,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 68,
+            "student_id": 5,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 69,
+            "student_id": 5,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 70,
+            "student_id": 5,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 71,
+            "student_id": 5,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 72,
+            "student_id": 5,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 73,
+            "student_id": 6,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 74,
+            "student_id": 6,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 75,
+            "student_id": 6,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 76,
+            "student_id": 6,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 77,
+            "student_id": 6,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 78,
+            "student_id": 6,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 79,
+            "student_id": 6,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 80,
+            "student_id": 6,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 73,
+            "student_id": 7,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 74,
+            "student_id": 7,
+            "result": "nao_respondida",
+            "score_earned": 0
+        },
+        {
+            "question_id": 75,
+            "student_id": 7,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 76,
+            "student_id": 7,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 77,
+            "student_id": 7,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 78,
+            "student_id": 7,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 79,
+            "student_id": 7,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 80,
+            "student_id": 7,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 73,
+            "student_id": 8,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 74,
+            "student_id": 8,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 75,
+            "student_id": 8,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 76,
+            "student_id": 8,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 77,
+            "student_id": 8,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 78,
+            "student_id": 8,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 79,
+            "student_id": 8,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 80,
+            "student_id": 8,
+            "result": "nao_respondida",
+            "score_earned": 0
+        },
+        {
+            "question_id": 81,
+            "student_id": 6,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 82,
+            "student_id": 6,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 83,
+            "student_id": 6,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 84,
+            "student_id": 6,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 85,
+            "student_id": 6,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 86,
+            "student_id": 6,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 87,
+            "student_id": 6,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 88,
+            "student_id": 6,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 81,
+            "student_id": 7,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 82,
+            "student_id": 7,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 83,
+            "student_id": 7,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 84,
+            "student_id": 7,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 85,
+            "student_id": 7,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 86,
+            "student_id": 7,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 87,
+            "student_id": 7,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 88,
+            "student_id": 7,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 81,
+            "student_id": 8,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 82,
+            "student_id": 8,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 83,
+            "student_id": 8,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 84,
+            "student_id": 8,
+            "result": "nao_respondida",
+            "score_earned": 0
+        },
+        {
+            "question_id": 85,
+            "student_id": 8,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 86,
+            "student_id": 8,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 87,
+            "student_id": 8,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 88,
+            "student_id": 8,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 89,
+            "student_id": 6,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 90,
+            "student_id": 6,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 91,
+            "student_id": 6,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 92,
+            "student_id": 6,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 93,
+            "student_id": 6,
+            "result": "nao_respondida",
+            "score_earned": 0
+        },
+        {
+            "question_id": 94,
+            "student_id": 6,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 95,
+            "student_id": 6,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 96,
+            "student_id": 6,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 89,
+            "student_id": 7,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 90,
+            "student_id": 7,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 91,
+            "student_id": 7,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 92,
+            "student_id": 7,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 93,
+            "student_id": 7,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 94,
+            "student_id": 7,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 95,
+            "student_id": 7,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 96,
+            "student_id": 7,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 89,
+            "student_id": 8,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 90,
+            "student_id": 8,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 91,
+            "student_id": 8,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 92,
+            "student_id": 8,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 93,
+            "student_id": 8,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 94,
+            "student_id": 8,
+            "result": "correta",
+            "score_earned": 1.25
+        },
+        {
+            "question_id": 95,
+            "student_id": 8,
+            "result": "incorreta",
+            "score_earned": 0
+        },
+        {
+            "question_id": 96,
+            "student_id": 8,
+            "result": "correta",
+            "score_earned": 1.25
         }
     ],
     "notas": [
@@ -2567,6 +4706,272 @@
             "correct_count": 9,
             "wrong_count": 3,
             "blank_count": 0
+        },
+        {
+            "assessment_id": 5,
+            "student_id": 1,
+            "score": 6.25,
+            "percentage": 62.5,
+            "correct_count": 5,
+            "wrong_count": 2,
+            "blank_count": 1
+        },
+        {
+            "assessment_id": 5,
+            "student_id": 2,
+            "score": 7.5,
+            "percentage": 75,
+            "correct_count": 6,
+            "wrong_count": 2,
+            "blank_count": 0
+        },
+        {
+            "assessment_id": 5,
+            "student_id": 3,
+            "score": 7.5,
+            "percentage": 75,
+            "correct_count": 6,
+            "wrong_count": 2,
+            "blank_count": 0
+        },
+        {
+            "assessment_id": 5,
+            "student_id": 4,
+            "score": 5,
+            "percentage": 50,
+            "correct_count": 4,
+            "wrong_count": 3,
+            "blank_count": 1
+        },
+        {
+            "assessment_id": 5,
+            "student_id": 5,
+            "score": 6.25,
+            "percentage": 62.5,
+            "correct_count": 5,
+            "wrong_count": 2,
+            "blank_count": 1
+        },
+        {
+            "assessment_id": 6,
+            "student_id": 1,
+            "score": 7.5,
+            "percentage": 75,
+            "correct_count": 6,
+            "wrong_count": 2,
+            "blank_count": 0
+        },
+        {
+            "assessment_id": 6,
+            "student_id": 2,
+            "score": 8.75,
+            "percentage": 87.5,
+            "correct_count": 7,
+            "wrong_count": 1,
+            "blank_count": 0
+        },
+        {
+            "assessment_id": 6,
+            "student_id": 3,
+            "score": 5,
+            "percentage": 50,
+            "correct_count": 4,
+            "wrong_count": 3,
+            "blank_count": 1
+        },
+        {
+            "assessment_id": 6,
+            "student_id": 4,
+            "score": 6.25,
+            "percentage": 62.5,
+            "correct_count": 5,
+            "wrong_count": 3,
+            "blank_count": 0
+        },
+        {
+            "assessment_id": 6,
+            "student_id": 5,
+            "score": 7.5,
+            "percentage": 75,
+            "correct_count": 6,
+            "wrong_count": 1,
+            "blank_count": 1
+        },
+        {
+            "assessment_id": 7,
+            "student_id": 1,
+            "score": 7.5,
+            "percentage": 75,
+            "correct_count": 6,
+            "wrong_count": 2,
+            "blank_count": 0
+        },
+        {
+            "assessment_id": 7,
+            "student_id": 2,
+            "score": 7.5,
+            "percentage": 75,
+            "correct_count": 6,
+            "wrong_count": 2,
+            "blank_count": 0
+        },
+        {
+            "assessment_id": 7,
+            "student_id": 3,
+            "score": 6.25,
+            "percentage": 62.5,
+            "correct_count": 5,
+            "wrong_count": 2,
+            "blank_count": 1
+        },
+        {
+            "assessment_id": 7,
+            "student_id": 4,
+            "score": 5,
+            "percentage": 50,
+            "correct_count": 4,
+            "wrong_count": 4,
+            "blank_count": 0
+        },
+        {
+            "assessment_id": 7,
+            "student_id": 5,
+            "score": 8.75,
+            "percentage": 87.5,
+            "correct_count": 7,
+            "wrong_count": 1,
+            "blank_count": 0
+        },
+        {
+            "assessment_id": 8,
+            "student_id": 6,
+            "score": 6.25,
+            "percentage": 62.5,
+            "correct_count": 5,
+            "wrong_count": 3,
+            "blank_count": 0
+        },
+        {
+            "assessment_id": 8,
+            "student_id": 7,
+            "score": 5,
+            "percentage": 50,
+            "correct_count": 4,
+            "wrong_count": 3,
+            "blank_count": 1
+        },
+        {
+            "assessment_id": 8,
+            "student_id": 8,
+            "score": 3.75,
+            "percentage": 37.5,
+            "correct_count": 3,
+            "wrong_count": 4,
+            "blank_count": 1
+        },
+        {
+            "assessment_id": 9,
+            "student_id": 6,
+            "score": 6.25,
+            "percentage": 62.5,
+            "correct_count": 5,
+            "wrong_count": 3,
+            "blank_count": 0
+        },
+        {
+            "assessment_id": 9,
+            "student_id": 7,
+            "score": 6.25,
+            "percentage": 62.5,
+            "correct_count": 5,
+            "wrong_count": 3,
+            "blank_count": 0
+        },
+        {
+            "assessment_id": 9,
+            "student_id": 8,
+            "score": 5,
+            "percentage": 50,
+            "correct_count": 4,
+            "wrong_count": 3,
+            "blank_count": 1
+        },
+        {
+            "assessment_id": 10,
+            "student_id": 6,
+            "score": 7.5,
+            "percentage": 75,
+            "correct_count": 6,
+            "wrong_count": 1,
+            "blank_count": 1
+        },
+        {
+            "assessment_id": 10,
+            "student_id": 7,
+            "score": 3.75,
+            "percentage": 37.5,
+            "correct_count": 3,
+            "wrong_count": 5,
+            "blank_count": 0
+        },
+        {
+            "assessment_id": 10,
+            "student_id": 8,
+            "score": 6.25,
+            "percentage": 62.5,
+            "correct_count": 5,
+            "wrong_count": 3,
+            "blank_count": 0
+        }
+    ],
+    "acompanhamentos": [
+        {
+            "id": 1,
+            "student_id": 4,
+            "class_subject_id": 1,
+            "author_user_id": 2,
+            "type": "reforco",
+            "status": "em_andamento",
+            "title": "Reforço em Segurança da Informação",
+            "description": "Média abaixo de 60% e frequência abaixo do mínimo.",
+            "action_taken": "Monitoria às quintas e lista dirigida de exercícios.",
+            "due_date": "2026-06-30",
+            "result_note": null,
+            "baseline_media": 51.96,
+            "baseline_frequencia": 70,
+            "created_at": "2026-09-04 20:18:05"
+        },
+        {
+            "id": 2,
+            "student_id": 3,
+            "class_subject_id": 1,
+            "author_user_id": 2,
+            "type": "conversa",
+            "status": "aberta",
+            "title": "Conversa sobre queda de desempenho",
+            "description": "Queda de 16,7 p.p. entre as primeiras e as últimas avaliações.",
+            "action_taken": "Conversa individual agendada para entender o que mudou.",
+            "due_date": "2026-06-20",
+            "result_note": null,
+            "baseline_media": 62.01,
+            "baseline_frequencia": 80,
+            "created_at": "2026-09-04 20:18:05"
+        },
+        {
+            "id": 3,
+            "student_id": 7,
+            "class_subject_id": 3,
+            "author_user_id": 3,
+            "type": "contato_responsavel",
+            "status": "concluida",
+            "title": "Contato sobre frequência",
+            "description": "Frequência abaixo do mínimo configurado.",
+            "action_taken": "Contato telefônico com o responsável.",
+            "due_date": "2026-05-30",
+            "result_note": "Responsável ciente; aluna retomou a presença nas duas aulas seguintes.",
+            "baseline_media": 48.21,
+            "baseline_frequencia": 100,
+            "created_at": "2026-09-04 20:18:05"
         }
     ]
 }

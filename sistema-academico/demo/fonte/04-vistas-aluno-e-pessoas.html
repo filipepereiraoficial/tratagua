@@ -1,0 +1,383 @@
+<script>
+/* --------------------------------------------------- dashboard geral (admin) */
+VISTAS.dashboard = () => ({
+  html: `
+    <div class="cabec">
+      <div><h1>Dashboard geral</h1>
+        <p>Visão consolidada da instituição. Cada número vem dos lançamentos feitos no sistema.</p></div>
+      <div class="cabec__acoes">
+        <button class="btn" data-ir="relatorios">Relatórios</button>
+        <button class="btn btn--forte" data-ir="graficos">Todos os gráficos</button>
+      </div>
+    </div>
+
+    <div class="kpis">
+      ${kpi("Alunos", DADOS.alunos.length, `${DADOS.turmas.length} turmas · ${DADOS.disciplinas.length} disciplinas`)}
+      ${kpi("Aulas", DADOS.aulas.length, `${DADOS.presencas.length} presenças`)}
+      ${kpi("Avaliações", DADOS.avaliacoes.length, `${DADOS.questoes.length} questões`)}
+      ${kpi("Média geral", pct(M.mediaGeral), "aproveitamento lançado", faixa(M.mediaGeral).classe)}
+      ${kpi("% de acertos", pct(M.totais.pct_acertos), `${M.totais.acertos} de ${M.totais.total}`, faixa(M.totais.pct_acertos).classe)}
+      ${kpi("% de erros", pct(M.totais.pct_erros), `${M.totais.branco} em branco`)}
+      ${kpi("Em evolução", M.classes.evolucao, "", "bom")}
+      ${kpi("Intermediários", M.classes.intermediario, "", "medio")}
+      ${kpi("Precisam de atenção", M.classes.atencao, `${M.classes.sem_dados} sem dados`, "ruim")}
+    </div>
+
+    <div class="colunas c-21">
+      <div>
+        ${painel("Evolução geral", grafico("db-ev"), { direita: '<span class="tag tag--info">média por avaliação</span>' })}
+        <div class="colunas c-2">
+          ${painel("Distribuição de desempenho", grafico("db-dist", 220))}
+          ${painel("Aproveitamento por dificuldade", grafico("db-dif", 130))}
+        </div>
+        ${painel("Aproveitamento por assunto", grafico("db-as", 260),
+          { direita: '<span class="tag tag--neutro">do menor para o maior</span>' })}
+      </div>
+      <div>
+        ${painel("Alertas pedagógicos", listaAlertas(M.alertas, 8, true), { nu: true,
+          direita: `<span class="tag tag--ruim">${M.alertas.filter(a => a.severity === "alta").length} alta</span>
+                    <span class="tag tag--medio">${M.alertas.filter(a => a.severity === "media").length} média</span>
+                    <span class="tag tag--bom">${M.alertas.filter(a => a.severity === "positiva").length} positiva</span>` })}
+        ${painel("Índice de Desenvolvimento", tabela(
+          [{ t: "#", num: 1 }, { t: "Aluno" }, { t: "Média", num: 1 }, { t: "Índice", num: 1 }, { t: "Situação" }],
+          M.ranking.map(r => {
+            const c = CLASSE_ALUNO[r.classificacao];
+            return `<tr class="linha-clicavel" data-aluno="${r.id}">
+              <td class="num mono">${r.posicao ?? "—"}</td><td>${h(r.aluno.full_name)}</td>
+              <td class="num">${pct(r.media, 0)}</td><td class="num mono"><strong>${num(r.indice)}</strong></td>
+              <td>${tag(c.classe, c.texto)}</td></tr>`;
+          })), { nu: true })}
+      </div>
+    </div>`,
+  depois() {
+    grafLinha(el("db-ev"), { labels: M.porAvaliacao.map(a => a.nome),
+      series: [{ nome: "Média (%)", dados: M.porAvaliacao.map(a => a.media) }] });
+    grafBarrasV(el("db-dist"), { labels: Object.keys(M.distribuicao), altura: 220,
+      max: Math.max(1, M.ranking.length), passo: 1, unidade: " aluno(s)", casas: 0,
+      series: [{ nome: "Alunos", dados: Object.values(M.distribuicao),
+        cores: ["var(--ruim)", "var(--medio)", "var(--serie-a)", "var(--bom)"] }] });
+    grafBarrasH(el("db-dif"), M.dificuldade.map(x => ({ nome: DIFICULDADE[x.dificuldade], valor: x.aproveitamento,
+      nota: `${x.respondidas} questões` })), { rotuloLargura: 110 });
+    grafBarrasH(el("db-as"), M.assuntos.map(a => ({ nome: a.topic_name, valor: a.aproveitamento, nota: a.subject_name })));
+  },
+});
+
+/* ------------------------------------------------------- lista de alunos */
+VISTAS.alunos = () => ({
+  html: `
+    <div class="cabec">
+      <div><h1>Alunos</h1><p>${M.ranking.length} aluno(s) no seu escopo. Clique para abrir o dashboard individual.</p></div>
+      <div class="cabec__acoes"><input class="busca" id="busca-aluno" type="search" placeholder="Filtrar por nome…" aria-label="Filtrar alunos"></div>
+    </div>
+    ${avisoEscopo()}
+    ${painel("Situação de cada aluno", `<div id="tab-alunos">${tabela(COLS_RANKING, M.ranking.map(r => linhaRanking(r)))}</div>`, { nu: true })}`,
+  depois() {
+    const campo = el("busca-aluno");
+    campo.addEventListener("input", () => {
+      const termo = campo.value.toLowerCase().trim();
+      el("tab-alunos").innerHTML = tabela(COLS_RANKING,
+        M.ranking.filter(r => r.aluno.full_name.toLowerCase().includes(termo)).map(r => linhaRanking(r)),
+        { vazio: "Nenhum aluno corresponde ao filtro." });
+    });
+  },
+});
+
+/* ------------------------------- dashboard individual (admin e professor) */
+function vistaAluno(rotaVolta) {
+  const r = M.porAluno.get(rota.id) || BASE.resumoDoAluno(rota.id, CFG, escopo());
+  if (!r || !r.aluno) return { html: '<div class="vazio">Aluno não encontrado.</div>' };
+
+  const c = CLASSE_ALUNO[r.classificacao];
+  const fTurma = { ...escopo(), turma: r.aluno.class_id };
+  const mediaTurma = BASE.mediaGeral(fTurma);
+  const serieTurma = BASE.mediaPorAvaliacao(fTurma);
+  const mapaTurma = new Map(serieTurma.map(a => [a.assessment_id, a.media]));
+  const labels = r.notas.map(n => n.aval.name);
+  const alertasDele = M.alertas.filter(a => a.student_id === r.id);
+  const perda = M.perdaAluno.find(p => p.student_id === r.id);
+  const delta = (r.media !== null && mediaTurma !== null) ? r.media - mediaTurma : null;
+  const acomp = DADOS.acompanhamentos.filter(i => i.student_id === r.id);
+  const porDisciplina = (() => {
+    const grupos = new Map();
+    r.notas.forEach(n => {
+      const d = BASE.disciplinaDaOferta(n.aval.class_subject_id);
+      if (!grupos.has(d.id)) grupos.set(d.id, { nome: d.name, valores: [] });
+      grupos.get(d.id).valores.push(n.percentage);
+    });
+    return [...grupos.values()].map(g => ({ nome: g.nome,
+      media: r2(g.valores.reduce((a, b) => a + b, 0) / g.valores.length) }));
+  })();
+
+  return {
+    html: `
+      <div class="cabec">
+        <div style="display:flex;gap:12px;align-items:center">
+          <span style="width:44px;height:44px;border-radius:50%;background:var(--acento-sup);color:var(--acento);
+                       display:grid;place-items:center;font-weight:600;font-family:var(--display)">${h(iniciais(r.aluno.full_name))}</span>
+          <div>
+            <h1>${h(r.aluno.full_name)}</h1>
+            <p><button class="migalha" data-ir="${rotaVolta}">${rotaVolta === "alunos" ? "Alunos" : "Meu painel"}</button>
+              · ${h(r.turma ? r.turma.code : "sem turma")} · ${tag(c.classe, c.texto)}
+              ${r.posicao ? " · posição " + r.posicao + " de " + M.ranking.filter(x => x.indice !== null).length : ""}</p>
+          </div>
+        </div>
+        <div class="cabec__acoes">
+          <button class="btn" data-acompanhar="${r.id}" data-titulo="Acompanhamento de ${h(r.aluno.full_name)}">Registrar acompanhamento</button>
+        </div>
+      </div>
+
+      ${r.motivos.length ? `<div class="aviso"><b>Por quê?</b><div>${h(r.motivos.join(" "))}</div></div>` : ""}
+
+      <div class="kpis">
+        ${kpi("Média", pct(r.media), delta === null ? "" :
+          `${delta >= 0 ? "▲" : "▼"} ${num(Math.abs(delta))} p.p. vs. turma (${pct(mediaTurma, 0)})`, faixa(r.media).classe)}
+        ${kpi("% de acertos", pct(r.acertos.pct_acertos), `${r.acertos.acertos} de ${r.acertos.total} questões`, faixa(r.acertos.pct_acertos).classe)}
+        ${kpi("% de erros", pct(r.acertos.pct_erros), `${r.acertos.branco} em branco`)}
+        ${kpi("Avaliações", r.avaliacoes, `desvio de ${num(r.desvio)} p.p.`)}
+        ${kpi("Evolução recente", r.evolucao_recente === null ? "—" : (r.evolucao_recente >= 0 ? "+" : "") + num(r.evolucao_recente),
+          `tendência ${num(r.evolucao_slope, 2)} p.p./aval.`, r.evolucao_recente === null ? "" : (r.evolucao_recente >= 0 ? "bom" : "ruim"))}
+        ${kpi("Frequência", pct(r.frequencia), `${r.presenca.faltas} falta(s) em ${r.presenca.aulas} aula(s)`,
+          r.frequencia === null ? "" : (r.frequencia >= CFG.frequencia_minima ? "bom" : "ruim"))}
+        ${kpi("Pontos deixados na prova", perda ? num(perda.perdidos, 1) : "—",
+          perda ? "pior em " + h(perda.pior_avaliacao ?? "—") : "", "medio")}
+        ${kpi("Conteúdos dominados", r.dominados, `${r.dificuldades} com dificuldade`, "bom")}
+        ${kpi("Índice de Desenvolvimento", num(r.indice), c.texto, "acento")}
+      </div>
+
+      ${painel("Como o Índice deste aluno foi formado", grafico("al-contrib", 110),
+        { direita: '<span class="tag tag--neutro">cada faixa é componente × peso</span>' })}
+
+      <div class="colunas c-2">
+        ${painel("Evolução das notas", grafico("al-ev"), { direita: '<span class="tag tag--info">aluno × turma</span>' })}
+        ${painel("Acertos e erros por avaliação", grafico("al-ae"))}
+      </div>
+      <div class="colunas c-2">
+        ${painel("Desempenho por assunto", grafico("al-as", 200))}
+        ${painel("Por disciplina e por dificuldade", grafico("al-dd", 170))}
+      </div>
+
+      <div class="colunas c-21">
+        <div>
+          ${painel("Mapa de conteúdos", tabela(
+            [{ t: "Assunto" }, { t: "Disciplina" }, { t: "Questões", num: 1 }, { t: "Aproveitamento" }, { t: "Situação" }],
+            r.assuntos.map(a => {
+              const f = faixa(a.amostra_suficiente ? a.aproveitamento : null);
+              return `<tr><td>${h(a.topic_name)}</td><td class="mudo">${h(a.subject_name)}</td>
+                <td class="num">${a.respondidas}</td><td>${barra(a.aproveitamento)}</td>
+                <td>${tag(f.classe, a.amostra_suficiente ? f.texto : "Amostra insuficiente")}</td></tr>`;
+            }), { vazio: "Nenhuma resposta por questão registrada." }), { nu: true })}
+
+          ${painel("Histórico de avaliações", tabela(
+            [{ t: "Data" }, { t: "Avaliação" }, { t: "Disciplina" }, { t: "Nota", num: 1 }, { t: "%", num: 1 }, { t: "C/E/B", num: 1 }],
+            [...r.notas].reverse().map(n => `<tr class="linha-clicavel" data-avaliacao="${n.assessment_id}">
+              <td class="mono nowrap">${dataBr(n.aval.assessment_date)}</td><td>${h(n.aval.name)}</td>
+              <td class="mudo">${h(BASE.disciplinaDaOferta(n.aval.class_subject_id).name)}</td>
+              <td class="num mono">${num(n.score, 2)} / ${num(n.aval.max_score, 0)}</td>
+              <td class="num">${tag(faixa(n.percentage).classe, pct(n.percentage, 0))}</td>
+              <td class="num mono">${n.correct_count}/${n.wrong_count}/${n.blank_count}</td></tr>`)), { nu: true })}
+        </div>
+        <div>
+          ${painel("Alertas deste aluno", listaAlertas(alertasDele, 99, true), { nu: true })}
+          ${painel("Acompanhamentos", acomp.length === 0
+            ? '<div class="vazio">Nenhum registro para este aluno.</div>'
+            : `<div class="rolagem"><table><tbody>${acomp.map(i => `
+                <tr><td>${h(i.title)}<div class="mudo" style="font-size:11.5px">${h(TIPO_ACOMP[i.type])} · ${dataBr(i.created_at)}</div></td>
+                  <td class="num">${tag(i.status === "concluida" ? "bom" : i.status === "cancelada" ? "neutro" : "medio", STATUS_ACOMP[i.status])}</td></tr>`).join("")}</tbody></table></div>`,
+            { nu: true })}
+          ${painel("Presença", tabela(
+            [{ t: "Data" }, { t: "Aula" }, { t: "Situação" }],
+            BASE.presencas({ ...escopo(), aluno: r.id }).map(p => {
+              const aula = BASE.aulaPorId.get(p.lesson_id);
+              const cl = { presente: "bom", atraso: "medio", falta: "ruim", falta_justificada: "neutro" }[p.status];
+              return `<tr><td class="mono">${dataBr(aula.lesson_date)}</td>
+                <td style="font-size:12px">${h(cortar(aula.title, 34))}</td>
+                <td>${tag(cl, PRESENCA[p.status])}</td></tr>`;
+            })), { nu: true })}
+        </div>
+      </div>`,
+    depois() {
+      grafContribuicao(el("al-contrib"), r);
+      grafLinha(el("al-ev"), { labels, series: [
+        { nome: r.aluno.full_name.split(" ")[0], dados: r.percentuais },
+        { nome: "Turma", dados: r.notas.map(n => mapaTurma.get(n.assessment_id) ?? null), cor: "var(--serie-c)" }] });
+      grafBarrasV(el("al-ae"), { labels, series: [
+        { nome: "% de acertos", dados: r.notas.map(n => { const t = n.correct_count + n.wrong_count + n.blank_count; return t ? r2(n.correct_count / t * 100) : null; }), cor: "var(--bom)" },
+        { nome: "% de erros", dados: r.notas.map(n => { const t = n.correct_count + n.wrong_count + n.blank_count; return t ? r2(n.wrong_count / t * 100) : null; }), cor: "var(--ruim)" }] });
+      grafBarrasH(el("al-as"), r.assuntos.map(a => ({ nome: a.topic_name, valor: a.aproveitamento, nota: a.subject_name })));
+      const dif = BASE.aproveitamentoPorDificuldade(BASE.respostas({ ...escopo(), aluno: r.id }));
+      grafBarrasH(el("al-dd"), [
+        ...porDisciplina.map(d => ({ nome: d.nome, valor: d.media })),
+        ...dif.map(d => ({ nome: DIFICULDADE[d.dificuldade], valor: d.aproveitamento, cor: "var(--serie-c)" })),
+      ]);
+    },
+  };
+}
+VISTAS.aluno = () => vistaAluno("alunos");
+VISTAS["aluno-professor"] = () => vistaAluno("meu-painel");
+
+/* ------------------------------------------------------ painel do aluno */
+VISTAS["minha-evolucao"] = () => {
+  const r = BASE.resumoDoAluno(PERFIL.studentId, CFG, {});
+  const fTurma = { turma: r.aluno.class_id };
+  const mediaTurma = BASE.mediaGeral(fTurma);
+  const mapaTurma = new Map(BASE.mediaPorAvaliacao(fTurma).map(a => [a.assessment_id, a.media]));
+  const labels = r.notas.map(n => n.aval.name);
+  const dificeis = r.assuntos.filter(a => a.classificacao === "dificuldade");
+  const bons = r.assuntos.filter(a => a.classificacao === "dominio");
+  const delta = (r.media !== null && mediaTurma !== null) ? r.media - mediaTurma : null;
+
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>Minha evolução</h1>
+          <p>${h(r.aluno.full_name)}${r.turma ? " · turma " + h(r.turma.code) : ""}</p></div>
+      </div>
+      ${avisoEscopo()}
+
+      <div class="kpis">
+        ${kpi("Minha média", pct(r.media), delta === null ? "" :
+          `${delta >= 0 ? "acima" : "abaixo"} da turma em ${num(Math.abs(delta))} p.p.`, faixa(r.media).classe)}
+        ${kpi("Acertos", pct(r.acertos.pct_acertos), `${r.acertos.acertos} de ${r.acertos.total} questões`, faixa(r.acertos.pct_acertos).classe)}
+        ${kpi("Minha evolução", r.evolucao_recente === null ? "—" : (r.evolucao_recente >= 0 ? "+" : "") + num(r.evolucao_recente),
+          "pontos percentuais recentes", r.evolucao_recente === null ? "" : (r.evolucao_recente >= 0 ? "bom" : "ruim"))}
+        ${kpi("Frequência", pct(r.frequencia), `${r.presenca.faltas} falta(s) em ${r.presenca.aulas} aula(s)`,
+          r.frequencia >= CFG.frequencia_minima ? "bom" : "ruim")}
+        ${kpi("Conteúdos que domino", r.dominados, `${r.intermediarios} em construção`, "bom")}
+        ${kpi("Para reforçar", r.dificuldades, `abaixo de ${num(CFG.faixa_intermediario, 0)}%`, "ruim")}
+      </div>
+
+      <div class="colunas c-2">
+        ${painel("Minhas notas ao longo do tempo", grafico("me-ev"), { direita: '<span class="tag tag--info">eu × turma</span>' })}
+        ${painel("Meu desempenho por assunto", grafico("me-as", 200))}
+      </div>
+
+      <div class="colunas c-2">
+        ${painel("O que reforçar", dificeis.length === 0
+          ? '<div class="vazio">Nenhum conteúdo abaixo da faixa de dificuldade. Bom trabalho.</div>'
+          : `<div class="rolagem"><table><tbody>${dificeis.map(a => `
+              <tr><td>${h(a.topic_name)}<div class="mudo" style="font-size:11.5px">${h(a.subject_name)}</div></td>
+                <td style="width:150px">${barra(a.aproveitamento)}</td></tr>`).join("")}</tbody></table></div>`, { nu: true })}
+        ${painel("O que já domino", bons.length === 0
+          ? '<div class="vazio">Ainda não há conteúdo na faixa de domínio.</div>'
+          : `<div class="rolagem"><table><tbody>${bons.map(a => `
+              <tr><td>${h(a.topic_name)}<div class="mudo" style="font-size:11.5px">${h(a.subject_name)}</div></td>
+                <td style="width:150px">${barra(a.aproveitamento)}</td></tr>`).join("")}</tbody></table></div>`, { nu: true })}
+      </div>
+
+      ${painel("Minhas avaliações", tabela(
+        [{ t: "Data" }, { t: "Avaliação" }, { t: "Disciplina" }, { t: "Nota", num: 1 }, { t: "Aproveitamento", num: 1 }],
+        [...r.notas].reverse().map(n => `<tr>
+          <td class="mono nowrap">${dataBr(n.aval.assessment_date)}</td><td>${h(n.aval.name)}</td>
+          <td class="mudo">${h(BASE.disciplinaDaOferta(n.aval.class_subject_id).name)}</td>
+          <td class="num mono">${num(n.score, 2)} / ${num(n.aval.max_score, 0)}</td>
+          <td class="num">${tag(faixa(n.percentage).classe, pct(n.percentage, 0))}</td></tr>`)), { nu: true })}`,
+    depois() {
+      grafLinha(el("me-ev"), { labels, series: [
+        { nome: "Eu", dados: r.percentuais },
+        { nome: "Média da turma", dados: r.notas.map(n => mapaTurma.get(n.assessment_id) ?? null), cor: "var(--serie-c)" }] });
+      grafBarrasH(el("me-as"), r.assuntos.map(a => ({ nome: a.topic_name, valor: a.aproveitamento, nota: a.subject_name })));
+    },
+  };
+};
+
+/* ------------------------------------------------------------ professores */
+VISTAS.professores = () => {
+  const linhas = DADOS.professores.map(p => {
+    const ofertas = BASE.ofertasDoProfessor(p.id);
+    return { p, ofertas,
+      turmas: new Set(ofertas.map(id => BASE.oferta(id).class_id)).size,
+      disciplinas: new Set(ofertas.map(id => BASE.oferta(id).subject_id)).size,
+      aulas: DADOS.aulas.filter(l => ofertas.includes(l.class_subject_id)).length,
+      avaliacoes: DADOS.avaliacoes.filter(a => ofertas.includes(a.class_subject_id)).length };
+  });
+  return {
+    html: `
+      <div class="cabec">
+        <div><h1>Professores</h1>
+          <p>${linhas.length} professor(es). O vínculo é sempre com uma <strong>turma + disciplina</strong>:
+             é ele que define o que cada um enxerga.</p></div>
+      </div>
+      ${painel("Equipe", tabela(
+        [{ t: "Professor" }, { t: "Contato" }, { t: "Perfil" }, { t: "Turmas", num: 1 },
+         { t: "Disciplinas", num: 1 }, { t: "Aulas", num: 1 }, { t: "Avaliações", num: 1 }, { t: "Situação" }],
+        linhas.map(l => `<tr class="linha-clicavel" data-professor="${l.p.id}">
+          <td><div style="display:flex;align-items:center;gap:8px">
+            <span class="perfil__avatar">${h(iniciais(l.p.name))}</span>
+            <span>${h(l.p.name)}<div class="mudo" style="font-size:11.5px">${h(l.p.qualification ?? "")}</div></span></div></td>
+          <td class="mudo" style="font-size:12px">${h(l.p.email)}<div>${h(l.p.phone ?? "")}</div></td>
+          <td>${tag(l.p.role === "admin" ? "roxo" : "info", l.p.role === "admin" ? "Administrador" : "Professor")}</td>
+          <td class="num">${l.turmas}</td><td class="num">${l.disciplinas}</td>
+          <td class="num">${l.aulas}</td><td class="num">${l.avaliacoes}</td>
+          <td>${tag(l.p.is_active ? "bom" : "neutro", l.p.is_active ? "Ativo" : "Inativo")}</td></tr>`)), { nu: true })}`,
+  };
+};
+
+/* ------------------------------------------------------ ficha do professor */
+VISTAS.professor = () => {
+  const p = BASE.professorPorId.get(rota.id);
+  if (!p) return { html: '<div class="vazio">Professor não encontrado.</div>' };
+  const ofertas = BASE.ofertasDoProfessor(p.id);
+  const f = ofertas.length ? { ofertas } : { ofertas: [] };
+  const rk = BASE.ranking(CFG, f);
+  const classes = { evolucao: 0, intermediario: 0, atencao: 0, sem_dados: 0 };
+  rk.forEach(r => classes[r.classificacao]++);
+  const media = BASE.mediaGeral(f);
+  const acertos = BASE.totaisDeResposta(BASE.respostas(f));
+  const assuntos = BASE.aproveitamentoPorAssunto(BASE.respostas(f), CFG);
+
+  return {
+    html: `
+      <div class="cabec">
+        <div style="display:flex;gap:12px;align-items:center">
+          <span class="perfil__avatar" style="width:42px;height:42px;font-size:14px">${h(iniciais(p.name))}</span>
+          <div><h1>${h(p.name)}</h1>
+            <p><button class="migalha" data-ir="professores">Professores</button> · ${h(p.email)}
+              ${p.qualification ? " · " + h(p.qualification) : ""}
+              · ${tag(p.role === "admin" ? "roxo" : "info", p.role === "admin" ? "Administrador" : "Professor")}</p></div>
+        </div>
+        <div class="cabec__acoes">
+          <button class="btn" data-ver-como="${p.id}">Ver o painel dele</button>
+        </div>
+      </div>
+
+      <div class="kpis">
+        ${kpi("Ofertas", ofertas.length, "turma × disciplina")}
+        ${kpi("Aulas / Avaliações",
+          `${DADOS.aulas.filter(l => ofertas.includes(l.class_subject_id)).length} / ${DADOS.avaliacoes.filter(a => ofertas.includes(a.class_subject_id)).length}`,
+          "registradas por ele")}
+        ${kpi("Média das turmas dele", pct(media), "", faixa(media).classe)}
+        ${kpi("% de acertos", pct(acertos.pct_acertos), `${acertos.total} respostas`, faixa(acertos.pct_acertos).classe)}
+        ${kpi("Em evolução", classes.evolucao, "", "bom")}
+        ${kpi("Precisam de atenção", classes.atencao, "nas turmas dele", "ruim")}
+      </div>
+
+      <div class="colunas c-21">
+        <div>
+          ${painel("Turmas e disciplinas", ofertas.length === 0
+            ? '<div class="vazio">Este professor ainda não responde por nenhuma turma.</div>'
+            : tabela([{ t: "Turma" }, { t: "Disciplina" }, { t: "Curso" }, { t: "Alunos", num: 1 },
+                      { t: "Aulas", num: 1 }, { t: "Avaliações", num: 1 }],
+              ofertas.map(id => {
+                const o = BASE.oferta(id);
+                const t = BASE.turmaPorId.get(o.class_id), d = BASE.disciplinaPorId.get(o.subject_id);
+                return `<tr><td><strong>${h(t.code)}</strong><div class="mudo" style="font-size:11.5px">${t.year}</div></td>
+                  <td>${h(d.name)}</td><td class="mudo">${h(BASE.cursoPorId.get(t.course_id).name)}</td>
+                  <td class="num">${DADOS.alunos.filter(a => a.class_id === t.id).length}</td>
+                  <td class="num">${DADOS.aulas.filter(l => l.class_subject_id === id).length}</td>
+                  <td class="num">${DADOS.avaliacoes.filter(a => a.class_subject_id === id).length}</td></tr>`;
+              })), { nu: true })}
+
+          ${painel("Alunos atendidos", tabela(COLS_RANKING, rk.map(r => linhaRanking(r))), { nu: true,
+            direita: `<span class="tag tag--neutro">${rk.length} aluno(s)</span>` })}
+        </div>
+        <div>
+          ${painel("Assuntos das turmas dele", assuntos.length === 0
+            ? '<div class="vazio">Sem respostas registradas.</div>'
+            : `<div class="rolagem"><table><tbody>${assuntos.slice(0, 8).map(a => `
+                <tr><td>${h(a.topic_name)}<div class="mudo" style="font-size:11.5px">${h(a.subject_name)}</div></td>
+                  <td style="width:140px">${barra(a.aproveitamento)}</td></tr>`).join("")}</tbody></table></div>`, { nu: true })}
+        </div>
+      </div>`,
+  };
+};
+</script>
