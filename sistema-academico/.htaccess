@@ -1,0 +1,27 @@
+# Painel Pedagógico — front controller + endurecimento
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Assets e arquivos existentes são servidos diretamente.
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Todo o resto vai para o front controller.
+  RewriteRule ^ index.php [L]
+</IfModule>
+
+# Diretórios internos nunca são servidos pela web.
+RedirectMatch 404 ^.*/sistema-academico/(src|views|config|storage|database)/.*$
+
+<FilesMatch "\.(sql|sqlite|log|md)$">
+  Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+</IfModule>
+
+Options -Indexes
