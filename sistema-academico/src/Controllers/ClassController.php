@@ -2,6 +2,8 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Models\ActivityLog;
+use App\Core\Scope;
 use App\Core\Flash;
 use App\Core\Validator;
 use App\Models\ClassGroup;
@@ -24,9 +26,16 @@ class ClassController extends Controller
             'status' => $this->request->query('status'),
             'busca'  => $this->request->query('busca'),
         ];
+        $permitidas = Scope::classIds();
+        $turmas = ClassGroup::search($filters);
+        if ($permitidas !== null) {
+            $turmas = array_values(array_filter($turmas,
+                static fn ($t) => in_array((int) $t['id'], $permitidas, true)));
+        }
+
         $this->view('classes/index', [
             'title'   => 'Turmas',
-            'turmas'  => ClassGroup::search($filters),
+            'turmas'  => $turmas,
             'filters' => $filters,
             'cursos'  => Course::options(),
             'anos'    => ClassGroup::years(),
@@ -49,6 +58,7 @@ class ClassController extends Controller
             $this->rejectWith($validator, '/turmas/nova');
         }
         $id = ClassGroup::create($this->request->post);
+        ActivityLog::record('criou', 'turma', $id, $this->request->input('code'));
         Flash::success('Turma criada. Vincule as disciplinas e os alunos abaixo.');
         $this->redirect('/turmas/' . $id);
     }
@@ -77,6 +87,7 @@ class ClassController extends Controller
             $this->rejectWith($validator, '/turmas/' . $classId . '/editar');
         }
         ClassGroup::update($classId, $this->request->post);
+        ActivityLog::record('atualizou', 'turma', $classId, $this->request->input('code'));
         Flash::success('Turma atualizada.');
         $this->redirect('/turmas/' . $classId);
     }
@@ -113,7 +124,10 @@ class ClassController extends Controller
             $this->notFound('Turma não encontrada.');
         }
 
-        $filters = array_merge($this->filters(['disciplina', 'inicio', 'fim']), ['turma' => $classId]);
+        $this->denyUnless(Scope::classIds() === null || in_array($classId, Scope::classIds(), true),
+            'Você não leciona nesta turma.');
+
+        $filters = array_merge($this->scopedFilters(['disciplina', 'inicio', 'fim']), ['turma' => $classId]);
         $ranking = RankingService::build($filters);
 
         $this->view('classes/show', [
@@ -155,6 +169,7 @@ class ClassController extends Controller
         }
 
         if (ClassGroup::attachSubject($classId, $subjectId, $teacherId)) {
+            ActivityLog::record('vinculou disciplina', 'turma', $classId, 'disciplina ' . $subjectId);
             Flash::success('Disciplina vinculada à turma.');
         } else {
             Flash::warning('Esta disciplina já está vinculada à turma.');
@@ -181,6 +196,7 @@ class ClassController extends Controller
         }
 
         Student::assignToClass($studentId, $classId);
+        ActivityLog::record('vinculou aluno', 'turma', $classId, 'aluno ' . $studentId);
         Flash::success('Aluno vinculado à turma.');
         $this->redirect('/turmas/' . $classId);
     }
@@ -203,6 +219,7 @@ class ClassController extends Controller
             $this->redirect('/turmas/' . $classId);
         }
         ClassGroup::delete($classId);
+        ActivityLog::record('excluiu', 'turma', $classId);
         Flash::success('Turma excluída.');
         $this->redirect('/turmas');
     }

@@ -2,6 +2,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Scope;
 use App\Models\Assessment;
 use App\Models\ClassGroup;
 use App\Models\Course;
@@ -16,7 +17,7 @@ class ReportController extends Controller
     public function index(): void
     {
         $tipo    = (string) $this->request->query('relatorio', 'turma');
-        $filters = $this->filters();
+        $filters = $this->scopedFilters();
         $relatorio = ReportService::build($tipo, $filters);
 
         $this->view('reports/index', array_merge($this->formData($tipo, $filters), [
@@ -29,7 +30,7 @@ class ReportController extends Controller
     public function print(): void
     {
         $tipo    = (string) $this->request->query('relatorio', 'turma');
-        $filters = $this->filters();
+        $filters = $this->scopedFilters();
 
         $this->view('reports/print', [
             'title'     => 'Relatório',
@@ -41,7 +42,7 @@ class ReportController extends Controller
     public function export(): void
     {
         $tipo    = (string) $this->request->query('relatorio', 'turma');
-        $filters = $this->filters();
+        $filters = $this->scopedFilters();
         $relatorio = ReportService::build($tipo, $filters);
 
         $rows = [];
@@ -62,15 +63,29 @@ class ReportController extends Controller
             'tipos'       => ReportService::TYPES,
             'filters'     => $filters,
             'cursos'      => Course::options(),
-            'turmas'      => ClassGroup::options(),
-            'disciplinas' => Subject::options(),
-            'alunos'      => Student::search([]),
+            'turmas'      => $this->turmasVisiveis(),
+            'disciplinas' => $this->disciplinasVisiveis(),
+            'alunos'      => Scope::students(),
             'avaliacoes'  => Assessment::search([], 100),
             'assuntos'    => !empty($filters['disciplina']) ? Topic::optionsBySubject((int) $filters['disciplina']) : [],
             'tipos_aval'  => Assessment::TYPES,
             'dificuldades'=> Question::DIFFICULTIES,
             'filtros_descricao' => $this->describeFilters($filters),
         ];
+    }
+
+    private function turmasVisiveis(): array
+    {
+        $ids = Scope::classIds();
+        return $ids === null ? ClassGroup::options()
+            : array_values(array_filter(ClassGroup::options(), static fn ($t) => in_array((int) $t['id'], $ids, true)));
+    }
+
+    private function disciplinasVisiveis(): array
+    {
+        $ids = Scope::subjectIds();
+        return $ids === null ? Subject::options()
+            : array_values(array_filter(Subject::options(), static fn ($d) => in_array((int) $d['id'], $ids, true)));
     }
 
     /** Descreve o recorte em texto — vai no cabeçalho do relatório impresso. */

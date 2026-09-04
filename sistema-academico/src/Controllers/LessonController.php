@@ -2,6 +2,8 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Models\ActivityLog;
+use App\Core\Scope;
 use App\Core\Flash;
 use App\Core\Validator;
 use App\Models\Attendance;
@@ -16,15 +18,15 @@ class LessonController extends Controller
 {
     public function index(): void
     {
-        $filters = $this->filters(['turma', 'disciplina', 'aluno', 'inicio', 'fim']);
+        $filters = $this->scopedFilters(['turma', 'disciplina', 'aluno', 'inicio', 'fim']);
         $this->view('lessons/index', [
             'title'       => 'Aulas',
             'aulas'       => Lesson::search($filters, 200),
             'total'       => Lesson::countSearch($filters),
             'filters'     => $filters,
-            'turmas'      => ClassGroup::options(),
-            'disciplinas' => Subject::options(),
-            'alunos'      => Student::search(['status' => 'ativo']),
+            'turmas'      => $this->turmasVisiveis(),
+            'disciplinas' => $this->disciplinasVisiveis(),
+            'alunos'      => Scope::students(),
         ]);
     }
 
@@ -33,7 +35,7 @@ class LessonController extends Controller
         $this->view('lessons/form', [
             'title'   => 'Nova aula',
             'aula'    => null,
-            'ofertas' => ClassSubject::options(),
+            'ofertas' => ClassSubject::options(Scope::apply([])),
             'topicos' => Topic::all(),
             'selecionados' => [],
         ]);
@@ -47,6 +49,7 @@ class LessonController extends Controller
         }
 
         $id = Lesson::create($this->request->post, (array) ($this->request->post['topics'] ?? []));
+        ActivityLog::record('registrou', 'aula', $id, $this->request->input('title'));
         Flash::success('Aula registrada. Faça a chamada para computar a frequência.');
         $this->redirect('/aulas/' . $id . '/frequencia');
     }
@@ -57,10 +60,12 @@ class LessonController extends Controller
         if (!$aula) {
             $this->notFound('Aula não encontrada.');
         }
+        $this->denyUnless(Scope::canAccessClassSubject((int) $aula['class_subject_id']),
+            'Esta aula é de uma turma/disciplina fora do seu escopo.');
         $this->view('lessons/form', [
             'title'   => 'Editar aula',
             'aula'    => $aula,
-            'ofertas' => ClassSubject::options(),
+            'ofertas' => ClassSubject::options(Scope::apply([])),
             'topicos' => Topic::all(),
             'selecionados' => Lesson::topicIds((int) $id),
         ]);
@@ -69,16 +74,33 @@ class LessonController extends Controller
     public function update(string $id): void
     {
         $lessonId = (int) $id;
-        if (!Lesson::find($lessonId)) {
+        $existente = Lesson::find($lessonId);
+        if (!$existente) {
             $this->notFound('Aula não encontrada.');
         }
+        $this->denyUnless(Scope::canAccessClassSubject((int) $existente['class_subject_id']));
         $validator = $this->validateLesson();
         if ($validator->fails()) {
             $this->rejectWith($validator, '/aulas/' . $lessonId . '/editar');
         }
         Lesson::update($lessonId, $this->request->post, (array) ($this->request->post['topics'] ?? []));
+        ActivityLog::record('atualizou', 'aula', $lessonId, $this->request->input('title'));
         Flash::success('Aula atualizada.');
         $this->redirect('/aulas');
+    }
+
+    private function turmasVisiveis(): array
+    {
+        $ids = Scope::classIds();
+        return $ids === null ? ClassGroup::options()
+            : array_values(array_filter(ClassGroup::options(), static fn ($t) => in_array((int) $t['id'], $ids, true)));
+    }
+
+    private function disciplinasVisiveis(): array
+    {
+        $ids = Scope::subjectIds();
+        return $ids === null ? Subject::options()
+            : array_values(array_filter(Subject::options(), static fn ($d) => in_array((int) $d['id'], $ids, true)));
     }
 
     private function validateLesson(): Validator
@@ -95,8 +117,13 @@ class LessonController extends Controller
             'duration_minutes' => 'duração',
         ]);
 
+        $ofertaId = (int) $this->request->input('class_subject_id', 0);
+        if ($ofertaId > 0 && !Scope::canAccessClassSubject($ofertaId)) {
+            $validator->add('class_subject_id', 'Turma/disciplina fora do seu escopo.');
+        }
+
         // Aviso de coerência: a data deve cair no período da turma.
-        $oferta = ClassSubject::find((int) $this->request->input('class_subject_id', 0));
+        $oferta = ClassSubject::find($ofertaId);
         $data   = (string) $this->request->input('lesson_date', '');
         if ($oferta && $data !== '') {
             $turma = ClassGroup::find((int) $oferta['class_id']);
@@ -118,6 +145,7 @@ class LessonController extends Controller
         if (!$aula) {
             $this->notFound('Aula não encontrada.');
         }
+        $this->denyUnless(Scope::canAccessClassSubject((int) $aula['class_subject_id']));
 
         $this->view('lessons/attendance', [
             'title'     => 'Chamada — ' . $aula['title'],
@@ -135,6 +163,7 @@ class LessonController extends Controller
         if (!$aula) {
             $this->notFound('Aula não encontrada.');
         }
+        $this->denyUnless(Scope::canAccessClassSubject((int) $aula['class_subject_id']));
 
         $entries = [];
         $alunos  = Student::byClass((int) $aula['class_id']);
@@ -155,6 +184,7 @@ class LessonController extends Controller
         }
 
         $saved = Attendance::saveForLesson($lessonId, $entries);
+        ActivityLog::record('registrou chamada', 'aula', $lessonId, "{$saved} aluno(s)");
         Flash::success("Chamada registrada para {$saved} aluno(s).");
         $this->redirect('/aulas/' . $lessonId . '/frequencia');
     }
@@ -162,10 +192,13 @@ class LessonController extends Controller
     public function destroy(string $id): void
     {
         $lessonId = (int) $id;
-        if (!Lesson::find($lessonId)) {
+        $aula = Lesson::find($lessonId);
+        if (!$aula) {
             $this->notFound('Aula não encontrada.');
         }
+        $this->denyUnless(Scope::canAccessClassSubject((int) $aula['class_subject_id']));
         Lesson::delete($lessonId);
+        ActivityLog::record('excluiu', 'aula', $lessonId, $aula['title']);
         Flash::success('Aula excluída (a chamada correspondente também foi removida).');
         $this->redirect('/aulas');
     }

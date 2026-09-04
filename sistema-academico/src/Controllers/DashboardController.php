@@ -3,6 +3,7 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Core\Scope;
 use App\Core\Flash;
 use App\Models\ClassGroup;
 use App\Models\Course;
@@ -16,7 +17,7 @@ class DashboardController extends Controller
 {
     public function index(): void
     {
-        $filters = $this->filters(['curso', 'turma', 'disciplina', 'inicio', 'fim']);
+        $filters = $this->scopedFilters(['curso', 'turma', 'disciplina', 'inicio', 'fim']);
 
         $ranking      = RankingService::build($filters);
         $counts       = RankingService::summarize($ranking);
@@ -46,13 +47,28 @@ class DashboardController extends Controller
             'assuntos'     => array_slice(AnalyticsService::topicPerformance($filters), 0, 8),
             'pesos'        => RankingService::weightsLabel(),
             'cursos'       => Course::options(),
-            'turmas'       => ClassGroup::options(),
-            'disciplinas'  => Subject::options(),
+            'turmas'       => $this->turmasVisiveis(),
+            'disciplinas'  => $this->disciplinasVisiveis(),
             'faixas'       => [
                 'dominio'       => Setting::float('faixa_dominio'),
                 'intermediario' => Setting::float('faixa_intermediario'),
             ],
         ]);
+    }
+
+    /** Selects de filtro mostram apenas o que o perfil alcança. */
+    private function turmasVisiveis(): array
+    {
+        $ids = Scope::classIds();
+        return $ids === null ? ClassGroup::options()
+            : array_values(array_filter(ClassGroup::options(), static fn ($t) => in_array((int) $t['id'], $ids, true)));
+    }
+
+    private function disciplinasVisiveis(): array
+    {
+        $ids = Scope::subjectIds();
+        return $ids === null ? Subject::options()
+            : array_values(array_filter(Subject::options(), static fn ($d) => in_array((int) $d['id'], $ids, true)));
     }
 
     public function dismissAlert(): void

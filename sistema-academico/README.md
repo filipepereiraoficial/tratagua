@@ -18,6 +18,7 @@ Aplicação PHP independente, hospedada ao lado do site institucional em
 | [docs/02-MODELO-DE-DADOS.md](docs/02-MODELO-DE-DADOS.md) | Entidades, relacionamentos, tabelas e regras de integridade |
 | [docs/03-TELAS-E-NAVEGACAO.md](docs/03-TELAS-E-NAVEGACAO.md) | Mapa de telas, layout e fluxo de navegação |
 | [docs/04-REGRAS-DE-CALCULO.md](docs/04-REGRAS-DE-CALCULO.md) | Fórmulas dos indicadores, Índice de Desenvolvimento, alertas e dashboards |
+| [docs/05-PERFIS-E-PAINEIS.md](docs/05-PERFIS-E-PAINEIS.md) | Perfis, escopo de acesso, painel do professor, do administrador e do aluno |
 
 ## Experimentar sem instalar
 
@@ -58,7 +59,14 @@ cd sistema-academico
 php database/migrate.php --seed              # schema + carga inicial
 php database/migrate.php --seed --demo       # + dados de demonstração
 php database/migrate.php --fresh --seed      # recria do zero
+php database/migrate.php --migrate           # atualiza instalação existente
 ```
+
+### Atualizando uma instalação que já está no ar
+
+Basta subir os arquivos: a aplicação detecta migrações pendentes no boot e as
+aplica uma única vez, preservando os dados. Para fazer isso pela linha de
+comando, use `php database/migrate.php --migrate`.
 
 ### Banco MySQL em produção
 
@@ -84,6 +92,10 @@ versionamento.
 
 **Altere a senha após o primeiro acesso** em *Alterar senha* (menu lateral) ou
 em *Configurações → Usuários*.
+
+Com `--demo`, um professor de exemplo também é criado
+(`professor@exemplo.com` / `Professor@2026`), já responsável pela turma INF01 —
+serve para conferir o painel do professor e o recorte por responsabilidade.
 
 ## Dados iniciais criados
 
@@ -113,20 +125,39 @@ Duas formas de lançar resultados, ambas alimentando os mesmos indicadores:
 
 ---
 
+## Perfis de acesso
+
+| Perfil | Enxerga | Entra em |
+|---|---|---|
+| **Administrador** | a instituição inteira | `/painel-admin` |
+| **Professor** | apenas as turmas × disciplinas sob sua responsabilidade | `/meu-painel` |
+| **Aluno** | apenas a si mesmo | `/minha-evolucao` |
+
+O professor é vinculado a uma **oferta** — o par turma + disciplina — e é esse
+vínculo que recorta tudo: alunos, aulas, avaliações, questões, relatórios,
+gráficos e alertas. O recorte vale nas listagens **e** no acesso direto por URL.
+Detalhes em [docs/05](docs/05-PERFIS-E-PAINEIS.md).
+
 ## Módulos
 
 | Módulo | O que faz |
 |---|---|
 | **Dashboard** | 11 indicadores, 8 gráficos, alertas prioritários, ranking e conteúdos críticos |
+| **Painel do administrador** | Curso × curso, turma × turma, professor × professor e as pendências que travam a análise |
+| **Painel do professor** | Quem mais evoluiu, quem precisa de atenção e quem mais deixou pontuação — só nas turmas dele |
 | **Alunos** | Cadastro completo, vínculo/troca de turma com histórico, **dashboard individual de aprendizagem** |
+| **Professores** | Cadastro com formação e contato, vínculo a turma + disciplina, carga de trabalho e redefinição de senha |
 | **Turmas** | Cursos, turmas, vínculo de alunos e disciplinas, painel de desempenho da turma |
 | **Disciplinas** | Cadastro, árvore de assuntos e tópicos, desempenho por conteúdo e por turma |
 | **Aulas** | Registro de conteúdo e tópicos, chamada com presença e participação |
 | **Avaliações** | 6 tipos, questões em lote, lançamento por questão ou nota direta, análise item a item |
 | **Questões** | Banco reaproveitável com índice de acerto real por questão |
+| **Acompanhamento pedagógico** | Registra o que foi feito com o aluno sinalizado e **mede o efeito** contra a linha de base |
 | **Relatórios** | 8 relatórios filtráveis, exportação CSV e versão para impressão/PDF |
 | **Gráficos** | Painel de gráficos + comparações (aluno×aluno, aluno×turma, turma×turma, disciplina×disciplina, avaliação×avaliação) |
+| **Auditoria** | Quem alterou o quê, com filtros por usuário, entidade, ação e período |
 | **Configurações** | Faixas de classificação, pesos do Índice de Desenvolvimento, limites dos alertas e usuários |
+| **Minha evolução** | Painel do aluno: o próprio desempenho, sem ver os colegas |
 
 ---
 
@@ -172,8 +203,16 @@ autorização por perfil em cada rota, 100% dos acessos ao banco via prepared
 statements, escape obrigatório na saída e diretórios internos negados por
 `.htaccess`.
 
-## Perfil Aluno
+## Fechando o ciclo
 
-A estrutura já contempla o perfil `aluno` (`users.role` + `users.student_id`) e
-os serviços analíticos já recebem o aluno como parâmetro — habilitar o painel do
-aluno é uma questão de expor as rotas, sem mudanças no modelo de dados.
+O sistema não para em apontar o problema:
+
+```
+alerta aponta o aluno → professor registra o acompanhamento
+   → o sistema congela média e frequência daquele momento
+   → ao reabrir, compara com os valores atuais
+   → "efeito na média: +7,4 p.p. (de 49,0% para 56,4%)"
+```
+
+Sem linha de base, o efeito aparece como *"sem linha de base"* — o sistema não
+inventa um "antes" que não foi medido.

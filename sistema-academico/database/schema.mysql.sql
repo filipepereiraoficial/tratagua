@@ -29,6 +29,10 @@ CREATE TABLE IF NOT EXISTS users (
   student_id INT UNSIGNED NULL,
   is_active TINYINT(1) NOT NULL DEFAULT 1,
   must_change_password TINYINT(1) NOT NULL DEFAULT 0,
+  document VARCHAR(32) NULL,
+  phone VARCHAR(32) NULL,
+  qualification VARCHAR(150) NULL,
+  notes TEXT NULL,
   last_login_at DATETIME NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -263,6 +267,38 @@ CREATE TABLE IF NOT EXISTS activity_log (
   details VARCHAR(255) NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY idx_log_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS interventions (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  student_id INT UNSIGNED NOT NULL,
+  class_subject_id INT UNSIGNED NULL,
+  author_user_id INT UNSIGNED NULL,
+  alert_key VARCHAR(191) NULL,
+  type ENUM('conversa','reforco','material','contato_responsavel','encaminhamento','outro') NOT NULL DEFAULT 'conversa',
+  title VARCHAR(200) NOT NULL,
+  description TEXT NULL,
+  action_taken TEXT NULL,
+  due_date DATE NULL,
+  status ENUM('aberta','em_andamento','concluida','cancelada') NOT NULL DEFAULT 'aberta',
+  result_note TEXT NULL,
+  baseline_media DECIMAL(6,2) NULL,
+  baseline_frequencia DECIMAL(6,2) NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  closed_at DATETIME NULL,
+  KEY idx_interv_student (student_id),
+  KEY idx_interv_status (status),
+  KEY idx_interv_cs (class_subject_id),
+  CONSTRAINT fk_interv_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+  CONSTRAINT fk_interv_cs FOREIGN KEY (class_subject_id) REFERENCES class_subjects(id) ON DELETE SET NULL,
+  CONSTRAINT fk_interv_author FOREIGN KEY (author_user_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS migrations (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  migration VARCHAR(191) NOT NULL UNIQUE,
+  applied_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SET FOREIGN_KEY_CHECKS = 1;

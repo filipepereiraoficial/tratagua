@@ -31,6 +31,13 @@ class Middleware
 
             case 'role':
                 $allowed = array_map('trim', explode('|', (string) $argument));
+                // O aluno entra direto no painel dele em vez de ver um 403 seco.
+                if (Auth::hasRole('aluno') && !in_array('aluno', $allowed, true)) {
+                    if ($request->wantsJson()) {
+                        self::json(403, 'Você não tem permissão para esta operação.');
+                    }
+                    self::redirect('/minha-evolucao');
+                }
                 if (!Auth::hasRole(...$allowed)) {
                     if ($request->wantsJson()) {
                         self::json(403, 'Você não tem permissão para esta operação.');

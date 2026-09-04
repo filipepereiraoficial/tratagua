@@ -2,6 +2,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Scope;
 use App\Core\Flash;
 use App\Core\Validator;
 use App\Models\Grade;
@@ -15,6 +16,11 @@ class QuestionController extends Controller
     public function index(): void
     {
         $filters = $this->filters(['disciplina', 'assunto', 'dificuldade', 'avaliacao', 'busca', 'origem']);
+        // O professor vê o banco das disciplinas que leciona.
+        $permitidas = Scope::subjectIds();
+        if ($permitidas !== null) {
+            $filters['disciplinas_permitidas'] = $permitidas;
+        }
         $questoes = Question::search($filters, 300);
 
         foreach ($questoes as &$questao) {
@@ -33,7 +39,7 @@ class QuestionController extends Controller
             'title'       => 'Banco de questões',
             'questoes'    => $questoes,
             'filters'     => $filters,
-            'disciplinas' => Subject::options(),
+            'disciplinas' => $this->disciplinasVisiveis(),
             'assuntos'    => $assuntos,
             'dificuldades'=> Question::DIFFICULTIES,
         ]);
@@ -106,9 +112,18 @@ class QuestionController extends Controller
         $this->redirect('/questoes');
     }
 
+    private function disciplinasVisiveis(): array
+    {
+        $ids = Scope::subjectIds();
+        return $ids === null ? Subject::options()
+            : array_values(array_filter(Subject::options(), static fn ($d) => in_array((int) $d['id'], $ids, true)));
+    }
+
     private function validateQuestion(): Validator
     {
-        return Validator::make($this->request->post, [
+        $permitidas = Scope::subjectIds();
+        $disciplina = (int) $this->request->input('subject_id', 0);
+        $validator = Validator::make($this->request->post, [
             'subject_id' => 'required|integer|exists:subjects',
             'difficulty' => 'required|in:' . implode(',', Question::DIFFICULTIES),
             'points'     => 'required|numeric|min_value:0.01|max_value:1000',
@@ -119,6 +134,10 @@ class QuestionController extends Controller
             'points'     => 'valor da questão',
             'type'       => 'tipo',
         ]);
+        if ($permitidas !== null && $disciplina > 0 && !in_array($disciplina, $permitidas, true)) {
+            $validator->add('subject_id', 'Você não leciona esta disciplina.');
+        }
+        return $validator;
     }
 
     public function destroy(string $id): void

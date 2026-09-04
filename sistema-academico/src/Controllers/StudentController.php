@@ -2,6 +2,8 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Models\ActivityLog;
+use App\Core\Scope;
 use App\Core\Database;
 use App\Core\Flash;
 use App\Core\Validator;
@@ -30,6 +32,12 @@ class StudentController extends Controller
             'dir'    => $this->request->query('dir', 'asc'),
         ];
 
+        // O professor lista apenas alunos das turmas em que leciona.
+        $turmas = Scope::classIds();
+        if ($turmas !== null) {
+            $filters['turmas_permitidas'] = $turmas;
+        }
+
         $page   = max(1, (int) $this->request->query('pagina', 1));
         $total  = Student::countSearch($filters);
         $pages  = max(1, (int) ceil($total / self::PER_PAGE));
@@ -43,7 +51,7 @@ class StudentController extends Controller
             'total'   => $total,
             'pagina'  => $page,
             'paginas' => $pages,
-            'turmas'  => ClassGroup::options(),
+            'turmas'  => $this->turmasVisiveis(),
             'cursos'  => Course::options(),
         ]);
     }
@@ -53,7 +61,7 @@ class StudentController extends Controller
         $this->view('students/form', [
             'title'  => 'Novo aluno',
             'aluno'  => null,
-            'turmas' => ClassGroup::options(),
+            'turmas' => $this->turmasVisiveis(),
             'turma_pre' => $this->request->query('turma'),
         ]);
     }
@@ -66,10 +74,12 @@ class StudentController extends Controller
         }
 
         $id = Student::create($this->request->post);
+        ActivityLog::record('cadastrou', 'aluno', $id, $this->request->input('full_name'));
 
         $classId = (int) $this->request->input('class_id', 0);
         if ($classId > 0) {
             Student::assignToClass($id, $classId);
+            ActivityLog::record('vinculou à turma', 'aluno', $id, 'turma ' . $classId);
         }
 
         Flash::success('Aluno cadastrado com sucesso.');
@@ -85,7 +95,7 @@ class StudentController extends Controller
         $this->view('students/form', [
             'title'  => 'Editar aluno',
             'aluno'  => $aluno,
-            'turmas' => ClassGroup::options(),
+            'turmas' => $this->turmasVisiveis(),
         ]);
     }
 
@@ -103,6 +113,7 @@ class StudentController extends Controller
         }
 
         Student::update($studentId, $this->request->post);
+        ActivityLog::record('atualizou', 'aluno', $studentId, $this->request->input('full_name'));
 
         $classId = (int) $this->request->input('class_id', 0);
         $current = Student::currentClassId($studentId);
@@ -115,6 +126,14 @@ class StudentController extends Controller
 
         Flash::success('Dados do aluno atualizados.');
         $this->redirect('/alunos/' . $studentId);
+    }
+
+    /** Turmas que o perfil enxerga — o professor só vê onde leciona. */
+    private function turmasVisiveis(): array
+    {
+        $ids = Scope::classIds();
+        return $ids === null ? ClassGroup::options()
+            : array_values(array_filter(ClassGroup::options(), static fn ($t) => in_array((int) $t['id'], $ids, true)));
     }
 
     private function validateStudent(?int $ignoreId = null): Validator
@@ -148,12 +167,15 @@ class StudentController extends Controller
     public function show(string $id): void
     {
         $studentId = (int) $id;
+        $this->denyUnless(Scope::canAccessStudent($studentId),
+            'Este aluno não está em nenhuma turma sob sua responsabilidade.');
+
         $aluno = Student::find($studentId);
         if (!$aluno) {
             $this->notFound('Aluno não encontrado.');
         }
 
-        $filters = $this->filters(['disciplina', 'turma', 'tipo', 'inicio', 'fim']);
+        $filters = $this->scopedFilters(['disciplina', 'turma', 'tipo', 'inicio', 'fim']);
         $resumo  = AnalyticsService::studentSummary($studentId, $filters);
 
         $posicao = ['posicao' => null, 'total' => 0, 'indice' => null];
@@ -189,7 +211,7 @@ class StudentController extends Controller
             'alertas'      => AlertService::forStudent($studentId),
             'presencas'    => \App\Models\Attendance::historyForStudent($studentId, $filters),
             'vinculos'     => Student::enrollments($studentId),
-            'turmas'       => ClassGroup::options(),
+            'turmas'       => $this->turmasVisiveis(),
             'faixas'       => [
                 'dominio'       => Setting::float('faixa_dominio'),
                 'intermediario' => Setting::float('faixa_intermediario'),
@@ -207,9 +229,11 @@ class StudentController extends Controller
         $classId = (int) $this->request->input('class_id', 0);
         if ($classId === 0) {
             Student::removeFromClass($studentId);
+            ActivityLog::record('desvinculou da turma', 'aluno', $studentId);
             Flash::info('Aluno desvinculado da turma. O histórico foi preservado.');
         } elseif (ClassGroup::find($classId)) {
             Student::assignToClass($studentId, $classId);
+            ActivityLog::record('vinculou à turma', 'aluno', $studentId, 'turma ' . $classId);
             Flash::success('Aluno vinculado à turma.');
         } else {
             Flash::error('Turma inválida.');
@@ -232,6 +256,7 @@ class StudentController extends Controller
         }
 
         Student::delete($studentId);
+        ActivityLog::record('excluiu', 'aluno', $studentId, $aluno['full_name']);
         Flash::success('Aluno excluído.');
         $this->redirect('/alunos');
     }

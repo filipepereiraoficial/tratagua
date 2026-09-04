@@ -89,6 +89,11 @@ class Student
         if (!empty($filters['sem_turma'])) {
             $where[] = 'c.id IS NULL';
         }
+        if (isset($filters['turmas_permitidas'])) {
+            // Escopo do professor: só alunos das turmas em que ele leciona.
+            $ids = array_filter(array_map('intval', (array) $filters['turmas_permitidas']));
+            $where[] = $ids === [] ? '1 = 0' : 'c.id IN (' . implode(',', $ids) . ')';
+        }
 
         return [implode(' AND ', $where), $params];
     }

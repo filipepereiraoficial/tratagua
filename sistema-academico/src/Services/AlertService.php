@@ -171,6 +171,10 @@ class AlertService
         if (!empty($filters['aluno']))      { $where[] = 'sa.student_id = :aluno';      $params['aluno'] = (int) $filters['aluno']; }
         if (!empty($filters['inicio']))     { $where[] = 'a.assessment_date >= :inicio'; $params['inicio'] = $filters['inicio']; }
         if (!empty($filters['fim']))        { $where[] = 'a.assessment_date <= :fim';   $params['fim'] = $filters['fim']; }
+        if (isset($filters['ofertas'])) {
+            $ids = array_filter(array_map('intval', (array) $filters['ofertas']));
+            $where[] = $ids === [] ? '1 = 0' : 'cs.id IN (' . implode(',', $ids) . ')';
+        }
 
         // Aproveitamento do aluno, por assunto, em cada avaliação.
         $sql = 'SELECT student_id, topic_id, COUNT(*) AS ocorrencias
@@ -227,6 +231,10 @@ class AlertService
         if (!empty($filters['disciplina'])) { $where[] = 'cs.subject_id = :disciplina'; $params['disciplina'] = (int) $filters['disciplina']; }
         if (!empty($filters['inicio']))     { $where[] = 'a.assessment_date >= :inicio'; $params['inicio'] = $filters['inicio']; }
         if (!empty($filters['fim']))        { $where[] = 'a.assessment_date <= :fim';   $params['fim'] = $filters['fim']; }
+        if (isset($filters['ofertas'])) {
+            $ids = array_filter(array_map('intval', (array) $filters['ofertas']));
+            $where[] = $ids === [] ? '1 = 0' : 'cs.id IN (' . implode(',', $ids) . ')';
+        }
 
         $rows = Database::all(
             'SELECT cl.id AS class_id, cl.code AS class_code,

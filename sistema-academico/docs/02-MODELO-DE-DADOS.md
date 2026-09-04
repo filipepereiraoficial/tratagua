@@ -70,6 +70,7 @@ Cadeia principal exigida no escopo:
 | student_id | FK students NULL | preenchido quando `role='aluno'` |
 | is_active | bool | |
 | must_change_password | bool | força troca no 1º acesso |
+| document, phone, qualification, notes | | perfil do professor sobre a mesma identidade de acesso — evita o clássico "cadastro de professor sem login" |
 | last_login_at, created_at, updated_at | datetime | |
 
 ### `courses` — cursos
@@ -143,6 +144,21 @@ UNIQUE(assessment_id, student_id).
 Quando existem respostas registradas, a nota é **recalculada automaticamente**
 a partir delas; `is_manual = 1` protege lançamentos feitos direto pelo professor.
 
+### `interventions` — acompanhamento pedagógico
+`id, student_id→students, class_subject_id→class_subjects NULL,`
+`author_user_id→users, alert_key NULL, type(conversa|reforco|material|`
+`contato_responsavel|encaminhamento|outro), title, description, action_taken,`
+`due_date, status(aberta|em_andamento|concluida|cancelada), result_note,`
+`baseline_media, baseline_frequencia, created_at, updated_at, closed_at`
+
+Fecha o ciclo do sistema: o alerta aponta o aluno, aqui se registra o que foi
+feito. `baseline_media` e `baseline_frequencia` são **congelados na abertura** —
+é contra eles que o efeito é medido depois. `alert_key` liga o registro ao
+alerta que o originou.
+
+### `migrations` — controle de versão do schema
+`migration UNIQUE, applied_at` — o que já rodou de `database/migrations/`.
+
 ### `settings` — parâmetros configuráveis
 `key(PK), value` — faixas de classificação, pesos do Índice de Desenvolvimento,
 limites dos alertas, frequência mínima.
@@ -171,3 +187,7 @@ limites dos alertas, frequência mínima.
 6. Datas de avaliação/aula devem cair dentro do intervalo da turma (aviso, não
    bloqueio, para permitir reposições).
 7. Índices em todas as FKs e nas colunas de data usadas em filtros por período.
+8. O professor responde por **ofertas** (`class_subjects`), não por turmas ou
+   disciplinas soltas — é esse vínculo que recorta tudo o que ele enxerga.
+   Desativar ou excluir um professor exige transferir as ofertas antes, para
+   nenhuma aula ficar sem responsável.

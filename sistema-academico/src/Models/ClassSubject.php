@@ -33,6 +33,10 @@ class ClassSubject
             $where[] = 'cs.subject_id = :disciplina';
             $params['disciplina'] = (int) $filters['disciplina'];
         }
+        if (isset($filters['ofertas'])) {
+            $ids = array_filter(array_map('intval', (array) $filters['ofertas']));
+            $where[] = $ids === [] ? '1 = 0' : 'cs.id IN (' . implode(',', $ids) . ')';
+        }
         return Database::all(
             'SELECT cs.id, cs.class_id, cs.subject_id, c.code AS class_code, s.name AS subject_name
                FROM class_subjects cs

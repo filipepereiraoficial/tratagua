@@ -4,6 +4,7 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Core\Database;
 use App\Core\Flash;
+use App\Core\Migrator;
 use App\Core\Validator;
 use App\Models\Setting;
 
@@ -56,6 +57,8 @@ class InstallController extends Controller
         foreach (self::splitStatements($sql) as $statement) {
             Database::pdo()->exec($statement);
         }
+
+        Migrator::markAllApplied();
 
         require_once APP_ROOT . '/database/seed.php';
         $result = \painel_seed([

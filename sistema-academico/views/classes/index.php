@@ -4,8 +4,10 @@
     <p class="mudo mb-0"><?= count($turmas) ?> turma(s) encontradas.</p>
   </div>
   <div class="pagina__acoes">
-    <a class="botao botao--secundario" href="<?= url('/cursos') ?>">Gerenciar cursos</a>
-    <a class="botao" href="<?= url('/turmas/nova') ?>">+ Nova turma</a>
+    <?php if (($auth['role'] ?? '') === 'admin'): ?>
+      <a class="botao botao--secundario" href="<?= url('/cursos') ?>">Gerenciar cursos</a>
+      <a class="botao" href="<?= url('/turmas/nova') ?>">+ Nova turma</a>
+    <?php endif; ?>
   </div>
 </div>
 

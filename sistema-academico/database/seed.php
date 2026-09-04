@@ -131,6 +131,7 @@ if (!function_exists('painel_seed')) {
         if ($comDemo) {
             $criados = painel_seed_demo($classId, $classSubjectId, $subjectId, $topicos);
             $mensagens[] = "Dados de demonstração: {$criados['alunos']} aluno(s), {$criados['aulas']} aula(s) e {$criados['avaliacoes']} avaliação(ões).";
+            $mensagens[] = "Professor de exemplo: {$criados['professor']} / Professor@2026.";
         }
 
         return ['message' => implode(' ', $mensagens)];
@@ -157,6 +158,25 @@ if (!function_exists('painel_seed')) {
      */
     function painel_seed_demo(int $classId, int $classSubjectId, int $subjectId, array $topicos): array
     {
+        // Um professor de verdade para a oferta: sem ele não dá para conferir o
+        // painel do professor nem o recorte por responsabilidade.
+        $professorId = painel_seed_find('users', 'email', 'professor@exemplo.com');
+        if ($professorId === null) {
+            $professorId = User::create([
+                'name'                 => 'Marina Alencar',
+                'email'                => 'professor@exemplo.com',
+                'password'             => 'Professor@2026',
+                'role'                 => 'professor',
+                'must_change_password' => 0,
+            ]);
+            Database::update('users', [
+                'qualification' => 'Licenciatura em Computação',
+                'phone'         => '(81) 99999-0000',
+            ], 'id = :id', ['id' => $professorId]);
+        }
+        Database::update('class_subjects', ['teacher_user_id' => $professorId],
+            'id = :id', ['id' => $classSubjectId]);
+
         $perfis = [
             ['nome' => 'Ana Beatriz Souza',    'base' => 58, 'passo' => 9,  'frequencia' => 0.95, 'forte' => 'Pacote Office',        'fraco' => 'Redes de Computadores'],
             ['nome' => 'Bruno Carvalho Lima',  'base' => 82, 'passo' => 1,  'frequencia' => 0.92, 'forte' => 'Segurança da Informação', 'fraco' => 'Hardware e Software'],
@@ -297,6 +317,7 @@ if (!function_exists('painel_seed')) {
             $avaliacoesCriadas++;
         }
 
-        return ['alunos' => count($alunos), 'aulas' => $aulasCriadas, 'avaliacoes' => $avaliacoesCriadas];
+        return ['alunos' => count($alunos), 'aulas' => $aulasCriadas,
+                'avaliacoes' => $avaliacoesCriadas, 'professor' => 'professor@exemplo.com'];
     }
 }

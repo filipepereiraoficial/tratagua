@@ -6,20 +6,26 @@
  * @var App\Core\Router $router
  */
 
+use App\Controllers\AdminPanelController;
 use App\Controllers\ApiController;
 use App\Controllers\AssessmentController;
+use App\Controllers\AuditController;
 use App\Controllers\AuthController;
 use App\Controllers\ChartController;
 use App\Controllers\ClassController;
 use App\Controllers\CourseController;
 use App\Controllers\DashboardController;
 use App\Controllers\InstallController;
+use App\Controllers\InterventionController;
 use App\Controllers\LessonController;
 use App\Controllers\QuestionController;
 use App\Controllers\ReportController;
 use App\Controllers\SettingsController;
 use App\Controllers\StudentController;
+use App\Controllers\StudentPanelController;
 use App\Controllers\SubjectController;
+use App\Controllers\TeacherController;
+use App\Controllers\TeacherPanelController;
 
 // ------------------------------------------------------------- instalação
 $router->get('/instalar',  [InstallController::class, 'show']);
@@ -54,12 +60,6 @@ $router->group(['auth', 'role:admin|professor'], static function ($r) {
     $r->post('/alunos/{id}',           [StudentController::class, 'update']);
     $r->post('/alunos/{id}/turma',     [StudentController::class, 'changeClass']);
     $r->post('/alunos/{id}/excluir',   [StudentController::class, 'destroy']);
-
-    // Cursos
-    $r->get('/cursos',               [CourseController::class, 'index']);
-    $r->post('/cursos',              [CourseController::class, 'store']);
-    $r->post('/cursos/{id}',         [CourseController::class, 'update']);
-    $r->post('/cursos/{id}/excluir', [CourseController::class, 'destroy']);
 
     // Turmas
     $r->get('/turmas',                        [ClassController::class, 'index']);
@@ -121,6 +121,19 @@ $router->group(['auth', 'role:admin|professor'], static function ($r) {
     $r->post('/questoes/{id}',        [QuestionController::class, 'update']);
     $r->post('/questoes/{id}/excluir',[QuestionController::class, 'destroy']);
 
+    // Painel do professor — recortado nas ofertas sob sua responsabilidade
+    $r->get('/meu-painel',              [TeacherPanelController::class, 'index']);
+    $r->get('/meu-painel/aluno/{id}',   [TeacherPanelController::class, 'student']);
+    $r->get('/minhas-turmas',           [TeacherPanelController::class, 'offerings']);
+
+    // Acompanhamento pedagógico
+    $r->get('/acompanhamento',              [InterventionController::class, 'index']);
+    $r->get('/acompanhamento/novo',         [InterventionController::class, 'create']);
+    $r->post('/acompanhamento',             [InterventionController::class, 'store']);
+    $r->get('/acompanhamento/{id}/editar',  [InterventionController::class, 'edit']);
+    $r->post('/acompanhamento/{id}',        [InterventionController::class, 'update']);
+    $r->post('/acompanhamento/{id}/excluir',[InterventionController::class, 'destroy']);
+
     // Relatórios
     $r->get('/relatorios',           [ReportController::class, 'index']);
     $r->get('/relatorios/exportar',  [ReportController::class, 'export']);
@@ -136,8 +149,35 @@ $router->group(['auth', 'role:admin|professor'], static function ($r) {
     $r->get('/api/ofertas',         [ApiController::class, 'classSubjects']);
 });
 
+// ------------------------------------------------------------ área do aluno
+$router->group(['auth', 'role:aluno|admin'], static function ($r) {
+    $r->get('/minha-evolucao', [StudentPanelController::class, 'index']);
+});
+
 // ---------------------------------------------------- configurações (admin)
 $router->group(['auth', 'role:admin'], static function ($r) {
+    // Painel do administrador e auditoria
+    $r->get('/painel-admin', [AdminPanelController::class, 'index']);
+    $r->get('/auditoria',    [AuditController::class, 'index']);
+
+    // Cursos — a hierarquia institucional é responsabilidade do administrador
+    $r->get('/cursos',               [CourseController::class, 'index']);
+    $r->post('/cursos',              [CourseController::class, 'store']);
+    $r->post('/cursos/{id}',         [CourseController::class, 'update']);
+    $r->post('/cursos/{id}/excluir', [CourseController::class, 'destroy']);
+
+    // Professores
+    $r->get('/professores',                    [TeacherController::class, 'index']);
+    $r->get('/professores/novo',               [TeacherController::class, 'create']);
+    $r->post('/professores',                   [TeacherController::class, 'store']);
+    $r->get('/professores/{id}',               [TeacherController::class, 'show']);
+    $r->get('/professores/{id}/editar',        [TeacherController::class, 'edit']);
+    $r->post('/professores/{id}',              [TeacherController::class, 'update']);
+    $r->post('/professores/{id}/vincular',     [TeacherController::class, 'assign']);
+    $r->post('/professores/{id}/desvincular',  [TeacherController::class, 'unassign']);
+    $r->post('/professores/{id}/senha',        [TeacherController::class, 'resetPassword']);
+    $r->post('/professores/{id}/excluir',      [TeacherController::class, 'destroy']);
+
     $r->get('/configuracoes',                 [SettingsController::class, 'index']);
     $r->post('/configuracoes',                [SettingsController::class, 'update']);
     $r->post('/configuracoes/restaurar',      [SettingsController::class, 'reset']);

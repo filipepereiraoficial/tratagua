@@ -2,6 +2,8 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Models\ActivityLog;
+use App\Core\Scope;
 use App\Core\Flash;
 use App\Core\Validator;
 use App\Models\Answer;
@@ -20,14 +22,14 @@ class AssessmentController extends Controller
 {
     public function index(): void
     {
-        $filters = $this->filters(['turma', 'disciplina', 'tipo', 'status', 'inicio', 'fim']);
+        $filters = $this->scopedFilters(['turma', 'disciplina', 'tipo', 'status', 'inicio', 'fim']);
         $this->view('assessments/index', [
             'title'       => 'Avaliações',
             'avaliacoes'  => Assessment::search($filters, 200),
             'total'       => Assessment::countSearch($filters),
             'filters'     => $filters,
-            'turmas'      => ClassGroup::options(),
-            'disciplinas' => Subject::options(),
+            'turmas'      => $this->turmasVisiveis(),
+            'disciplinas' => $this->disciplinasVisiveis(),
             'tipos'       => Assessment::TYPES,
         ]);
     }
@@ -37,7 +39,7 @@ class AssessmentController extends Controller
         $this->view('assessments/form', [
             'title'     => 'Nova avaliação',
             'avaliacao' => null,
-            'ofertas'   => ClassSubject::options(),
+            'ofertas'   => ClassSubject::options(Scope::apply([])),
         ]);
     }
 
@@ -48,6 +50,7 @@ class AssessmentController extends Controller
             $this->rejectWith($validator, '/avaliacoes/nova');
         }
         $id = Assessment::create($this->request->post);
+        ActivityLog::record('criou', 'avaliacao', $id, $this->request->input('name'));
 
         // Atalho: já cria as questões numeradas se o professor informou a quantidade.
         $quantidade = (int) $this->request->input('question_count', 0);
@@ -68,19 +71,22 @@ class AssessmentController extends Controller
         if (!$avaliacao) {
             $this->notFound('Avaliação não encontrada.');
         }
+        $this->denyUnless(Scope::canAccessClassSubject((int) $avaliacao['class_subject_id']));
         $this->view('assessments/form', [
             'title'     => 'Editar avaliação',
             'avaliacao' => $avaliacao,
-            'ofertas'   => ClassSubject::options(),
+            'ofertas'   => ClassSubject::options(Scope::apply([])),
         ]);
     }
 
     public function update(string $id): void
     {
         $assessmentId = (int) $id;
-        if (!Assessment::find($assessmentId)) {
+        $atual = Assessment::find($assessmentId);
+        if (!$atual) {
             $this->notFound('Avaliação não encontrada.');
         }
+        $this->denyUnless(Scope::canAccessClassSubject((int) $atual['class_subject_id']));
         $validator = $this->validateAssessment();
         if ($validator->fails()) {
             $this->rejectWith($validator, '/avaliacoes/' . $assessmentId . '/editar');
@@ -88,8 +94,23 @@ class AssessmentController extends Controller
         Assessment::update($assessmentId, $this->request->post);
         // O valor máximo pode ter mudado: as notas derivadas precisam acompanhar.
         Grade::recalculateAssessment($assessmentId);
+        ActivityLog::record('atualizou', 'avaliacao', $assessmentId, $this->request->input('name'));
         Flash::success('Avaliação atualizada e notas recalculadas.');
         $this->redirect('/avaliacoes/' . $assessmentId);
+    }
+
+    private function turmasVisiveis(): array
+    {
+        $ids = Scope::classIds();
+        return $ids === null ? ClassGroup::options()
+            : array_values(array_filter(ClassGroup::options(), static fn ($t) => in_array((int) $t['id'], $ids, true)));
+    }
+
+    private function disciplinasVisiveis(): array
+    {
+        $ids = Scope::subjectIds();
+        return $ids === null ? Subject::options()
+            : array_values(array_filter(Subject::options(), static fn ($d) => in_array((int) $d['id'], $ids, true)));
     }
 
     private function validateAssessment(): Validator
@@ -112,7 +133,12 @@ class AssessmentController extends Controller
             'status'           => 'situação',
         ]);
 
-        $oferta = ClassSubject::find((int) $this->request->input('class_subject_id', 0));
+        $ofertaId = (int) $this->request->input('class_subject_id', 0);
+        if ($ofertaId > 0 && !Scope::canAccessClassSubject($ofertaId)) {
+            $validator->add('class_subject_id', 'Turma/disciplina fora do seu escopo.');
+        }
+
+        $oferta = ClassSubject::find($ofertaId);
         $data   = (string) $this->request->input('assessment_date', '');
         if ($oferta && $data !== '') {
             $turma = ClassGroup::find((int) $oferta['class_id']);
@@ -131,6 +157,7 @@ class AssessmentController extends Controller
         if (!$avaliacao) {
             $this->notFound('Avaliação não encontrada.');
         }
+        $this->denyUnless(Scope::canAccessClassSubject((int) $avaliacao['class_subject_id']));
 
         $filters = ['avaliacao' => $assessmentId];
         $notas   = Grade::forAssessment($assessmentId);
@@ -166,6 +193,8 @@ class AssessmentController extends Controller
         if (!$avaliacao) {
             $this->notFound('Avaliação não encontrada.');
         }
+
+        $this->denyUnless(Scope::canAccessClassSubject((int) $avaliacao['class_subject_id']));
 
         $this->view('assessments/questions', [
             'title'      => 'Questões — ' . $avaliacao['name'],
@@ -280,6 +309,8 @@ class AssessmentController extends Controller
         $alunos   = Student::byClass((int) $avaliacao['class_id'], false);
         $foco     = (int) $this->request->query('aluno', 0);
 
+        $this->denyUnless(Scope::canAccessClassSubject((int) $avaliacao['class_subject_id']));
+
         $this->view('assessments/results', [
             'title'     => 'Resultados — ' . $avaliacao['name'],
             'avaliacao' => $avaliacao,
@@ -301,6 +332,8 @@ class AssessmentController extends Controller
             $this->notFound('Avaliação não encontrada.');
         }
 
+        $this->denyUnless(Scope::canAccessClassSubject((int) $avaliacao['class_subject_id']));
+
         $respostas = (array) ($this->request->post['result'] ?? []);
         $marcadas  = (array) ($this->request->post['given'] ?? []);
         $alunos    = 0;
@@ -317,6 +350,7 @@ class AssessmentController extends Controller
             Assessment::update($assessmentId, array_merge($avaliacao, ['status' => 'corrigida']));
         }
 
+        ActivityLog::record('lançou resultados', 'avaliacao', $assessmentId, "{$alunos} aluno(s)");
         Flash::success("Resultados registrados para {$alunos} aluno(s). Notas, percentuais e gráficos foram atualizados.");
         $this->redirect('/avaliacoes/' . $assessmentId . '/resultados');
     }
@@ -329,6 +363,8 @@ class AssessmentController extends Controller
         if (!$avaliacao) {
             $this->notFound('Avaliação não encontrada.');
         }
+
+        $this->denyUnless(Scope::canAccessClassSubject((int) $avaliacao['class_subject_id']));
 
         $notas = (array) ($this->request->post['score'] ?? []);
         $maxScore = (float) $avaliacao['max_score'];
@@ -352,6 +388,7 @@ class AssessmentController extends Controller
         if ($ajustadas > 0) {
             Flash::warning("{$ajustadas} nota(s) excediam o valor máximo ({$maxScore}) e foram limitadas.");
         }
+        ActivityLog::record('lançou notas', 'avaliacao', $assessmentId, "{$lancadas} nota(s)");
         Flash::success("{$lancadas} nota(s) lançada(s).");
         $this->redirect('/avaliacoes/' . $assessmentId . '/resultados');
     }
@@ -390,10 +427,13 @@ class AssessmentController extends Controller
     public function destroy(string $id): void
     {
         $assessmentId = (int) $id;
-        if (!Assessment::find($assessmentId)) {
+        $avaliacao = Assessment::find($assessmentId);
+        if (!$avaliacao) {
             $this->notFound('Avaliação não encontrada.');
         }
+        $this->denyUnless(Scope::canAccessClassSubject((int) $avaliacao['class_subject_id']));
         Assessment::delete($assessmentId);
+        ActivityLog::record('excluiu', 'avaliacao', $assessmentId, $avaliacao['name']);
         Flash::success('Avaliação excluída, junto com suas questões e resultados.');
         $this->redirect('/avaliacoes');
     }

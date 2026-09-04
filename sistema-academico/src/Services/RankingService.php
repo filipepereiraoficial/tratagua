@@ -73,6 +73,13 @@ class RankingService
             $where[] = 's.id = :aluno_id';
             $params['aluno_id'] = (int) $filters['aluno'];
         }
+        if (isset($filters['ofertas'])) {
+            // Escopo do professor: só entram alunos das turmas em que ele leciona.
+            $ids = array_filter(array_map('intval', (array) $filters['ofertas']));
+            $where[] = $ids === []
+                ? '1 = 0'
+                : 'c.id IN (SELECT class_id FROM class_subjects WHERE id IN (' . implode(',', $ids) . '))';
+        }
 
         return Database::all(
             'SELECT s.id, s.full_name, s.status, c.id AS class_id, c.code AS class_code

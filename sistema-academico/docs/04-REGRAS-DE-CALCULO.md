@@ -149,6 +149,19 @@ Cada alerta traz texto pronto para o professor, por exemplo:
 Alertas resolvidos podem ser marcados como tratados (`alert_dismissals`) e
 reaparecem se a condição voltar a ocorrer com dados novos.
 
+### Efeito de um acompanhamento
+
+Ao abrir um registro em *Acompanhamento pedagógico*, a média e a frequência do
+aluno naquele instante são gravadas como linha de base:
+
+```
+efeito_media      = média_atual      − baseline_media
+efeito_frequencia = frequência_atual − baseline_frequencia
+```
+
+Sem linha de base, o efeito é exibido como *"sem linha de base"* — o sistema não
+reconstrói um "antes" que não foi medido.
+
 ## 4.10 Estrutura dos dashboards
 
 ### Dashboard geral (`/`)
@@ -174,6 +187,18 @@ dificuldade (fácil/médio/difícil) · frequência ao longo do tempo · aluno �
 da turma.
 **Blocos:** assuntos dominados / intermediários / com dificuldade · alertas do
 aluno · histórico de avaliações · histórico de presença · observações.
+
+### Painel do professor (`/meu-painel`)
+Mesmos indicadores do dashboard geral, restritos às ofertas do professor, mais a
+análise de **pontos perdidos**:
+
+```
+pontos_perdidos = Σ points das questões respondidas − Σ score_earned
+```
+
+Agregado por avaliação (onde a turma mais deixou pontuação) e por aluno (quem
+mais deixou, e em qual prova). A ordenação é por pontos perdidos, não por média:
+uma prova longa com 60% de acerto tira mais pontuação do que uma curta com 40%.
 
 ### Painel da turma (`/turmas/{id}`)
 Média da turma · frequência média · alunos por classificação · evolução da turma

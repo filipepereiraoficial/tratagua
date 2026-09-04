@@ -61,6 +61,11 @@ class Question
             $where[] = 'LOWER(q.statement) LIKE :busca';
             $params['busca'] = '%' . mb_strtolower($filters['busca']) . '%';
         }
+        if (isset($filters['disciplinas_permitidas'])) {
+            // Escopo do professor: banco restrito às disciplinas que leciona.
+            $ids = array_filter(array_map('intval', (array) $filters['disciplinas_permitidas']));
+            $where[] = $ids === [] ? '1 = 0' : 'q.subject_id IN (' . implode(',', $ids) . ')';
+        }
         if (($filters['origem'] ?? '') === 'banco') {
             $where[] = 'q.assessment_id IS NULL';
         } elseif (($filters['origem'] ?? '') === 'avaliacao') {

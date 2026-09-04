@@ -37,6 +37,7 @@ Arquitetura em camadas (MVC + camada de serviços de domínio):
 ┌──────────────────────────────────────────────────────────────┐
 │ Core\Router  → casa método + URI com um Controller           │
 │  middlewares: auth, role, csrf                               │
+│ Core\Scope   → recorta o que o perfil pode enxergar          │
 └───────────────┬──────────────────────────────────────────────┘
                 ▼
 ┌──────────────────────────────────────────────────────────────┐
@@ -48,11 +49,12 @@ Arquitetura em camadas (MVC + camada de serviços de domínio):
         ▼                                  ▼
 ┌───────────────────────────┐   ┌──────────────────────────────┐
 │ Services (domínio)        │   │ Models (persistência)        │
-│ · AnalyticsService        │   │ Student, ClassGroup, Subject,│
-│ · RankingService          │   │ Topic, Lesson, Attendance,   │
-│ · AlertService            │   │ Assessment, Question, Answer,│
-│ · ReportService           │   │ Grade, User, Setting         │
-│ · SettingsService         │   │ (SQL via Core\Database/PDO)  │
+│ · AnalyticsService        │   │ Student, Teacher, ClassGroup,│
+│ · RankingService          │   │ Subject, Topic, Lesson,      │
+│ · AlertService            │   │ Attendance, Assessment,      │
+│ · ReportService           │   │ Question, Answer, Grade,     │
+│                           │   │ Intervention, ActivityLog,   │
+│                           │   │ User, Setting                │
 └───────────────────────────┘   └──────────────────────────────┘
                 ▼
 ┌──────────────────────────────────────────────────────────────┐
@@ -77,7 +79,8 @@ sistema-academico/
 │   └── config.local.example.php
 ├── src/
 │   ├── Core/                 Database, Router, Request, View, Auth, Csrf,
-│   │                         Validator, Session, Flash, Controller
+│   │                         Scope, Migrator, Validator, Session, Flash,
+│   │                         Input, Controller
 │   ├── Models/               Uma classe por entidade (repositório + regras simples)
 │   ├── Services/             Analytics, Ranking, Alerts, Reports, Settings
 │   └── Controllers/          Um por módulo do menu + ApiController (JSON)
@@ -86,7 +89,8 @@ sistema-academico/
 ├── database/
 │   ├── schema.mysql.sql      DDL MySQL/MariaDB
 │   ├── schema.sqlite.sql     DDL SQLite
-│   ├── migrate.php           CLI: cria/atualiza o schema
+│   ├── migrations/           NNN_nome.{sqlite,mysql}.sql — atualiza instalações
+│   ├── migrate.php           CLI: cria/atualiza o schema, aplica migrações
 │   └── seed.php              CLI: admin inicial + curso/turma/disciplina
 ├── storage/                  Banco SQLite, logs (bloqueado por .htaccess)
 └── docs/                     Esta documentação
@@ -102,18 +106,21 @@ sistema-academico/
 | Sessão | Cookie `HttpOnly`, `SameSite=Lax`, `Secure` quando em HTTPS; `session_regenerate_id` no login; expiração por inatividade |
 | Senhas | `password_hash()` (bcrypt/Argon conforme PHP), nunca em log; troca obrigatória sinalizada no 1º acesso |
 | Força bruta | Limite de tentativas por e-mail+IP com bloqueio temporário progressivo |
-| Autorização | Middleware `role:` por rota (admin, professor, aluno) + verificação no controller |
+| Autorização | Middleware `role:` por rota (admin, professor, aluno) + `Core\Scope` recortando **dados** por responsabilidade, aplicado tanto nas listagens quanto no acesso direto por URL |
+| Rastreabilidade | `activity_log` registra toda operação que altera estado, com autor, entidade e detalhe; consultável em Auditoria |
 | Exposição de arquivos | `.htaccess` nega acesso a `src/`, `views/`, `config/`, `storage/`, `database/` |
 | Erros | `display_errors` desligado em produção; exceções logadas em `storage/logs/` e página 500 genérica |
 | Integridade | Chaves estrangeiras com `ON DELETE` explícito + validações de negócio antes da escrita |
 
 ## 1.5 Escalabilidade e evolução
 
-- **Perfil Aluno** já modelado (`users.role = 'aluno'` + `users.student_id`);
-  basta habilitar as rotas do painel do aluno — os serviços analíticos já
-  recebem o `student_id` como parâmetro.
-- **Multi-professor**: `subjects.teacher_user_id` e `class_subjects.teacher_user_id`
-  permitem que cada disciplina/turma tenha um responsável distinto.
+- **Três perfis em operação**: administrador, professor (recortado nas próprias
+  ofertas) e aluno. Ver [docs/05](05-PERFIS-E-PAINEIS.md).
+- **Multi-professor**: `class_subjects.teacher_user_id` define o responsável por
+  cada par turma × disciplina; `subjects.teacher_user_id` é o padrão quando a
+  oferta não tem professor próprio.
+- **Migrações versionadas** em `database/migrations/`: instalações existentes
+  sobem de versão sem perder dados, e a aplicação aplica pendências no boot.
 - **Índices** nas colunas de junção e de filtro por período garantem consultas
   rápidas com dezenas de milhares de respostas.
 - **Cálculos configuráveis**: faixas de classificação e pesos do Índice de

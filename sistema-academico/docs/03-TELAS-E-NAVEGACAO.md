@@ -30,9 +30,24 @@
 | 9 | Gráficos & Comparações | `/graficos` | admin/prof | comparar aluno×aluno, aluno×turma, turma×turma, disciplina×disciplina, avaliação×avaliação |
 | 10 | Configurações | `/configuracoes` | admin | faixas, pesos, limites de alerta, frequência mínima |
 | 10a | Usuários | `/configuracoes/usuarios` | admin | criar/editar/desativar usuários |
+| 11 | **Meu painel (professor)** | `/meu-painel` | prof/admin | quem evoluiu, quem precisa de atenção, quem deixou pontuação; gráficos e alertas das ofertas dele |
+| 11a | Painel individual (professor) | `/meu-painel/aluno/{id}` | prof/admin | o aluno visto pela disciplina do professor |
+| 11b | Minhas turmas | `/minhas-turmas` | prof/admin | ofertas com atalhos para aula, avaliação e painel |
+| 12 | **Painel do administrador** | `/painel-admin` | admin | curso × curso, turma × turma, professor × professor e pendências operacionais |
+| 13 | Professores — lista | `/professores` | admin | carga de trabalho de cada um |
+| 13a | Professor — novo/editar | `/professores/novo`, `/professores/{id}/editar` | admin | dados, formação e perfil de acesso |
+| 13b | Professor — ficha | `/professores/{id}` | admin | ofertas, alunos atendidos, vínculo turma × disciplina, senha |
+| 14 | **Acompanhamento pedagógico** | `/acompanhamento` | prof/admin | o que foi feito com cada aluno e o efeito medido |
+| 14a | Acompanhamento — novo/editar | `/acompanhamento/novo`, `/acompanhamento/{id}/editar` | prof/admin | tipo, prazo, ação e resultado |
+| 15 | Auditoria | `/auditoria` | admin | quem alterou o quê |
+| 16 | **Minha evolução (aluno)** | `/minha-evolucao` | aluno | o próprio desempenho, sem ver os colegas |
 | — | API JSON | `/api/*` | autenticado | séries dos gráficos |
 
 ## 3.2 Layout
+
+O menu lateral muda conforme o perfil: o administrador vê a instituição
+inteira, o professor entra em *Meu painel* e o aluno só vê *Minha evolução*.
+Detalhes em [docs/05](05-PERFIS-E-PAINEIS.md).
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -73,8 +88,18 @@ Login
         │
         ├─► [11] Dashboards: geral · turma · disciplina · aluno
         │
-        └─► [12] Alertas + Ranking ─► identificar quem precisa de atenção
-                                     └─► Relatórios / Exportação
+        ├─► [12] Alertas + Ranking ─► identificar quem precisa de atenção
+        │                            └─► Relatórios / Exportação
+        │
+        └─► [13] Acompanhamento ─► registrar o que foi feito
+                                  └─► reabrir e medir o efeito contra a linha de base
+```
+
+Fluxo de montagem da equipe (administrador):
+
+```
+Cadastrar professor ─► Vincular a uma turma + disciplina
+                       └─► o professor passa a enxergar aquela turma no painel dele
 ```
 
 Atalhos previstos para reduzir cliques do professor:

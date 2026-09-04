@@ -2,6 +2,8 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Models\ActivityLog;
+use App\Core\Scope;
 use App\Core\Flash;
 use App\Core\Validator;
 use App\Models\Assessment;
@@ -20,9 +22,16 @@ class SubjectController extends Controller
             'busca'  => $this->request->query('busca'),
             'status' => $this->request->query('status'),
         ];
+        $permitidas = Scope::subjectIds();
+        $disciplinas = Subject::search($filters);
+        if ($permitidas !== null) {
+            $disciplinas = array_values(array_filter($disciplinas,
+                static fn ($d) => in_array((int) $d['id'], $permitidas, true)));
+        }
+
         $this->view('subjects/index', [
             'title'       => 'Disciplinas',
-            'disciplinas' => Subject::search($filters),
+            'disciplinas' => $disciplinas,
             'filters'     => $filters,
         ]);
     }
@@ -43,6 +52,7 @@ class SubjectController extends Controller
             $this->rejectWith($validator, '/disciplinas/nova');
         }
         $id = Subject::create($this->request->post);
+        ActivityLog::record('criou', 'disciplina', $id, $this->request->input('name'));
         Flash::success('Disciplina cadastrada. Cadastre agora os assuntos e tópicos.');
         $this->redirect('/disciplinas/' . $id);
     }
@@ -71,6 +81,7 @@ class SubjectController extends Controller
             $this->rejectWith($validator, '/disciplinas/' . $subjectId . '/editar');
         }
         Subject::update($subjectId, $this->request->post);
+        ActivityLog::record('atualizou', 'disciplina', $subjectId, $this->request->input('name'));
         Flash::success('Disciplina atualizada.');
         $this->redirect('/disciplinas/' . $subjectId);
     }
@@ -97,7 +108,11 @@ class SubjectController extends Controller
             $this->notFound('Disciplina não encontrada.');
         }
 
-        $filters = array_merge($this->filters(['turma', 'inicio', 'fim']), ['disciplina' => $subjectId]);
+        $permitidas = Scope::subjectIds();
+        $this->denyUnless($permitidas === null || in_array($subjectId, $permitidas, true),
+            'Você não leciona esta disciplina.');
+
+        $filters = array_merge($this->scopedFilters(['turma', 'inicio', 'fim']), ['disciplina' => $subjectId]);
 
         $this->view('subjects/show', [
             'title'      => $disciplina['name'],
@@ -150,7 +165,8 @@ class SubjectController extends Controller
             $this->rejectWith($validator, '/disciplinas/' . $subjectId);
         }
 
-        Topic::create(array_merge($this->request->post, ['subject_id' => $subjectId]));
+        $topicId = Topic::create(array_merge($this->request->post, ['subject_id' => $subjectId]));
+        ActivityLog::record('criou conteúdo', 'disciplina', $subjectId, $this->request->input('name'));
         Flash::success('Conteúdo cadastrado.');
         $this->redirect('/disciplinas/' . $subjectId);
     }

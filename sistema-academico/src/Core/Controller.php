@@ -91,6 +91,26 @@ abstract class Controller
         return $filters;
     }
 
+    /** Filtros da query já restringidos ao que o perfil pode enxergar. */
+    protected function scopedFilters(array $keys = ['curso', 'turma', 'disciplina', 'assunto', 'aluno', 'avaliacao', 'tipo', 'dificuldade', 'inicio', 'fim', 'status_aluno']): array
+    {
+        return Scope::apply($this->filters($keys));
+    }
+
+    /** Bloqueia a ação quando o perfil não alcança o registro pedido. */
+    protected function denyUnless(bool $permitido, string $mensagem = 'Você não tem acesso a este registro.'): void
+    {
+        if ($permitido) {
+            return;
+        }
+        if ($this->request->wantsJson()) {
+            $this->json(['error' => $mensagem], 403);
+        }
+        http_response_code(403);
+        View::render('errors/403', ['title' => 'Acesso negado', 'message' => $mensagem], 'layouts/blank');
+        exit;
+    }
+
     protected function notFound(string $message = 'Registro não encontrado.'): never
     {
         http_response_code(404);

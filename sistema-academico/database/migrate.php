@@ -6,6 +6,7 @@
  *   php database/migrate.php --seed               schema + carga inicial
  *   php database/migrate.php --seed --demo        + dados de demonstração
  *   php database/migrate.php --fresh --seed       apaga tudo e recria
+ *   php database/migrate.php --migrate            só aplica migrações pendentes
  *
  * Credenciais do administrador podem vir por argumento:
  *   --admin-email=... --admin-password=... --admin-name="..."
@@ -31,6 +32,7 @@ spl_autoload_register(static function (string $class): void {
 require_once APP_ROOT . '/src/helpers.php';
 
 use App\Core\Database;
+use App\Core\Migrator;
 use App\Models\Setting;
 
 $config = require APP_ROOT . '/config/config.php';
@@ -47,8 +49,17 @@ $pdo    = Database::connect($config['db']);
 $driver = Database::driver();
 echo "Banco: {$driver}\n";
 
+// Atualização de uma instalação existente, sem tocar no schema completo.
+if (!empty($opcoes['migrate'])) {
+    $feitas = Migrator::run();
+    echo $feitas === []
+        ? "Nenhuma migração pendente.\n"
+        : 'Migrações aplicadas: ' . implode(', ', $feitas) . "\n";
+    exit;
+}
+
 $tabelas = [
-    'activity_log', 'login_attempts', 'alert_dismissals', 'settings', 'grades', 'student_answers',
+    'migrations', 'interventions', 'activity_log', 'login_attempts', 'alert_dismissals', 'settings', 'grades', 'student_answers',
     'question_options', 'questions', 'assessments', 'attendances', 'lesson_topics', 'lessons',
     'topics', 'class_subjects', 'subjects', 'enrollments', 'classes', 'courses', 'users', 'students',
 ];
@@ -90,6 +101,10 @@ foreach ($comandos as $comando) {
     $pdo->exec($comando);
 }
 echo 'Schema aplicado (' . count($comandos) . " comandos).\n";
+
+// O schema completo já contém tudo: as migrações entram como aplicadas.
+Migrator::markAllApplied();
+echo 'Migrações registradas: ' . count(Migrator::applied()) . ".\n";
 
 Setting::resetToDefaults();
 echo "Parâmetros padrão gravados.\n";

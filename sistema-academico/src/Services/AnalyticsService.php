@@ -35,6 +35,13 @@ class AnalyticsService
         if (!empty($f['fim']))        { $where[] = 'a.assessment_date <= :fim';   $params['fim'] = $f['fim']; }
         if (!empty($f['status_aluno'])) { $where[] = 'st.status = :status_aluno'; $params['status_aluno'] = $f['status_aluno']; }
 
+        // Restrição de escopo (professor vê só as suas ofertas). Chega como lista
+        // de ids já validados; vai inline porque IN (?) não aceita array no PDO.
+        if (isset($f['ofertas'])) {
+            $ids = array_filter(array_map('intval', (array) $f['ofertas']));
+            $where[] = $ids === [] ? '1 = 0' : 'cs.id IN (' . implode(',', $ids) . ')';
+        }
+
         return [implode(' AND ', $where), $params];
     }
 
@@ -62,6 +69,13 @@ class AnalyticsService
         if (!empty($f['assunto']))    { $where[] = '(q.topic_id = :assunto OR tp.parent_id = :assunto)'; $params['assunto'] = (int) $f['assunto']; }
         if (!empty($f['inicio']))     { $where[] = 'a.assessment_date >= :inicio'; $params['inicio'] = $f['inicio']; }
         if (!empty($f['fim']))        { $where[] = 'a.assessment_date <= :fim';   $params['fim'] = $f['fim']; }
+
+        // Restrição de escopo (professor vê só as suas ofertas). Chega como lista
+        // de ids já validados; vai inline porque IN (?) não aceita array no PDO.
+        if (isset($f['ofertas'])) {
+            $ids = array_filter(array_map('intval', (array) $f['ofertas']));
+            $where[] = $ids === [] ? '1 = 0' : 'cs.id IN (' . implode(',', $ids) . ')';
+        }
 
         return [implode(' AND ', $where), $params];
     }
@@ -643,6 +657,106 @@ class AnalyticsService
         [$where, $params] = self::gradeWhere($filters);
         $value = Database::value('SELECT AVG(g.percentage)' . self::GRADE_FROM . ' WHERE ' . $where, $params);
         return $value === null ? null : round((float) $value, 2);
+    }
+
+
+    /**
+     * Onde a turma mais perde pontos: por avaliação, quanto do total possível
+     * ficou pelo caminho. Responde "em que prova meus alunos mais deixaram
+     * pontuação na mesa" — e por isso ordena por pontos perdidos, não por média.
+     */
+    public static function assessmentPointLoss(array $filters = [], int $limit = 20): array
+    {
+        [$where, $params] = self::answerWhere($filters);
+        $rows = Database::all(
+            "SELECT a.id AS assessment_id, a.name AS assessment_name, a.assessment_date, a.type,
+                    sj.name AS subject_name, cl.code AS class_code,
+                    COUNT(DISTINCT sa.student_id) AS alunos,
+                    COUNT(sa.id) AS respostas,
+                    COALESCE(SUM(q.points), 0) AS pontos_possiveis,
+                    COALESCE(SUM(sa.score_earned), 0) AS pontos_obtidos,
+                    SUM(CASE WHEN sa.result = 'incorreta' THEN 1 ELSE 0 END) AS erros,
+                    SUM(CASE WHEN sa.result = 'nao_respondida' THEN 1 ELSE 0 END) AS branco"
+            . self::ANSWER_FROM . ' WHERE ' . $where . '
+             GROUP BY a.id, a.name, a.assessment_date, a.type, sj.name, cl.code',
+            $params
+        );
+
+        foreach ($rows as &$row) {
+            $possiveis = (float) $row['pontos_possiveis'];
+            $row['pontos_perdidos'] = round($possiveis - (float) $row['pontos_obtidos'], 2);
+            $row['pct_perdido']     = $possiveis > 0 ? round($row['pontos_perdidos'] / $possiveis * 100, 2) : null;
+            $row['aproveitamento']  = $possiveis > 0 ? round((float) $row['pontos_obtidos'] / $possiveis * 100, 2) : null;
+        }
+        unset($row);
+
+        usort($rows, static fn ($a, $b) => $b['pontos_perdidos'] <=> $a['pontos_perdidos']);
+        return array_slice($rows, 0, $limit);
+    }
+
+    /**
+     * Quanto cada aluno deixou de pontuar no recorte, e em qual avaliação a
+     * perda foi maior. É a leitura individual do mesmo dado acima.
+     */
+    public static function studentPointLoss(array $filters = []): array
+    {
+        [$where, $params] = self::answerWhere($filters);
+        $rows = Database::all(
+            'SELECT sa.student_id, st2.full_name,
+                    a.id AS assessment_id, a.name AS assessment_name,
+                    COALESCE(SUM(q.points), 0) AS possiveis,
+                    COALESCE(SUM(sa.score_earned), 0) AS obtidos'
+            . self::ANSWER_FROM . '
+             JOIN students st2 ON st2.id = sa.student_id
+             WHERE ' . $where . '
+             GROUP BY sa.student_id, st2.full_name, a.id, a.name',
+            $params
+        );
+
+        $porAluno = [];
+        foreach ($rows as $row) {
+            $id = (int) $row['student_id'];
+            $perdido = round((float) $row['possiveis'] - (float) $row['obtidos'], 2);
+            if (!isset($porAluno[$id])) {
+                $porAluno[$id] = [
+                    'student_id' => $id, 'full_name' => $row['full_name'],
+                    'possiveis' => 0.0, 'obtidos' => 0.0, 'perdidos' => 0.0,
+                    'pior_avaliacao' => null, 'pior_perda' => 0.0,
+                ];
+            }
+            $porAluno[$id]['possiveis'] += (float) $row['possiveis'];
+            $porAluno[$id]['obtidos']   += (float) $row['obtidos'];
+            $porAluno[$id]['perdidos']  += $perdido;
+            if ($perdido > $porAluno[$id]['pior_perda']) {
+                $porAluno[$id]['pior_perda']     = $perdido;
+                $porAluno[$id]['pior_avaliacao'] = $row['assessment_name'];
+            }
+        }
+
+        $resultado = array_values($porAluno);
+        foreach ($resultado as &$aluno) {
+            $aluno['possiveis'] = round($aluno['possiveis'], 2);
+            $aluno['obtidos']   = round($aluno['obtidos'], 2);
+            $aluno['perdidos']  = round($aluno['perdidos'], 2);
+            $aluno['aproveitamento'] = $aluno['possiveis'] > 0
+                ? round($aluno['obtidos'] / $aluno['possiveis'] * 100, 2) : null;
+        }
+        unset($aluno);
+
+        usort($resultado, static fn ($a, $b) => $b['perdidos'] <=> $a['perdidos']);
+        return $resultado;
+    }
+
+    /** Contagem de aulas e avaliações de um recorte de ofertas. */
+    public static function teachingCounters(array $filters = []): array
+    {
+        $ofertas = isset($filters['ofertas'])
+            ? array_filter(array_map('intval', (array) $filters['ofertas'])) : null;
+        $filtro = $ofertas === null ? '' : ' WHERE class_subject_id IN (' . ($ofertas === [] ? '0' : implode(',', $ofertas)) . ')';
+        return [
+            'aulas'      => (int) Database::value('SELECT COUNT(*) FROM lessons' . $filtro, [], 0),
+            'avaliacoes' => (int) Database::value('SELECT COUNT(*) FROM assessments' . $filtro, [], 0),
+        ];
     }
 
     /** Análise questão a questão de uma avaliação. */

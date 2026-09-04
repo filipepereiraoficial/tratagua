@@ -23,6 +23,7 @@ require_once APP_ROOT . '/src/helpers.php';
 
 use App\Core\Auth;
 use App\Core\Database;
+use App\Core\Migrator;
 use App\Core\Request;
 use App\Core\Router;
 use App\Core\Session;
@@ -88,6 +89,9 @@ try {
             header('Location: ' . url('/instalar'));
             exit;
         }
+    } elseif (Migrator::pending() !== []) {
+        // Instalação existente atrás do código: atualiza o schema uma vez.
+        Migrator::run();
     }
 
     $router = new Router();

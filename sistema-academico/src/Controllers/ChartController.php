@@ -2,6 +2,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Scope;
 use App\Models\Assessment;
 use App\Models\ClassGroup;
 use App\Models\Course;
@@ -14,15 +15,15 @@ class ChartController extends Controller
 {
     public function index(): void
     {
-        $filters = $this->filters();
+        $filters = $this->scopedFilters();
         $ranking = RankingService::build($filters);
 
         $this->view('charts/index', [
             'title'         => 'Gráficos',
             'filters'       => $filters,
             'cursos'        => Course::options(),
-            'turmas'        => ClassGroup::options(),
-            'disciplinas'   => Subject::options(),
+            'turmas'        => $this->turmasVisiveis(),
+            'disciplinas'   => $this->disciplinasVisiveis(),
             'serie'         => AnalyticsService::assessmentAverages($filters),
             'por_disciplina'=> AnalyticsService::subjectAverages($filters),
             'por_turma'     => AnalyticsService::classAverages($filters),
@@ -43,7 +44,7 @@ class ChartController extends Controller
         $modo = (string) $this->request->query('modo', 'aluno_aluno');
         $a    = (int) $this->request->query('a', 0);
         $b    = (int) $this->request->query('b', 0);
-        $filters = $this->filters(['disciplina', 'turma', 'inicio', 'fim']);
+        $filters = $this->scopedFilters(['disciplina', 'turma', 'inicio', 'fim']);
 
         $resultado = ['modo' => $modo, 'series' => [], 'aviso' => null];
 
@@ -120,11 +121,25 @@ class ChartController extends Controller
             'b'           => $b,
             'filters'     => $filters,
             'resultado'   => $resultado,
-            'alunos'      => Student::search([]),
-            'turmas'      => ClassGroup::options(),
-            'disciplinas' => Subject::options(),
-            'avaliacoes'  => Assessment::search([], 100),
+            'alunos'      => Scope::students(),
+            'turmas'      => $this->turmasVisiveis(),
+            'disciplinas' => $this->disciplinasVisiveis(),
+            'avaliacoes'  => Assessment::search(Scope::apply([]), 100),
         ]);
+    }
+
+    private function turmasVisiveis(): array
+    {
+        $ids = Scope::classIds();
+        return $ids === null ? ClassGroup::options()
+            : array_values(array_filter(ClassGroup::options(), static fn ($t) => in_array((int) $t['id'], $ids, true)));
+    }
+
+    private function disciplinasVisiveis(): array
+    {
+        $ids = Scope::subjectIds();
+        return $ids === null ? Subject::options()
+            : array_values(array_filter(Subject::options(), static fn ($d) => in_array((int) $d['id'], $ids, true)));
     }
 
     private static function studentSeries(int $studentId, array $filters): array

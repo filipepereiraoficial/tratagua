@@ -85,6 +85,11 @@ class Assessment
             $where[] = 'cs.class_id IN (SELECT e.class_id FROM enrollments e WHERE e.student_id = :aluno)';
             $params['aluno'] = (int) $filters['aluno'];
         }
+        if (isset($filters['ofertas'])) {
+            // Escopo do professor.
+            $ids = array_filter(array_map('intval', (array) $filters['ofertas']));
+            $where[] = $ids === [] ? '1 = 0' : 'cs.id IN (' . implode(',', $ids) . ')';
+        }
         return [implode(' AND ', $where), $params];
     }
 
